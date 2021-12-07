@@ -1,0 +1,19 @@
+{
+    "name": "TriInspector.Editor.Extras",
+    "rootNamespace": "",
+    "references": [
+        "TriInspector",
+        "TriInspector.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

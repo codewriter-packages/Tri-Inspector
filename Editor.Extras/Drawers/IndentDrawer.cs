@@ -1,0 +1,19 @@
+﻿using TriInspector;
+using TriInspector.Drawers;
+using TriInspector.Utilities;
+using UnityEngine;
+
+[assembly: RegisterTriDrawer(typeof(IndentDrawer), TriDrawerOrder.Decorator)]
+
+namespace TriInspector.Drawers
+{
+    public class IndentDrawer : TriAttributeDrawer<IndentAttribute>
+    {
+        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        {
+            TriGuiHelper.PushIndentLevel(Attribute.Indent);
+            next.OnGUI(position);
+            TriGuiHelper.PopIndentLevel();
+        }
+    }
+}
