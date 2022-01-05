@@ -44,7 +44,6 @@ namespace TriInspector
         public TriPropertyTree Root { get; }
 
         object ITriPropertyParent.GetValue(int targetIndex) => TargetObjects[targetIndex];
-        bool ITriPropertyParent.IsReadOnly => false;
 
         void ITriPropertyParent.ApplyChildValueModifications(int targetIndex)
         {

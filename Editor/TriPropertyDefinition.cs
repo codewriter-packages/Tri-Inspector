@@ -15,6 +15,8 @@ namespace TriInspector
         [CanBeNull] private readonly Action<object, object> _valueSetter;
 
         private IReadOnlyList<TriCustomDrawer> _drawersBackingField;
+        private IReadOnlyList<TriPropertyHideProcessor> _hideProcessorsBackingField;
+        private IReadOnlyList<TriPropertyDisableProcessor> _disableProcessorsBackingField;
 
         internal TriPropertyDefinition(int order, FieldInfo fi)
             : this(order, fi.Name, fi.FieldType, fi.GetValue, fi.SetValue, fi.GetCustomAttributes(), false)
@@ -67,6 +69,58 @@ namespace TriInspector
         public Type ArrayElementType { get; }
 
         public bool IsArray { get; }
+
+        public IReadOnlyList<TriPropertyHideProcessor> HideProcessors
+        {
+            get
+            {
+                if (_hideProcessorsBackingField == null)
+                {
+                    _hideProcessorsBackingField = (
+                        from attribute in Attributes
+                        from processor in TriDrawersUtilities.AllHideProcessors
+                        where TriDrawersUtilities.IsHideProcessorFor(processor.ProcessorType, attribute)
+                        select CreateHideProcessor(processor, attribute)
+                    ).ToList();
+
+                    static TriPropertyHideProcessor CreateHideProcessor(RegisterTriPropertyHideProcessor processor,
+                        Attribute attribute)
+                    {
+                        var instance = (TriPropertyHideProcessor) Activator.CreateInstance(processor.ProcessorType);
+                        instance.RawAttribute = attribute;
+                        return instance;
+                    }
+                }
+
+                return _hideProcessorsBackingField;
+            }
+        }
+
+        public IReadOnlyList<TriPropertyDisableProcessor> DisableProcessors
+        {
+            get
+            {
+                if (_disableProcessorsBackingField == null)
+                {
+                    _disableProcessorsBackingField = (
+                        from attribute in Attributes
+                        from processor in TriDrawersUtilities.AllDisableProcessors
+                        where TriDrawersUtilities.IsDisableProcessorFor(processor.ProcessorType, attribute)
+                        select CreateDisableProcessor(processor, attribute)
+                    ).ToList();
+
+                    static TriPropertyDisableProcessor CreateDisableProcessor(RegisterTriPropertyDisableProcessor processor,
+                        Attribute attribute)
+                    {
+                        var instance = (TriPropertyDisableProcessor) Activator.CreateInstance(processor.ProcessorType);
+                        instance.RawAttribute = attribute;
+                        return instance;
+                    }
+                }
+
+                return _disableProcessorsBackingField;
+            }
+        }
 
         public IReadOnlyList<TriCustomDrawer> Drawers
         {

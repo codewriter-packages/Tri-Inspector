@@ -10,6 +10,8 @@ namespace TriInspector.Utilities
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
         private static IReadOnlyList<RegisterTriDrawerAttribute> _allAttributeDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriDrawerAttribute> _allValueDrawerTypesBackingField;
+        private static IReadOnlyList<RegisterTriPropertyHideProcessor> _allHideProcessorTypesBackingField;
+        private static IReadOnlyList<RegisterTriPropertyDisableProcessor> _allDisableProcessorTypesBackingField;
 
         private static IDictionary<Type, TriGroupDrawer> AllGroupDrawersCache
         {
@@ -68,6 +70,42 @@ namespace TriInspector.Utilities
             }
         }
 
+        public static IReadOnlyList<RegisterTriPropertyHideProcessor> AllHideProcessors
+        {
+            get
+            {
+                if (_allHideProcessorTypesBackingField == null)
+                {
+                    _allHideProcessorTypesBackingField = (
+                        from asm in TriReflectionUtilities.Assemblies
+                        from attr in asm.GetCustomAttributes<RegisterTriPropertyHideProcessor>()
+                        where IsHideProcessorType(attr.ProcessorType, out _)
+                        select attr
+                    ).ToList();
+                }
+
+                return _allHideProcessorTypesBackingField;
+            }
+        }
+
+        public static IReadOnlyList<RegisterTriPropertyDisableProcessor> AllDisableProcessors
+        {
+            get
+            {
+                if (_allDisableProcessorTypesBackingField == null)
+                {
+                    _allDisableProcessorTypesBackingField = (
+                        from asm in TriReflectionUtilities.Assemblies
+                        from attr in asm.GetCustomAttributes<RegisterTriPropertyDisableProcessor>()
+                        where IsDisableProcessorType(attr.ProcessorType, out _)
+                        select attr
+                    ).ToList();
+                }
+
+                return _allDisableProcessorTypesBackingField;
+            }
+        }
+
         public static TriPropertyCollectionBaseElement TryCreateGroupElementFor(DeclareGroupBaseAttribute attribute)
         {
             if (!AllGroupDrawersCache.TryGetValue(attribute.GetType(), out var attr))
@@ -115,40 +153,65 @@ namespace TriInspector.Utilities
 
         private static bool IsValueDrawerType(Type type, out Type valueType)
         {
-            valueType = null;
-
-            if (type.IsAbstract)
-            {
-                return false;
-            }
-
-            if (type.GetConstructor(Type.EmptyTypes) == null)
-            {
-                return false;
-            }
-
-            var drawerType = type.BaseType;
-
-            if (drawerType == null)
-            {
-                return false;
-            }
-
-            if (!drawerType.IsGenericType)
-            {
-                return false;
-            }
-
-            if (drawerType.GetGenericTypeDefinition() != typeof(TriValueDrawer<>))
-            {
-                return false;
-            }
-
-            valueType = drawerType.GetGenericArguments()[0];
-            return true;
+            return TryGetBaseGenericTargetType(type, typeof(TriValueDrawer<>), out valueType);
         }
 
         private static bool IsAttributeDrawerType(Type type, out Type attributeType)
+        {
+            return TryGetBaseGenericTargetType(type, typeof(TriAttributeDrawer<>), out attributeType);
+        }
+
+        private static bool IsHideProcessorType(Type type, out Type attributeType)
+        {
+            return TryGetBaseGenericTargetType(type, typeof(TriPropertyHideProcessor<>), out attributeType);
+        }
+
+        private static bool IsDisableProcessorType(Type type, out Type attributeType)
+        {
+            return TryGetBaseGenericTargetType(type, typeof(TriPropertyDisableProcessor<>), out attributeType);
+        }
+
+        public static bool IsValueDrawerFor(Type drawerType, Type valueType)
+        {
+            if (IsValueDrawerType(drawerType, out var valType))
+            {
+                return valType == valueType;
+            }
+
+            return false;
+        }
+
+        public static bool IsAttributeDrawerFor(Type drawerType, Attribute attribute)
+        {
+            if (IsAttributeDrawerType(drawerType, out var attributeType))
+            {
+                return attributeType == attribute.GetType();
+            }
+
+            return false;
+        }
+
+        public static bool IsHideProcessorFor(Type processorType, Attribute attribute)
+        {
+            if (IsHideProcessorType(processorType, out var attributeType))
+            {
+                return attributeType == attribute.GetType();
+            }
+
+            return false;
+        }
+
+        public static bool IsDisableProcessorFor(Type processorType, Attribute attribute)
+        {
+            if (IsDisableProcessorType(processorType, out var attributeType))
+            {
+                return attributeType == attribute.GetType();
+            }
+
+            return false;
+        }
+
+        private static bool TryGetBaseGenericTargetType(Type type, Type expectedGenericType, out Type attributeType)
         {
             attributeType = null;
 
@@ -174,33 +237,13 @@ namespace TriInspector.Utilities
                 return false;
             }
 
-            if (drawerType.GetGenericTypeDefinition() != typeof(TriAttributeDrawer<>))
+            if (drawerType.GetGenericTypeDefinition() != expectedGenericType)
             {
                 return false;
             }
 
             attributeType = drawerType.GetGenericArguments()[0];
             return true;
-        }
-
-        public static bool IsValueDrawerFor(Type drawerType, Type valueType)
-        {
-            if (IsValueDrawerType(drawerType, out var valType))
-            {
-                return valType == valueType;
-            }
-
-            return false;
-        }
-
-        public static bool IsAttributeDrawerFor(Type drawerType, Attribute attribute)
-        {
-            if (IsAttributeDrawerType(drawerType, out var attributeType))
-            {
-                return attributeType == attribute.GetType();
-            }
-
-            return false;
         }
     }
 }

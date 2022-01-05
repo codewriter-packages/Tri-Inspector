@@ -46,7 +46,7 @@ namespace TriInspector.Elements
 
             var oldEnabled = GUI.enabled;
 
-            GUI.enabled = _property.IsEnabled;
+            GUI.enabled &= _property.IsEnabled;
             base.OnGUI(position);
             GUI.enabled = oldEnabled;
         }

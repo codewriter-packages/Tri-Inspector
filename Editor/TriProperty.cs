@@ -19,7 +19,6 @@ namespace TriInspector
         private List<TriProperty> _childrenProperties;
 
         private GUIContent _displayNameBackingField;
-        private bool? _isReadOnlyBackingField;
 
         internal TriProperty(
             TriPropertyTree propertyTree,
@@ -67,16 +66,38 @@ namespace TriInspector
         }
 
         [PublicAPI]
-        public bool IsVisible => true;
+        public bool IsVisible
+        {
+            get
+            {
+                foreach (var processor in _definition.HideProcessors)
+                {
+                    if (processor.IsHidden(this))
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        }
 
         [PublicAPI]
         public bool IsEnabled
         {
             get
             {
-                if (IsReadOnly)
+                if (_definition.IsReadOnly)
                 {
                     return false;
+                }
+                
+                foreach (var processor in _definition.DisableProcessors)
+                {
+                    if (processor.IsDisabled(this))
+                    {
+                        return false;
+                    }
                 }
 
                 return true;
@@ -142,20 +163,6 @@ namespace TriInspector
 
         [PublicAPI]
         public TriPropertyTree PropertyTree { get; }
-
-        [PublicAPI]
-        public bool IsReadOnly
-        {
-            get
-            {
-                if (_isReadOnlyBackingField == null)
-                {
-                    _isReadOnlyBackingField = _definition.IsReadOnly || _parent.IsReadOnly;
-                }
-
-                return _isReadOnlyBackingField.Value;
-            }
-        }
 
         public void ApplyChildValueModifications(int targetIndex)
         {
@@ -358,7 +365,6 @@ namespace TriInspector
     public interface ITriPropertyParent
     {
         object GetValue(int targetIndex);
-        bool IsReadOnly { get; }
 
         void ApplyChildValueModifications(int targetIndex);
     }

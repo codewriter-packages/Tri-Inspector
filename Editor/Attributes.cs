@@ -26,4 +26,26 @@ namespace TriInspector
 
         public Type DrawerType { get; }
     }
+
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class RegisterTriPropertyHideProcessor : Attribute
+    {
+        public RegisterTriPropertyHideProcessor(Type processorType)
+        {
+            ProcessorType = processorType;
+        }
+
+        public Type ProcessorType { get; }
+    }
+    
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class RegisterTriPropertyDisableProcessor : Attribute
+    {
+        public RegisterTriPropertyDisableProcessor(Type processorType)
+        {
+            ProcessorType = processorType;
+        }
+
+        public Type ProcessorType { get; }
+    }
 }
