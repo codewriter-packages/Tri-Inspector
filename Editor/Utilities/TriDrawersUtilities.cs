@@ -118,37 +118,7 @@ namespace TriInspector.Utilities
 
         private static bool IsGroupDrawerType(Type type, out Type groupAttributeType)
         {
-            groupAttributeType = null;
-
-            if (type.IsAbstract)
-            {
-                return false;
-            }
-
-            if (type.GetConstructor(Type.EmptyTypes) == null)
-            {
-                return false;
-            }
-
-            var drawerType = type.BaseType;
-
-            if (drawerType == null)
-            {
-                return false;
-            }
-
-            if (!drawerType.IsGenericType)
-            {
-                return false;
-            }
-
-            if (drawerType.GetGenericTypeDefinition() != typeof(TriGroupDrawer<>))
-            {
-                return false;
-            }
-
-            groupAttributeType = drawerType.GetGenericArguments()[0];
-            return true;
+            return TryGetBaseGenericTargetType(type, typeof(TriGroupDrawer<>), out groupAttributeType);
         }
 
         private static bool IsValueDrawerType(Type type, out Type valueType)
