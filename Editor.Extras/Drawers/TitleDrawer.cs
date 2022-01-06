@@ -3,7 +3,7 @@ using TriInspector.Drawers;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriDrawer(typeof(TitleDrawer), TriDrawerOrder.Inspector)]
+[assembly: RegisterTriAttributeDrawer(typeof(TitleDrawer), TriDrawerOrder.Inspector)]
 
 namespace TriInspector.Drawers
 {

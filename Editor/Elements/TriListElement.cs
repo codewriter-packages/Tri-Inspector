@@ -94,7 +94,7 @@ namespace TriInspector.Elements
             }
 
             var labelWidthExtra = 6f + (_reorderableListGui.draggable ? 15f : 0f);
-            
+
             EditorGUI.BeginChangeCheck();
 
             TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - labelWidthExtra);
@@ -168,7 +168,7 @@ namespace TriInspector.Elements
             {
                 return;
             }
-            
+
             GetChild(index).OnGUI(rect);
         }
 

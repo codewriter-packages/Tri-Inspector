@@ -4,21 +4,22 @@ using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Elements;
 
-[assembly: RegisterTriDrawer(typeof(ShowDrawerChainDrawer), TriDrawerOrder.System)]
+[assembly: RegisterTriAttributeDrawer(typeof(ShowDrawerChainDrawer), TriDrawerOrder.System,
+    Target = TriTargetPropertyType.SelfAndArrayElements)]
 
 namespace TriInspector.Drawers
 {
-    public class ShowDrawerChainDrawer : TriCustomDrawer
+    public class ShowDrawerChainDrawer : TriAttributeDrawer<ShowDrawerChainAttribute>
     {
-        public override TriElement CreateElementInternal(TriProperty property, TriElement next)
+        public override TriElement CreateElement(TriProperty property, TriElement next)
         {
-            return new TriDrawerChainInfoElement(property.AllDrawers);
+            return new TriDrawerChainInfoElement(property.AllDrawers, next);
         }
     }
 
     public class TriDrawerChainInfoElement : TriElement
     {
-        public TriDrawerChainInfoElement(IReadOnlyList<TriCustomDrawer> drawers)
+        public TriDrawerChainInfoElement(IReadOnlyList<TriCustomDrawer> drawers, TriElement next)
         {
             var info = new StringBuilder();
 
@@ -32,6 +33,7 @@ namespace TriInspector.Drawers
             }
 
             AddChild(new TriInfoBoxElement(info.ToString()));
+            AddChild(next);
         }
     }
 }

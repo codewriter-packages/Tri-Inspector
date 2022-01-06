@@ -68,7 +68,7 @@ using TriInspector;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriDrawer(typeof(BoolDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(BoolDrawer), TriDrawerOrder.Fallback)]
 
 public class BoolDrawer : TriValueDrawer<bool>
 {
@@ -99,7 +99,7 @@ using TriInspector;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriDrawer(typeof(LabelWidthDrawer), TriDrawerOrder.Decorator)]
+[assembly: RegisterTriAttributeDrawer(typeof(LabelWidthDrawer), TriDrawerOrder.Decorator)]
 
 public class LabelWidthDrawer : TriAttributeDrawer<LabelWidthAttribute>
 {

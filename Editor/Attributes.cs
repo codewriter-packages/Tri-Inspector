@@ -3,9 +3,9 @@
 namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
-    public class RegisterTriDrawerAttribute : Attribute
+    public class RegisterTriValueDrawerAttribute : Attribute
     {
-        public RegisterTriDrawerAttribute(Type drawerType, int order)
+        public RegisterTriValueDrawerAttribute(Type drawerType, int order)
         {
             DrawerType = drawerType;
             Order = order;
@@ -13,7 +13,21 @@ namespace TriInspector
 
         public Type DrawerType { get; }
         public int Order { get; }
-        public bool ApplyOnArrayElement { get; set; }
+        public TriTargetPropertyType Target { get; set; } = TriTargetPropertyType.SelfAndArrayElements;
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class RegisterTriAttributeDrawerAttribute : Attribute
+    {
+        public RegisterTriAttributeDrawerAttribute(Type drawerType, int order)
+        {
+            DrawerType = drawerType;
+            Order = order;
+        }
+
+        public Type DrawerType { get; }
+        public int Order { get; }
+        public TriTargetPropertyType Target { get; set; } = TriTargetPropertyType.Self;
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -37,7 +51,7 @@ namespace TriInspector
 
         public Type ProcessorType { get; }
     }
-    
+
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
     public class RegisterTriPropertyDisableProcessor : Attribute
     {

@@ -111,7 +111,8 @@ namespace TriInspector
                         select CreateDisableProcessor(processor, attribute)
                     ).ToList();
 
-                    static TriPropertyDisableProcessor CreateDisableProcessor(RegisterTriPropertyDisableProcessor processor,
+                    static TriPropertyDisableProcessor CreateDisableProcessor(
+                        RegisterTriPropertyDisableProcessor processor,
                         Attribute attribute)
                     {
                         var instance = (TriPropertyDisableProcessor) Activator.CreateInstance(processor.ProcessorType);
@@ -147,19 +148,19 @@ namespace TriInspector
                         .OrderBy(it => it.Order)
                         .ToList();
 
-                    static TriValueDrawer CreateValueDrawer(RegisterTriDrawerAttribute drawer)
+                    static TriValueDrawer CreateValueDrawer(RegisterTriValueDrawerAttribute drawer)
                     {
                         var instance = (TriValueDrawer) Activator.CreateInstance(drawer.DrawerType);
-                        instance.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
+                        instance.Target = drawer.Target;
                         instance.Order = drawer.Order;
                         return instance;
                     }
 
-                    static TriAttributeDrawer CreateAttributeDrawer(RegisterTriDrawerAttribute drawer,
+                    static TriAttributeDrawer CreateAttributeDrawer(RegisterTriAttributeDrawerAttribute drawer,
                         Attribute attribute)
                     {
                         var instance = (TriAttributeDrawer) Activator.CreateInstance(drawer.DrawerType);
-                        instance.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
+                        instance.Target = drawer.Target;
                         instance.Order = drawer.Order;
                         instance.RawAttribute = attribute;
                         return instance;
@@ -229,7 +230,7 @@ namespace TriInspector
         {
             return (self, obj, value) => fi.SetValue(obj, value);
         }
-        
+
         private static Func<TriProperty, object, object> MakeGetter(PropertyInfo pi)
         {
             var method = pi.GetMethod;

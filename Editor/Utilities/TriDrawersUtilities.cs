@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using TriInspector.Elements;
+using UnityEngine;
 
 namespace TriInspector.Utilities
 {
     internal class TriDrawersUtilities
     {
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
-        private static IReadOnlyList<RegisterTriDrawerAttribute> _allAttributeDrawerTypesBackingField;
-        private static IReadOnlyList<RegisterTriDrawerAttribute> _allValueDrawerTypesBackingField;
+        private static IReadOnlyList<RegisterTriAttributeDrawerAttribute> _allAttributeDrawerTypesBackingField;
+        private static IReadOnlyList<RegisterTriValueDrawerAttribute> _allValueDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriPropertyHideProcessor> _allHideProcessorTypesBackingField;
         private static IReadOnlyList<RegisterTriPropertyDisableProcessor> _allDisableProcessorTypesBackingField;
 
@@ -34,7 +35,7 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriDrawerAttribute> AllValueDrawerTypes
+        public static IReadOnlyList<RegisterTriValueDrawerAttribute> AllValueDrawerTypes
         {
             get
             {
@@ -42,7 +43,7 @@ namespace TriInspector.Utilities
                 {
                     _allValueDrawerTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriDrawerAttribute>()
+                        from attr in asm.GetCustomAttributes<RegisterTriValueDrawerAttribute>()
                         where IsValueDrawerType(attr.DrawerType, out _)
                         select attr
                     ).ToList();
@@ -52,7 +53,7 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriDrawerAttribute> AllAttributeDrawerTypes
+        public static IReadOnlyList<RegisterTriAttributeDrawerAttribute> AllAttributeDrawerTypes
         {
             get
             {
@@ -60,7 +61,7 @@ namespace TriInspector.Utilities
                 {
                     _allAttributeDrawerTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriDrawerAttribute>()
+                        from attr in asm.GetCustomAttributes<RegisterTriAttributeDrawerAttribute>()
                         where IsAttributeDrawerType(attr.DrawerType, out _)
                         select attr
                     ).ToList();
@@ -187,11 +188,13 @@ namespace TriInspector.Utilities
 
             if (type.IsAbstract)
             {
+                Debug.LogError($"{type.Name} must be non abstract");
                 return false;
             }
 
             if (type.GetConstructor(Type.EmptyTypes) == null)
             {
+                Debug.LogError($"{type.Name} must have a parameterless constructor");
                 return false;
             }
 
@@ -199,16 +202,19 @@ namespace TriInspector.Utilities
 
             if (drawerType == null)
             {
+                Debug.LogError($"{type.Name} must implement {expectedGenericType}");
                 return false;
             }
 
             if (!drawerType.IsGenericType)
             {
+                Debug.LogError($"{type.Name} must implement {expectedGenericType}");
                 return false;
             }
 
             if (drawerType.GetGenericTypeDefinition() != expectedGenericType)
             {
+                Debug.LogError($"{type.Name} must implement {expectedGenericType}");
                 return false;
             }
 

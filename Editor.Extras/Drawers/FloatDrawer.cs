@@ -1,9 +1,10 @@
 ﻿using TriInspector;
 using TriInspector.Drawers;
+using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriDrawer(typeof(FloatDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(FloatDrawer), TriDrawerOrder.Fallback)]
 
 namespace TriInspector.Drawers
 {
