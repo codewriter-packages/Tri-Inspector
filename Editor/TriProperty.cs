@@ -13,6 +13,7 @@ namespace TriInspector
         private static readonly IList EmptyList = new List<object>();
 
         private readonly TriPropertyDefinition _definition;
+        private readonly int _propertyIndex;
         private readonly ITriPropertyParent _parent;
         [CanBeNull] private readonly SerializedProperty _serializedProperty;
         private List<TriProperty> _arrayElementProperties;
@@ -24,10 +25,12 @@ namespace TriInspector
             TriPropertyTree propertyTree,
             ITriPropertyParent parent,
             TriPropertyDefinition definition,
+            int propertyIndex,
             [CanBeNull] SerializedProperty serializedProperty)
         {
             _parent = parent;
             _definition = definition;
+            _propertyIndex = propertyIndex;
             _serializedProperty = serializedProperty?.Copy();
 
             PropertyTree = propertyTree;
@@ -43,12 +46,24 @@ namespace TriInspector
             {
                 if (_displayNameBackingField == null)
                 {
-                    _displayNameBackingField = TryGetAttribute(out HideLabelAttribute _)
-                        ? GUIContent.none
-                        : new GUIContent(ObjectNames.NicifyVariableName(_definition.Name));
+                    if (TryGetAttribute(out HideLabelAttribute _))
+                    {
+                        _displayNameBackingField = GUIContent.none;
+                    }
+                    else if (IsArrayElement)
+                    {
+                        _displayNameBackingField = new GUIContent($"{_definition.Name} {IndexInArray}");
+                    }
+                    else
+                    {
+                        _displayNameBackingField = new GUIContent(ObjectNames.NicifyVariableName(_definition.Name));
+                    }
                 }
 
-                if (_displayNameBackingField != GUIContent.none)
+                if (IsArrayElement)
+                {
+                }
+                else if (_displayNameBackingField != GUIContent.none)
                 {
                     if (TryGetAttribute(out LabelTextAttribute labelTextAttribute))
                     {
@@ -91,7 +106,7 @@ namespace TriInspector
                 {
                     return false;
                 }
-                
+
                 foreach (var processor in _definition.DisableProcessors)
                 {
                     if (processor.IsDisabled(this))
@@ -114,7 +129,13 @@ namespace TriInspector
         [PublicAPI]
         public bool IsArrayElement => _definition.IsArrayElement;
 
+        public int IndexInArray => IsArrayElement
+            ? _propertyIndex
+            : throw new InvalidOperationException("Cannot read IndexInArray for !IsArrayElement");
+
         public IReadOnlyList<TriCustomDrawer> AllDrawers => _definition.Drawers;
+
+        public ITriPropertyParent Parent => _parent;
 
         [PublicAPI]
         public bool IsExpanded
@@ -166,9 +187,8 @@ namespace TriInspector
 
         public void ApplyChildValueModifications(int targetIndex)
         {
-            var parentValue = _parent.GetValue(targetIndex);
-            var value = _definition.GetValue(parentValue);
-            _definition.SetValue(parentValue, value);
+            var value = _definition.GetValue(this, targetIndex);
+            _definition.SetValue(this, value, targetIndex);
 
             _parent.ApplyChildValueModifications(targetIndex);
         }
@@ -179,7 +199,7 @@ namespace TriInspector
 
         object ITriPropertyParent.GetValue(int targetIndex)
         {
-            return _definition.GetValue(_parent.GetValue(targetIndex));
+            return _definition.GetValue(this, targetIndex);
         }
 
         [PublicAPI]
@@ -190,7 +210,7 @@ namespace TriInspector
 
             for (var i = 0; i < PropertyTree.TargetObjects.Length; i++)
             {
-                _definition.SetValue(_parent.GetValue(i), value);
+                _definition.SetValue(this, value, i);
             }
 
             _serializedProperty?.serializedObject.Update();
@@ -212,7 +232,7 @@ namespace TriInspector
 
         internal void Update()
         {
-            var newValue = _definition.GetValue(_parent.GetValue(0));
+            var newValue = _definition.GetValue(this, 0);
             var valueChanged = !ReferenceEquals(Value, newValue);
 
             var newValueType = valueChanged ? newValue?.GetType() : ValueType;
@@ -233,12 +253,14 @@ namespace TriInspector
                         var selfType = PropertyType == TriPropertyType.Reference ? ValueType : FieldType;
                         if (selfType != null)
                         {
-                            foreach (var childDefinition in TriTypeDefinition.GetCached(selfType).Properties)
+                            var properties = TriTypeDefinition.GetCached(selfType).Properties;
+                            for (var index = 0; index < properties.Count; index++)
                             {
+                                var childDefinition = properties[index];
                                 var childSerializedProperty =
                                     _serializedProperty?.FindPropertyRelative(childDefinition.Name);
-                                var childProperty =
-                                    new TriProperty(PropertyTree, this, childDefinition, childSerializedProperty);
+                                var childProperty = new TriProperty(PropertyTree, this,
+                                    childDefinition, index, childSerializedProperty);
 
                                 _childrenProperties.Add(childProperty);
                             }
@@ -260,11 +282,11 @@ namespace TriInspector
                     while (_arrayElementProperties.Count < list.Count)
                     {
                         var index = _arrayElementProperties.Count;
-                        var elementDefinition = _definition.GetArrayElementDefinition(index);
+                        var elementDefinition = _definition.ArrayElementDefinition;
                         var elementSerializedReference = _serializedProperty?.GetArrayElementAtIndex(index);
 
-                        var elementProperty =
-                            new TriProperty(PropertyTree, this, elementDefinition, elementSerializedReference);
+                        var elementProperty = new TriProperty(PropertyTree, this,
+                            elementDefinition, index, elementSerializedReference);
 
                         _arrayElementProperties.Add(elementProperty);
                     }
@@ -274,8 +296,9 @@ namespace TriInspector
                         _arrayElementProperties.RemoveAt(_arrayElementProperties.Count - 1);
                     }
 
-                    foreach (var arrayElementProperty in _arrayElementProperties)
+                    for (var index = 0; index < _arrayElementProperties.Count; index++)
                     {
+                        var arrayElementProperty = _arrayElementProperties[index];
                         arrayElementProperty.Update();
                     }
 

@@ -16,7 +16,6 @@ namespace TriInspector.Elements
         private readonly ReorderableList _reorderableListGui;
 
         private float _lastContentWidth;
-        private bool _scheduleRemove;
 
         static TriListElement()
         {
@@ -34,19 +33,18 @@ namespace TriInspector.Elements
             if (_property.TryGetSerializedProperty(out var serializedProperty) && serializedProperty.isArray)
             {
                 _reorderableListGui = new ReorderableList(serializedProperty.serializedObject, serializedProperty,
-                    true, true, true, false);
+                    true, true, true, true);
             }
             else
             {
                 _reorderableListGui = new ReorderableList((IList) _property.Value,
                     _property.ArrayElementType,
-                    false, true, false, false);
+                    false, true, true, true);
             }
 
             _reorderableListGui.drawHeaderCallback = DrawHeaderCallback;
             _reorderableListGui.elementHeightCallback = ElementHeightCallback;
             _reorderableListGui.drawElementCallback = DrawElementCallback;
-            _reorderableListGui.drawElementBackgroundCallback = DrawElementBackgroundCallback;
         }
 
         public override bool Update()
@@ -96,17 +94,19 @@ namespace TriInspector.Elements
             }
 
             var labelWidthExtra = 6f + (_reorderableListGui.draggable ? 15f : 0f);
+            
+            EditorGUI.BeginChangeCheck();
 
             TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - labelWidthExtra);
             _reorderableListGui.DoList(position);
             TriGuiHelper.PopLabelWidth();
 
-            if (_scheduleRemove)
+            if (EditorGUI.EndChangeCheck())
             {
-                _scheduleRemove = false;
-                ReorderableList.defaultBehaviours.DoRemoveButton(_reorderableListGui);
-                ReorderableListClearCacheRecursiveMethod(_reorderableListGui);
-                GUI.changed = true;
+                if (_reorderableListGui.list != null)
+                {
+                    _property.SetValue(_reorderableListGui.list);
+                }
             }
         }
 
@@ -145,14 +145,6 @@ namespace TriInspector.Elements
             return true;
         }
 
-        private void DrawElementBackgroundCallback(Rect rect, int index, bool isActive, bool isFocused)
-        {
-            if (index % 2 == 1)
-            {
-                TriEditorGUI.DrawBox(rect, GUI.skin.box);
-            }
-        }
-
         private void DrawHeaderCallback(Rect rect)
         {
             var labelRect = new Rect(rect)
@@ -172,44 +164,30 @@ namespace TriInspector.Elements
 
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)
         {
-            var contentRect = new Rect(rect)
+            if (index >= ChildrenCount)
             {
-                xMax = rect.xMax - 28,
-            };
-            var deleteRect = new Rect(rect)
-            {
-                xMin = rect.xMax - 22,
-            };
-
-            GetChild(index).OnGUI(contentRect);
-
-            if (GUI.Button(deleteRect, Styles.IconToolbarMinus, Styles.RemoveItemButton))
-            {
-                _reorderableListGui.index = index;
-                _scheduleRemove = true;
+                return;
             }
+            
+            GetChild(index).OnGUI(rect);
         }
 
         private float ElementHeightCallback(int index)
         {
+            if (index >= ChildrenCount)
+            {
+                return EditorGUIUtility.singleLineHeight;
+            }
+
             return GetChild(index).GetHeight(_lastContentWidth);
         }
 
         private static class Styles
         {
             public static readonly GUIStyle ItemsCount;
-            public static readonly GUIStyle RemoveItemButton;
-
-            public static readonly GUIContent IconToolbarMinus =
-                EditorGUIUtility.TrIconContent("Toolbar Minus", "Remove selection from the list");
 
             static Styles()
             {
-                RemoveItemButton = new GUIStyle("RL FooterButton")
-                {
-                    fixedHeight = 0f,
-                    alignment = TextAnchor.MiddleCenter,
-                };
                 ItemsCount = new GUIStyle(GUI.skin.label)
                 {
                     alignment = TextAnchor.MiddleRight,

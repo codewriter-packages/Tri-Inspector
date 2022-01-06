@@ -21,10 +21,10 @@ namespace TriInspector
 
             Properties = TriTypeDefinition.GetCached(TargetObjectType)
                 .Properties
-                .Select(propertyDefinition =>
+                .Select((propertyDefinition, index) =>
                 {
                     var serializedProperty = serializedObject.FindProperty(propertyDefinition.Name);
-                    return new TriProperty(this, this, propertyDefinition, serializedProperty);
+                    return new TriProperty(this, this, propertyDefinition, index, serializedProperty);
                 })
                 .ToList();
 

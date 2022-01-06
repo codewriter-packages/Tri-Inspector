@@ -11,15 +11,17 @@ namespace TriInspector
 {
     internal class TriPropertyDefinition
     {
-        private readonly Func<object, object> _valueGetter;
-        [CanBeNull] private readonly Action<object, object> _valueSetter;
+        private readonly Func<TriProperty, object, object> _valueGetter;
+        [CanBeNull] private readonly Action<TriProperty, object, object> _valueSetter;
+
+        private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
         private IReadOnlyList<TriCustomDrawer> _drawersBackingField;
         private IReadOnlyList<TriPropertyHideProcessor> _hideProcessorsBackingField;
         private IReadOnlyList<TriPropertyDisableProcessor> _disableProcessorsBackingField;
 
         internal TriPropertyDefinition(int order, FieldInfo fi)
-            : this(order, fi.Name, fi.FieldType, fi.GetValue, fi.SetValue, fi.GetCustomAttributes(), false)
+            : this(order, fi.Name, fi.FieldType, MakeGetter(fi), MakeSetter(fi), fi.GetCustomAttributes(), false)
         {
         }
 
@@ -32,8 +34,8 @@ namespace TriInspector
             int order,
             string fieldName,
             Type fieldType,
-            Func<object, object> valueGetter,
-            Action<object, object> valueSetter,
+            Func<TriProperty, object, object> valueGetter,
+            Action<TriProperty, object, object> valueSetter,
             IEnumerable<Attribute> fieldAttributes,
             bool isArrayElement)
         {
@@ -168,12 +170,13 @@ namespace TriInspector
             }
         }
 
-        public object GetValue(object obj)
+        public object GetValue(TriProperty property, int targetIndex)
         {
-            return _valueGetter(obj);
+            var parentValue = property.Parent.GetValue(targetIndex);
+            return _valueGetter(property, parentValue);
         }
 
-        public void SetValue(object obj, object value)
+        public void SetValue(TriProperty property, object value, int targetIndex)
         {
             if (IsReadOnly)
             {
@@ -181,36 +184,59 @@ namespace TriInspector
                 return;
             }
 
-            _valueSetter?.Invoke(obj, value);
+            var parentValue = property.Parent.GetValue(targetIndex);
+            _valueSetter?.Invoke(property, parentValue, value);
         }
 
-        public TriPropertyDefinition GetArrayElementDefinition(int index)
+        public TriPropertyDefinition ArrayElementDefinition
         {
-            if (!IsArray)
+            get
             {
-                throw new InvalidOperationException(
-                    $"Cannot get array element definition for non array property: {FieldType}");
+                if (_arrayElementDefinitionBackingField == null)
+                {
+                    if (!IsArray)
+                    {
+                        throw new InvalidOperationException(
+                            $"Cannot get array element definition for non array property: {FieldType}");
+                    }
+
+                    var elementGetter = new Func<TriProperty, object, object>((self, obj) =>
+                    {
+                        var list = (IList) obj;
+                        return list[self.IndexInArray];
+                    });
+                    var elementSetter = new Action<TriProperty, object, object>((self, obj, value) =>
+                    {
+                        var list = (IList) obj;
+                        list[self.IndexInArray] = value;
+                    });
+                    var elementAttributes = Attributes;
+
+                    _arrayElementDefinitionBackingField = new TriPropertyDefinition(0, "Element", ArrayElementType,
+                        elementGetter, elementSetter, elementAttributes, true);
+                }
+
+                return _arrayElementDefinitionBackingField;
             }
-
-            var elementName = $"Element {index}";
-            var elementGetter = new Func<object, object>(obj => ((IList) obj)[index]);
-            var elementSetter = new Action<object, object>((obj, value) => ((IList) obj)[index] = value);
-            var elementOrder = index;
-            var elementAttributes = Attributes;
-
-            var definition = new TriPropertyDefinition(elementOrder, elementName, ArrayElementType,
-                elementGetter, elementSetter, elementAttributes, true);
-
-            return definition;
         }
 
-        private static Func<object, object> MakeGetter(PropertyInfo pi)
+        private static Func<TriProperty, object, object> MakeGetter(FieldInfo fi)
+        {
+            return (self, obj) => fi.GetValue(obj);
+        }
+
+        private static Action<TriProperty, object, object> MakeSetter(FieldInfo fi)
+        {
+            return (self, obj, value) => fi.SetValue(obj, value);
+        }
+        
+        private static Func<TriProperty, object, object> MakeGetter(PropertyInfo pi)
         {
             var method = pi.GetMethod;
-            return obj => method.Invoke(obj, null);
+            return (self, obj) => method.Invoke(obj, null);
         }
 
-        private static Action<object, object> MakeSetter(PropertyInfo pi)
+        private static Action<TriProperty, object, object> MakeSetter(PropertyInfo pi)
         {
             var method = pi.SetMethod;
             if (method == null)
@@ -218,7 +244,7 @@ namespace TriInspector
                 return null;
             }
 
-            return (obj, value) => method.Invoke(obj, new[] {value,});
+            return (self, obj, value) => method.Invoke(obj, new[] {value,});
         }
     }
 }
