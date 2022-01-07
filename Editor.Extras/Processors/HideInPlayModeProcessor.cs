@@ -1,11 +1,11 @@
-﻿using Editor.Extras.Processors;
+﻿using TriInspector.Processors;
 using TriInspector;
 using UnityEngine;
 
 [assembly: RegisterTriPropertyHideProcessor(typeof(HideInPlayModeProcessor))]
 [assembly: RegisterTriPropertyHideProcessor(typeof(ShowInPlayModeProcessor))]
 
-namespace Editor.Extras.Processors
+namespace TriInspector.Processors
 {
     public class HideInPlayModeProcessor : TriPropertyHideProcessor<HideInPlayModeAttribute>
     {
