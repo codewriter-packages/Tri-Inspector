@@ -177,16 +177,18 @@ namespace TriInspector
             return _valueGetter(property, parentValue);
         }
 
-        public void SetValue(TriProperty property, object value, int targetIndex)
+        public bool SetValue(TriProperty property, object value, int targetIndex, out object parentValue)
         {
             if (IsReadOnly)
             {
                 Debug.LogError("Cannot set value for readonly property");
-                return;
+                parentValue = default;
+                return false;
             }
 
-            var parentValue = property.Parent.GetValue(targetIndex);
+            parentValue = property.Parent.GetValue(targetIndex);
             _valueSetter?.Invoke(property, parentValue, value);
+            return true;
         }
 
         public TriPropertyDefinition ArrayElementDefinition

@@ -185,14 +185,6 @@ namespace TriInspector
         [PublicAPI]
         public TriPropertyTree PropertyTree { get; }
 
-        public void ApplyChildValueModifications(int targetIndex)
-        {
-            var value = _definition.GetValue(this, targetIndex);
-            _definition.SetValue(this, value, targetIndex);
-
-            _parent.ApplyChildValueModifications(targetIndex);
-        }
-
         [PublicAPI]
         [CanBeNull]
         public object Value { get; private set; }
@@ -205,28 +197,21 @@ namespace TriInspector
         [PublicAPI]
         public void SetValue(object value)
         {
+            // save any pending changes
+            PropertyTree.SerializedObject.ApplyModifiedProperties();
+
+            // record object state for undp
             Undo.RegisterCompleteObjectUndo(PropertyTree.TargetObjects, "Inspector");
             Undo.FlushUndoRecordObjects();
 
-            for (var i = 0; i < PropertyTree.TargetObjects.Length; i++)
+            // set value for all targets
+            for (var targetIndex = 0; targetIndex < PropertyTree.TargetObjects.Length; targetIndex++)
             {
-                _definition.SetValue(this, value, i);
+                SetValueRecursive(this, value, targetIndex);
             }
 
-            _serializedProperty?.serializedObject.Update();
-
-            if (_serializedProperty != null)
-            {
-                _serializedProperty.serializedObject.ApplyModifiedProperties();
-            }
-            else
-            {
-                for (var i = 0; i < PropertyTree.TargetObjects.Length; i++)
-                {
-                    _parent.ApplyChildValueModifications(i);
-                }
-            }
-
+            // actualize
+            PropertyTree.SerializedObject.Update();
             Update();
         }
 
@@ -342,6 +327,20 @@ namespace TriInspector
             return false;
         }
 
+        private static void SetValueRecursive(TriProperty property, object value, int targetIndex)
+        {
+            // for value types we must recursively set all parent objects
+            // because we cannot directly modify structs
+            // but we can re-set entire parent value
+            while (property._definition.SetValue(property, value, targetIndex, out var parentValue) &&
+                   property.Parent is TriProperty parentProperty &&
+                   parentProperty.ValueType != null && parentProperty.ValueType.IsValueType)
+            {
+                property = parentProperty;
+                value = parentValue;
+            }
+        }
+
         private static TriPropertyType GetPropertyType(TriProperty property)
         {
             if (property._serializedProperty != null)
@@ -388,8 +387,6 @@ namespace TriInspector
     public interface ITriPropertyParent
     {
         object GetValue(int targetIndex);
-
-        void ApplyChildValueModifications(int targetIndex);
     }
 
     public enum TriPropertyType

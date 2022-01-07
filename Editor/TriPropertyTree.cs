@@ -13,8 +13,9 @@ namespace TriInspector
     {
         private readonly TriInspectorElement _inspectorElement;
 
-        private TriPropertyTree(SerializedObject serializedObject)
+        private TriPropertyTree([NotNull] SerializedObject serializedObject)
         {
+            SerializedObject = serializedObject ?? throw new ArgumentNullException(nameof(serializedObject));
             TargetObjects = serializedObject.targetObjects;
             TargetObjectType = TargetObjects[0].GetType();
             Root = this;
@@ -41,14 +42,12 @@ namespace TriInspector
         [PublicAPI]
         public Type TargetObjectType { get; }
 
+        [PublicAPI]
+        public SerializedObject SerializedObject { get; }
+
         public TriPropertyTree Root { get; }
 
         object ITriPropertyParent.GetValue(int targetIndex) => TargetObjects[targetIndex];
-
-        void ITriPropertyParent.ApplyChildValueModifications(int targetIndex)
-        {
-            EditorUtility.SetDirty(TargetObjects[targetIndex]);
-        }
 
         internal static TriPropertyTree Create(SerializedObject scriptableObject)
         {
