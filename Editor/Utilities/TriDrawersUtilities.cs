@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using TriInspector.Elements;
 using UnityEngine;
 
@@ -142,44 +143,91 @@ namespace TriInspector.Utilities
             return TryGetBaseGenericTargetType(type, typeof(TriPropertyDisableProcessor<>), out attributeType);
         }
 
-        public static bool IsValueDrawerFor(Type drawerType, Type valueType)
+        public static IEnumerable<TriValueDrawer> CreateValueDrawersFor(Type valueType)
         {
-            if (IsValueDrawerType(drawerType, out var valType))
+            return
+                from drawer in AllValueDrawerTypes
+                where IsValueDrawerType(drawer.DrawerType, out var vt) &&
+                      IsValidTargetType(vt, valueType)
+                select CreateInstance<TriValueDrawer>(drawer.DrawerType, valueType, it =>
+                {
+                    it.Target = drawer.Target;
+                    it.Order = drawer.Order;
+                });
+        }
+
+        public static IEnumerable<TriAttributeDrawer> CreateAttributeDrawersFor(IReadOnlyList<Attribute> attributes)
+        {
+            return
+                from attribute in attributes
+                from drawer in AllAttributeDrawerTypes
+                where IsAttributeDrawerType(drawer.DrawerType, out var vt) &&
+                      IsValidTargetType(vt, attribute.GetType())
+                select CreateInstance<TriAttributeDrawer>(drawer.DrawerType, attribute.GetType(), it =>
+                {
+                    it.Target = drawer.Target;
+                    it.Order = drawer.Order;
+                    it.RawAttribute = attribute;
+                });
+        }
+
+        public static IEnumerable<TriPropertyHideProcessor> CreateHideProcessorsFor(IReadOnlyList<Attribute> attributes)
+        {
+            return
+                from attribute in attributes
+                from processor in AllHideProcessors
+                where IsHideProcessorType(processor.ProcessorType, out var vt) &&
+                      IsValidTargetType(vt, attribute.GetType())
+                select CreateInstance<TriPropertyHideProcessor>(
+                    processor.ProcessorType, attributes.GetType(), it =>
+                    {
+                        //
+                        it.RawAttribute = attribute;
+                    });
+        }
+
+        public static IEnumerable<TriPropertyDisableProcessor> CreateDisableProcessorsFor(
+            IReadOnlyList<Attribute> attributes)
+        {
+            return
+                from attribute in attributes
+                from processor in AllDisableProcessors
+                where IsDisableProcessorType(processor.ProcessorType, out var vt) &&
+                      IsValidTargetType(vt, attribute.GetType())
+                select CreateInstance<TriPropertyDisableProcessor>(
+                    processor.ProcessorType, attributes.GetType(), it =>
+                    {
+                        //
+                        it.RawAttribute = attribute;
+                    });
+        }
+
+        private static bool IsValidTargetType(Type constraint, Type actual)
+        {
+            if (constraint == actual)
             {
-                return valType == valueType;
+                return true;
+            }
+
+            if (constraint.IsGenericParameter &&
+                constraint.GetGenericParameterConstraints().Single().IsAssignableFrom(actual))
+            {
+                return true;
             }
 
             return false;
         }
 
-        public static bool IsAttributeDrawerFor(Type drawerType, Attribute attribute)
+        private static T CreateInstance<T>(Type type, Type argType, Action<T> setup)
         {
-            if (IsAttributeDrawerType(drawerType, out var attributeType))
+            if (type.IsGenericType)
             {
-                return attributeType == attribute.GetType();
+                type = type.MakeGenericType(argType);
             }
 
-            return false;
-        }
-
-        public static bool IsHideProcessorFor(Type processorType, Attribute attribute)
-        {
-            if (IsHideProcessorType(processorType, out var attributeType))
-            {
-                return attributeType == attribute.GetType();
-            }
-
-            return false;
-        }
-
-        public static bool IsDisableProcessorFor(Type processorType, Attribute attribute)
-        {
-            if (IsDisableProcessorType(processorType, out var attributeType))
-            {
-                return attributeType == attribute.GetType();
-            }
-
-            return false;
+            var instance = (T) Activator.CreateInstance(type);
+            setup(instance);
+            return instance;
         }
 
         private static bool TryGetBaseGenericTargetType(Type type, Type expectedGenericType, out Type attributeType)
@@ -198,28 +246,52 @@ namespace TriInspector.Utilities
                 return false;
             }
 
+            Type genericArg = null;
+            if (type.IsGenericType)
+            {
+                genericArg = type.GetGenericArguments().SingleOrDefault();
+
+                if (genericArg == null ||
+                    genericArg.GenericParameterAttributes != GenericParameterAttributes.None)
+                {
+                    Debug.LogError(
+                        $"{type.Name} must contains only one generic arg with simple constant e.g. <where T : bool>");
+                    return false;
+                }
+
+                var argConstraints = genericArg.GetGenericParameterConstraints().SingleOrDefault();
+                if (argConstraints == null)
+                {
+                    Debug.LogError(
+                        $"{type.Name} must contains only one generic arg with simple constant e.g. <where T : bool>");
+                    return false;
+                }
+            }
+
             var drawerType = type.BaseType;
 
-            if (drawerType == null)
+            while (drawerType != null)
             {
-                Debug.LogError($"{type.Name} must implement {expectedGenericType}");
-                return false;
+                if (drawerType.IsGenericType &&
+                    drawerType.GetGenericTypeDefinition() == expectedGenericType)
+                {
+                    attributeType = drawerType.GetGenericArguments()[0];
+
+                    if (genericArg != null && !attributeType.IsGenericParameter)
+                    {
+                        Debug.LogError(
+                            $"{type.Name} must pass generic arg {genericArg} to {expectedGenericType} base type");
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                drawerType = drawerType.BaseType;
             }
 
-            if (!drawerType.IsGenericType)
-            {
-                Debug.LogError($"{type.Name} must implement {expectedGenericType}");
-                return false;
-            }
-
-            if (drawerType.GetGenericTypeDefinition() != expectedGenericType)
-            {
-                Debug.LogError($"{type.Name} must implement {expectedGenericType}");
-                return false;
-            }
-
-            attributeType = drawerType.GetGenericArguments()[0];
-            return true;
+            Debug.LogError($"{type.Name} must implement {expectedGenericType}");
+            return false;
         }
     }
 }

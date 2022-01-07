@@ -78,20 +78,8 @@ namespace TriInspector
             {
                 if (_hideProcessorsBackingField == null)
                 {
-                    _hideProcessorsBackingField = (
-                        from attribute in Attributes
-                        from processor in TriDrawersUtilities.AllHideProcessors
-                        where TriDrawersUtilities.IsHideProcessorFor(processor.ProcessorType, attribute)
-                        select CreateHideProcessor(processor, attribute)
-                    ).ToList();
-
-                    static TriPropertyHideProcessor CreateHideProcessor(RegisterTriPropertyHideProcessor processor,
-                        Attribute attribute)
-                    {
-                        var instance = (TriPropertyHideProcessor) Activator.CreateInstance(processor.ProcessorType);
-                        instance.RawAttribute = attribute;
-                        return instance;
-                    }
+                    _hideProcessorsBackingField =
+                        TriDrawersUtilities.CreateHideProcessorsFor(Attributes).ToList();
                 }
 
                 return _hideProcessorsBackingField;
@@ -104,21 +92,8 @@ namespace TriInspector
             {
                 if (_disableProcessorsBackingField == null)
                 {
-                    _disableProcessorsBackingField = (
-                        from attribute in Attributes
-                        from processor in TriDrawersUtilities.AllDisableProcessors
-                        where TriDrawersUtilities.IsDisableProcessorFor(processor.ProcessorType, attribute)
-                        select CreateDisableProcessor(processor, attribute)
-                    ).ToList();
-
-                    static TriPropertyDisableProcessor CreateDisableProcessor(
-                        RegisterTriPropertyDisableProcessor processor,
-                        Attribute attribute)
-                    {
-                        var instance = (TriPropertyDisableProcessor) Activator.CreateInstance(processor.ProcessorType);
-                        instance.RawAttribute = attribute;
-                        return instance;
-                    }
+                    _disableProcessorsBackingField =
+                        TriDrawersUtilities.CreateDisableProcessorsFor(Attributes).ToList();
                 }
 
                 return _disableProcessorsBackingField;
@@ -131,40 +106,11 @@ namespace TriInspector
             {
                 if (_drawersBackingField == null)
                 {
-                    var valueDrawers =
-                        from drawer in TriDrawersUtilities.AllValueDrawerTypes
-                        where TriDrawersUtilities.IsValueDrawerFor(drawer.DrawerType, FieldType)
-                        select CreateValueDrawer(drawer);
-
-                    var attributeDrawers =
-                        from attribute in Attributes
-                        from drawer in TriDrawersUtilities.AllAttributeDrawerTypes
-                        where TriDrawersUtilities.IsAttributeDrawerFor(drawer.DrawerType, attribute)
-                        select CreateAttributeDrawer(drawer, attribute);
-
                     _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
-                        .Concat(valueDrawers)
-                        .Concat(attributeDrawers)
+                        .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
+                        .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
                         .OrderBy(it => it.Order)
                         .ToList();
-
-                    static TriValueDrawer CreateValueDrawer(RegisterTriValueDrawerAttribute drawer)
-                    {
-                        var instance = (TriValueDrawer) Activator.CreateInstance(drawer.DrawerType);
-                        instance.Target = drawer.Target;
-                        instance.Order = drawer.Order;
-                        return instance;
-                    }
-
-                    static TriAttributeDrawer CreateAttributeDrawer(RegisterTriAttributeDrawerAttribute drawer,
-                        Attribute attribute)
-                    {
-                        var instance = (TriAttributeDrawer) Activator.CreateInstance(drawer.DrawerType);
-                        instance.Target = drawer.Target;
-                        instance.Order = drawer.Order;
-                        instance.RawAttribute = attribute;
-                        return instance;
-                    }
                 }
 
                 return _drawersBackingField;
