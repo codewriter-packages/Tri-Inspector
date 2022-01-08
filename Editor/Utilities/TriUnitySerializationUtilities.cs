@@ -31,6 +31,11 @@ namespace TriInspector.Utilities
 
         private static bool IsTypeSerializable(Type type)
         {
+            if (type == typeof(object))
+            {
+                return false;
+            }
+            
             if (type == typeof(string) ||
                 type == typeof(bool) ||
                 type == typeof(char) ||
