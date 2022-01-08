@@ -1,4 +1,5 @@
 ﻿using TriInspector.Utilities;
+using UnityEditor;
 using UnityEngine;
 
 namespace TriInspector.Elements
@@ -45,10 +46,15 @@ namespace TriInspector.Elements
                 return;
             }
 
+            var oldShowMixedValue = EditorGUI.showMixedValue;
             var oldEnabled = GUI.enabled;
 
             GUI.enabled &= _property.IsEnabled;
+            EditorGUI.showMixedValue = _property.IsValueMixed;
+
             base.OnGUI(position);
+
+            EditorGUI.showMixedValue = oldShowMixedValue;
             GUI.enabled = oldEnabled;
         }
 

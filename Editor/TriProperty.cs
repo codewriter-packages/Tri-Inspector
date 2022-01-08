@@ -168,6 +168,8 @@ namespace TriInspector
         [CanBeNull]
         public Type ValueType { get; private set; }
 
+        public bool IsValueMixed { get; private set; }
+
         [PublicAPI]
         public TriPropertyType PropertyType { get; }
 
@@ -218,13 +220,31 @@ namespace TriInspector
         internal void Update()
         {
             var newValue = _definition.GetValue(this, 0);
-            var valueChanged = !ReferenceEquals(Value, newValue);
-
-            var newValueType = valueChanged ? newValue?.GetType() : ValueType;
+            var newValueType = FieldType.IsValueType ? FieldType
+                : ReferenceEquals(Value, newValue) ? ValueType
+                : newValue?.GetType();
             var valueTypeChanged = ValueType != newValueType;
 
             Value = newValue;
             ValueType = newValueType;
+            IsValueMixed = false;
+
+            if (PropertyTree.TargetObjects.Length > 1)
+            {
+                for (var i = 1; i < PropertyTree.TargetObjects.Length; i++)
+                {
+                    var otherValue = _definition.GetValue(this, i);
+                    var otherValueIsSame = FieldType.IsValueType
+                        ? otherValue.Equals(newValue)
+                        : ReferenceEquals(otherValue, newValue);
+
+                    if (!otherValueIsSame)
+                    {
+                        IsValueMixed = true;
+                        break;
+                    }
+                }
+            }
 
             switch (PropertyType)
             {
