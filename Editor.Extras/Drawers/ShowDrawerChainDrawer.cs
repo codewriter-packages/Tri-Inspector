@@ -4,8 +4,7 @@ using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Elements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(ShowDrawerChainDrawer), TriDrawerOrder.System,
-    Target = TriTargetPropertyType.SelfAndArrayElements)]
+[assembly: RegisterTriAttributeDrawer(typeof(ShowDrawerChainDrawer), TriDrawerOrder.System)]
 
 namespace TriInspector.Drawers
 {

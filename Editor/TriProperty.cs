@@ -129,6 +129,9 @@ namespace TriInspector
         [PublicAPI]
         public bool IsArrayElement => _definition.IsArrayElement;
 
+        [PublicAPI]
+        public bool IsArray => _definition.IsArray;
+
         public int IndexInArray => IsArrayElement
             ? _propertyIndex
             : throw new InvalidOperationException("Cannot read IndexInArray for !IsArrayElement");

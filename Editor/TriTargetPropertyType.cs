@@ -6,7 +6,7 @@ namespace TriInspector
     public enum TriTargetPropertyType
     {
         Self = 1 << 0,
-        ArrayElements = 1 << 2,
-        SelfAndArrayElements = Self | ArrayElements,
+        Array = 1 << 2,
+        SelfAndArray = Self | Array,
     }
 }
