@@ -1,5 +1,6 @@
 ﻿using TriInspector.Utilities;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace TriInspector
@@ -10,15 +11,24 @@ namespace TriInspector
 
         private void OnEnable()
         {
+            var mode = TriEditorMode.None;
+
+            var isInlineEditor = TriGuiHelper.PushedEditorCount > 0;
+            if (isInlineEditor)
+            {
+                mode |= TriEditorMode.InlineEditor;
+            }
+
             if (serializedObject.targetObject != null)
             {
-                _inspector = TriPropertyTree.Create(serializedObject);
+                _inspector = TriPropertyTree.Create(serializedObject, mode);
             }
         }
 
         private void OnDisable()
         {
             _inspector?.Destroy();
+            _inspector = null;
         }
 
         public override void OnInspectorGUI()
@@ -54,6 +64,13 @@ namespace TriInspector
             }
 
             serializedObject.ApplyModifiedProperties();
+
+            if (_inspector.RepaintRequired)
+            {
+                _inspector.RepaintRequired = false;
+
+                Repaint();
+            }
         }
     }
 }

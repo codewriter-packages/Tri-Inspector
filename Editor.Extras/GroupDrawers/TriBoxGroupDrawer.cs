@@ -16,7 +16,7 @@ namespace TriInspector.GroupDrawers
             return new TriBoxGroupElement(attribute);
         }
 
-        private class TriBoxGroupElement : TriPropertyCollectionBaseElement
+        public class TriBoxGroupElement : TriPropertyCollectionBaseElement
         {
             private const float HeaderWidth = 22;
             private const float InsetTop = 4;

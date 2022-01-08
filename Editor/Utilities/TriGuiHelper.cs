@@ -18,6 +18,21 @@ namespace TriInspector.Utilities
             IndentLevelStack.Clear();
         }
 
+        public static int PushedEditorCount => EditorStack.Count;
+
+        public static bool IsEditorForObjectPushed(Object target)
+        {
+            foreach (var it in EditorStack)
+            {
+                if (it.editor.target == target)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static void PushEditor(Editor editor)
         {
             EditorStack.Push(new EditorData

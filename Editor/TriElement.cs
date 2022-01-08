@@ -15,6 +15,8 @@ namespace TriInspector
         [PublicAPI]
         public int ChildrenCount => _children.Count;
 
+        public bool IsAttached => _attached;
+
         [PublicAPI]
         public virtual bool Update()
         {

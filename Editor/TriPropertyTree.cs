@@ -11,9 +11,10 @@ namespace TriInspector
 {
     public sealed class TriPropertyTree : ITriPropertyParent
     {
+        private readonly TriEditorMode _mode;
         private readonly TriInspectorElement _inspectorElement;
 
-        private TriPropertyTree([NotNull] SerializedObject serializedObject)
+        private TriPropertyTree([NotNull] SerializedObject serializedObject, TriEditorMode mode)
         {
             SerializedObject = serializedObject ?? throw new ArgumentNullException(nameof(serializedObject));
             TargetObjects = serializedObject.targetObjects;
@@ -29,6 +30,7 @@ namespace TriInspector
                 })
                 .ToList();
 
+            _mode = mode;
             _inspectorElement = new TriInspectorElement(this);
             _inspectorElement.AttachInternal();
         }
@@ -47,15 +49,25 @@ namespace TriInspector
 
         public TriPropertyTree Root { get; }
 
+        public bool IsInlineEditor => (_mode & TriEditorMode.InlineEditor) != 0;
+
+        internal bool RepaintRequired { get; set; }
+
         object ITriPropertyParent.GetValue(int targetIndex) => TargetObjects[targetIndex];
 
-        internal static TriPropertyTree Create(SerializedObject scriptableObject)
+        internal static TriPropertyTree Create(SerializedObject scriptableObject,
+            TriEditorMode mode = TriEditorMode.None)
         {
-            return new TriPropertyTree(scriptableObject);
+            return new TriPropertyTree(scriptableObject, mode);
         }
 
         internal void Destroy()
         {
+            if (!_inspectorElement.IsAttached)
+            {
+                return;
+            }
+
             _inspectorElement.DetachInternal();
         }
 
@@ -76,5 +88,17 @@ namespace TriInspector
             var rect = GUILayoutUtility.GetRect(width, height);
             _inspectorElement.OnGUI(rect);
         }
+
+        public void RequestRepaint()
+        {
+            RepaintRequired = true;
+        }
+    }
+
+    [Flags]
+    public enum TriEditorMode
+    {
+        None = 0,
+        InlineEditor = 1 << 0,
     }
 }
