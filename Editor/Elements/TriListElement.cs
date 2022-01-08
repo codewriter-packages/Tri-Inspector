@@ -84,6 +84,8 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
+            position = EditorGUI.IndentedRect(position);
+
             if (!_property.IsExpanded)
             {
                 ReorderableListDrawHeaderMethod(_reorderableListGui, new Rect(position)
@@ -147,6 +149,8 @@ namespace TriInspector.Elements
 
         private void DrawHeaderCallback(Rect rect)
         {
+            TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel);
+
             var labelRect = new Rect(rect)
             {
                 xMin = rect.xMin + 10,
@@ -160,6 +164,8 @@ namespace TriInspector.Elements
 
             TriEditorGUI.Foldout(labelRect, _property);
             GUI.Label(arraySizeRect, $"{_reorderableListGui.count} items", Styles.ItemsCount);
+
+            TriGuiHelper.PopIndentLevel();
         }
 
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)
