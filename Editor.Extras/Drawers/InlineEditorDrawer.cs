@@ -8,7 +8,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 [assembly: RegisterTriAttributeDrawer(typeof(InlineEditorDrawer), TriDrawerOrder.Fallback - 1000,
-    Target = TriTargetPropertyType.Self)]
+    ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {

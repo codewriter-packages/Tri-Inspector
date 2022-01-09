@@ -151,7 +151,7 @@ namespace TriInspector.Utilities
                       IsValidTargetType(vt, valueType)
                 select CreateInstance<TriValueDrawer>(drawer.DrawerType, valueType, it =>
                 {
-                    it.Target = drawer.Target;
+                    it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
                     it.Order = drawer.Order;
                 });
         }
@@ -165,7 +165,7 @@ namespace TriInspector.Utilities
                       IsValidTargetType(vt, attribute.GetType())
                 select CreateInstance<TriAttributeDrawer>(drawer.DrawerType, attribute.GetType(), it =>
                 {
-                    it.Target = drawer.Target;
+                    it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
                     it.Order = drawer.Order;
                     it.RawAttribute = attribute;
                 });

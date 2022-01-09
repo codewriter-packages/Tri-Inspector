@@ -13,7 +13,7 @@ namespace TriInspector
 
         public Type DrawerType { get; }
         public int Order { get; }
-        public TriTargetPropertyType Target { get; set; } = TriTargetPropertyType.Self;
+        public bool ApplyOnArrayElement { get; set; } = true;
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -27,7 +27,7 @@ namespace TriInspector
 
         public Type DrawerType { get; }
         public int Order { get; }
-        public TriTargetPropertyType Target { get; set; } = TriTargetPropertyType.Self;
+        public bool ApplyOnArrayElement { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]

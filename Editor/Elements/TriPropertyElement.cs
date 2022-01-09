@@ -17,8 +17,8 @@ namespace TriInspector.Elements
             var drawers = property.AllDrawers;
             for (var index = drawers.Count - 1; index >= 0; index--)
             {
-                if (_property.IsArray && (drawers[index].Target & TriTargetPropertyType.Array) == 0 ||
-                    !_property.IsArray && (drawers[index].Target & TriTargetPropertyType.Self) == 0)
+                if (_property.IsArrayElement && !drawers[index].ApplyOnArrayElement ||
+                    _property.IsArray && drawers[index].ApplyOnArrayElement)
                 {
                     continue;
                 }
