@@ -18,6 +18,9 @@ public class BasicSample : TriMonoBehaviour
     [PropertyTooltip("My Tooltip")]
     public float unityField;
 
+    [InlineEditor]
+    public SampleScriptableObject objectReference;
+
     [HideInPlayMode, ShowInPlayMode]
     [DisableInPlayMode, EnableInPlayMode]
     public float conditional;
