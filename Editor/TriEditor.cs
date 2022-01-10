@@ -75,7 +75,7 @@ namespace TriInspector
             }
         }
 
-        public static bool IsEditorForObjectPushed(Object targetObject)
+        internal static bool IsEditorForObjectPushed(Object targetObject)
         {
             foreach (var editor in EditorStack)
             {
