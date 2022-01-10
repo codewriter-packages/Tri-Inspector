@@ -10,8 +10,6 @@ namespace TriInspector
 {
     public sealed class TriProperty : ITriPropertyParent
     {
-        private static readonly IList EmptyList = new List<object>();
-
         private readonly TriPropertyDefinition _definition;
         private readonly int _propertyIndex;
         private readonly ITriPropertyParent _parent;
@@ -230,24 +228,7 @@ namespace TriInspector
 
             Value = newValue;
             ValueType = newValueType;
-            IsValueMixed = false;
-
-            if (PropertyTree.TargetObjects.Length > 1)
-            {
-                for (var i = 1; i < PropertyTree.TargetObjects.Length; i++)
-                {
-                    var otherValue = _definition.GetValue(this, i);
-                    var otherValueIsSame = FieldType.IsValueType
-                        ? otherValue.Equals(newValue)
-                        : ReferenceEquals(otherValue, newValue);
-
-                    if (!otherValueIsSame)
-                    {
-                        IsValueMixed = true;
-                        break;
-                    }
-                }
-            }
+            IsValueMixed = GetIsValueMixed(this, newValue);
 
             switch (PropertyType)
             {
@@ -285,9 +266,19 @@ namespace TriInspector
                 case TriPropertyType.Array:
                     _arrayElementProperties ??= new List<TriProperty>();
 
-                    var list = (IList) Value ?? EmptyList;
+                    var list = (IList) Value;
+                    for (var i = 1; list != null && i < PropertyTree.TargetObjects.Length; i++)
+                    {
+                        var otherList = (IList) _definition.GetValue(this, i);
+                        if (otherList == null || otherList.Count < list.Count)
+                        {
+                            Value = list = otherList;
+                        }
+                    }
 
-                    while (_arrayElementProperties.Count < list.Count)
+                    var listSize = list?.Count ?? 0;
+
+                    while (_arrayElementProperties.Count < listSize)
                     {
                         var index = _arrayElementProperties.Count;
                         var elementDefinition = _definition.ArrayElementDefinition;
@@ -299,7 +290,7 @@ namespace TriInspector
                         _arrayElementProperties.Add(elementProperty);
                     }
 
-                    while (_arrayElementProperties.Count > list.Count)
+                    while (_arrayElementProperties.Count > listSize)
                     {
                         _arrayElementProperties.RemoveAt(_arrayElementProperties.Count - 1);
                     }
@@ -361,6 +352,62 @@ namespace TriInspector
             {
                 property = parentProperty;
                 value = parentValue;
+            }
+        }
+
+        private static bool GetIsValueMixed(TriProperty property, object newValue)
+        {
+            if (property.PropertyTree.TargetObjects.Length == 1)
+            {
+                return false;
+            }
+
+            switch (property.PropertyType)
+            {
+                case TriPropertyType.Array:
+                {
+                    return false;
+                }
+                case TriPropertyType.Reference:
+                {
+                    for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
+                    {
+                        var otherValue = property._definition.GetValue(property, i);
+
+                        if (newValue?.GetType() != otherValue.GetType())
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+                case TriPropertyType.Generic:
+                {
+                    return false;
+                }
+                case TriPropertyType.Primitive:
+                {
+                    for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
+                    {
+                        var otherValue = property._definition.GetValue(property, i);
+                        var otherValueIsSame = property.FieldType.IsValueType
+                            ? otherValue.Equals(newValue)
+                            : ReferenceEquals(otherValue, newValue);
+
+                        if (!otherValueIsSame)
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                default:
+                {
+                    return false;
+                }
             }
         }
 

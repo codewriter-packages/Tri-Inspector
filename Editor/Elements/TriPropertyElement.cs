@@ -62,11 +62,6 @@ namespace TriInspector.Elements
         {
             var isSerializedProperty = property.TryGetSerializedProperty(out var serializedProperty);
 
-            if (!isSerializedProperty && property.PropertyTree.TargetObjects.Length > 1)
-            {
-                return new TriMultiEditNotSupportedElement(property);
-            }
-
             var handler = isSerializedProperty
                 ? ScriptAttributeUtilityProxy.GetHandler(serializedProperty)
                 : default(PropertyHandlerProxy?);
