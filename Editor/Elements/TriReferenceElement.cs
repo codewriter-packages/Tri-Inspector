@@ -86,9 +86,10 @@ namespace TriInspector.Elements
             {
                 TriManagedReferenceGui.DrawTypeSelector(headerRect, _property);
 
-                TriGuiHelper.PushLabelWidth(_labelWidth);
-                base.OnGUI(contentRect);
-                TriGuiHelper.PopLabelWidth();
+                using (TriGuiHelper.PushLabelWidth(_labelWidth))
+                {
+                    base.OnGUI(contentRect);
+                }
             }
             else
             {
@@ -97,11 +98,11 @@ namespace TriInspector.Elements
 
                 if (_property.IsExpanded)
                 {
-                    TriGuiHelper.PushIndentLevel();
-                    TriGuiHelper.PushLabelWidth(_labelWidth);
-                    base.OnGUI(contentRect);
-                    TriGuiHelper.PopLabelWidth();
-                    TriGuiHelper.PopIndentLevel();
+                    using (TriGuiHelper.PushIndentLevel())
+                    using (TriGuiHelper.PushLabelWidth(_labelWidth))
+                    {
+                        base.OnGUI(contentRect);
+                    }
                 }
             }
         }

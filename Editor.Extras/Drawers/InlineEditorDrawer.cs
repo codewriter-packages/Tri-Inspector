@@ -59,9 +59,10 @@ namespace TriInspector.Drawers
                     xMin = prefixRect.xMax,
                 };
 
-                TriGuiHelper.PushIndentLevel();
-                TriEditorGUI.Foldout(prefixRect, _property);
-                TriGuiHelper.PopIndentLevel();
+                using (TriGuiHelper.PushIndentLevel())
+                {
+                    TriEditorGUI.Foldout(prefixRect, _property);
+                }
 
                 EditorGUI.BeginChangeCheck();
 
@@ -142,7 +143,7 @@ namespace TriInspector.Drawers
 
                 var lastEditorRect = Rect.zero;
 
-                if (TriGuiHelper.IsEditorForObjectPushed((Object) _property.Value))
+                if (TriEditor.IsEditorForObjectPushed((Object) _property.Value))
                 {
                     GUI.Label(position, "Recursive inline editors not supported");
 
@@ -157,9 +158,11 @@ namespace TriInspector.Drawers
 
                     if (_editor != null && _property.IsExpanded && !_property.IsValueMixed)
                     {
-                        TriGuiHelper.PushIndentLevel();
-                        var indentedEditorPosition = EditorGUI.IndentedRect(_editorPosition);
-                        TriGuiHelper.PopIndentLevel();
+                        Rect indentedEditorPosition;
+                        using (TriGuiHelper.PushIndentLevel())
+                        {
+                            indentedEditorPosition = EditorGUI.IndentedRect(_editorPosition);
+                        }
 
                         GUILayout.BeginArea(indentedEditorPosition);
                         GUILayout.BeginVertical();

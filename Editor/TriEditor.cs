@@ -1,4 +1,4 @@
-﻿using TriInspector.Utilities;
+﻿using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -7,13 +7,15 @@ namespace TriInspector
 {
     public abstract class TriEditor : Editor
     {
+        private static readonly Stack<Editor> EditorStack = new Stack<Editor>();
+
         private TriPropertyTree _inspector;
 
         private void OnEnable()
         {
             var mode = TriEditorMode.None;
 
-            var isInlineEditor = TriGuiHelper.PushedEditorCount > 0;
+            var isInlineEditor = EditorStack.Count > 0;
             if (isInlineEditor)
             {
                 mode |= TriEditorMode.InlineEditor;
@@ -51,7 +53,7 @@ namespace TriInspector
                 Profiler.EndSample();
             }
 
-            TriGuiHelper.PushEditor(this);
+            EditorStack.Push(this);
             Profiler.BeginSample("TriInspector.DoLayout()");
             try
             {
@@ -60,7 +62,7 @@ namespace TriInspector
             finally
             {
                 Profiler.EndSample();
-                TriGuiHelper.PopEditor(this);
+                EditorStack.Pop();
             }
 
             serializedObject.ApplyModifiedProperties();
@@ -71,6 +73,22 @@ namespace TriInspector
 
                 Repaint();
             }
+        }
+
+        public static bool IsEditorForObjectPushed(Object targetObject)
+        {
+            foreach (var editor in EditorStack)
+            {
+                foreach (var editorTarget in editor.targets)
+                {
+                    if (editorTarget == targetObject)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 }

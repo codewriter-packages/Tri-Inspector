@@ -11,9 +11,10 @@ namespace TriInspector.Drawers
     {
         public override void OnGUI(Rect position, TriProperty property, TriElement next)
         {
-            TriGuiHelper.PushIndentLevel(Attribute.Indent);
-            next.OnGUI(position);
-            TriGuiHelper.PopIndentLevel();
+            using (TriGuiHelper.PushIndentLevel(Attribute.Indent))
+            {
+                next.OnGUI(position);
+            }
         }
     }
 }

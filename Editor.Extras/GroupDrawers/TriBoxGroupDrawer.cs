@@ -81,9 +81,10 @@ namespace TriInspector.GroupDrawers
                     TriEditorGUI.DrawBox(contentBgRect, TriEditorStyles.Box);
                 }
 
-                TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - InsetLeft);
-                base.OnGUI(contentRect);
-                TriGuiHelper.PopLabelWidth();
+                using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - InsetLeft))
+                {
+                    base.OnGUI(contentRect);
+                }
             }
         }
     }

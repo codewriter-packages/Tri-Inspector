@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,138 +6,73 @@ namespace TriInspector.Utilities
 {
     public static class TriGuiHelper
     {
-        private static readonly Stack<EditorData> EditorStack = new Stack<EditorData>();
-        private static readonly Stack<float> LabelWidthStack = new Stack<float>();
-        private static readonly Stack<int> IndentLevelStack = new Stack<int>();
-        private static readonly Stack<Color> ColorStack = new Stack<Color>();
-
-        private static void CleanUp()
+        public static LabelWidthScope PushLabelWidth(float labelWidth)
         {
-            EditorStack.Clear();
-            LabelWidthStack.Clear();
-            IndentLevelStack.Clear();
+            return new LabelWidthScope(labelWidth);
         }
 
-        public static int PushedEditorCount => EditorStack.Count;
-
-        public static bool IsEditorForObjectPushed(Object target)
+        public static IndentLevelScope PushIndentLevel(int indent = 1)
         {
-            foreach (var it in EditorStack)
+            return new IndentLevelScope(indent);
+        }
+
+        public static GuiColorScope PushColor(Color color)
+        {
+            return new GuiColorScope(color);
+        }
+
+        public readonly struct LabelWidthScope : IDisposable
+        {
+            private readonly float _oldLabelWidth;
+
+            public LabelWidthScope(float labelWidth)
             {
-                if (it.editor.target == target)
+                _oldLabelWidth = EditorGUIUtility.labelWidth;
+
+                if (labelWidth > 0)
                 {
-                    return true;
+                    EditorGUIUtility.labelWidth = labelWidth;
                 }
             }
 
-            return false;
-        }
-
-        public static void PushEditor(Editor editor)
-        {
-            EditorStack.Push(new EditorData
+            public void Dispose()
             {
-                editor = editor,
-                labelWidthStackSize = LabelWidthStack.Count,
-                indentLevelStackSize = IndentLevelStack.Count,
-                ColorStackSize = ColorStack.Count,
-            });
-        }
-
-        public static void PopEditor(Editor editor)
-        {
-            if (EditorStack.Count == 0)
-            {
-                Debug.LogError("No editor in stack");
-                return;
-            }
-
-            var data = EditorStack.Pop();
-
-            if (data.editor != editor)
-            {
-                Debug.LogError($"Editor pop mismatch: {editor}");
-            }
-
-            CheckSizeMismatch(data.labelWidthStackSize, LabelWidthStack, nameof(LabelWidthStack), editor);
-            CheckSizeMismatch(data.indentLevelStackSize, IndentLevelStack, nameof(IndentLevelStack), editor);
-            CheckSizeMismatch(data.ColorStackSize, ColorStack, nameof(ColorStack), editor);
-
-            if (EditorStack.Count == 0)
-            {
-                CleanUp();
+                EditorGUIUtility.labelWidth = _oldLabelWidth;
             }
         }
 
-        public static void PushLabelWidth(float labelWidth)
+        public readonly struct IndentLevelScope : IDisposable
         {
-            LabelWidthStack.Push(EditorGUIUtility.labelWidth);
+            private readonly int _oldIndentLevel;
 
-            if (labelWidth > 0)
+            public IndentLevelScope(int indentLevel)
             {
-                EditorGUIUtility.labelWidth = labelWidth;
+                _oldIndentLevel = EditorGUI.indentLevel;
+
+                EditorGUI.indentLevel += indentLevel;
+            }
+
+            public void Dispose()
+            {
+                EditorGUI.indentLevel = _oldIndentLevel;
             }
         }
 
-        public static void PopLabelWidth()
+        public readonly struct GuiColorScope : IDisposable
         {
-            if (LabelWidthStack.Count == 0)
+            private readonly Color _oldColor;
+
+            public GuiColorScope(Color color)
             {
-                Debug.LogError("No label width in stack");
-                return;
+                _oldColor = GUI.color;
+
+                GUI.color = color;
             }
 
-            EditorGUIUtility.labelWidth = LabelWidthStack.Pop();
-        }
-
-        public static void PushIndentLevel(int indent = 1)
-        {
-            IndentLevelStack.Push(EditorGUI.indentLevel);
-            EditorGUI.indentLevel += indent;
-        }
-
-        public static void PopIndentLevel()
-        {
-            if (IndentLevelStack.Count == 0)
+            public void Dispose()
             {
-                Debug.LogError("No indent level in stack");
-                return;
+                GUI.color = _oldColor;
             }
-
-            EditorGUI.indentLevel = IndentLevelStack.Pop();
-        }
-
-        public static void PushColor(Color color)
-        {
-            ColorStack.Push(GUI.color);
-            GUI.color = color;
-        }
-
-        public static void PopColor()
-        {
-            if (ColorStack.Count == 0)
-            {
-                Debug.LogError("No color in stack");
-                return;
-            }
-
-            GUI.color = ColorStack.Pop();
-        }
-
-        private static void CheckSizeMismatch<T>(int expectedSize, Stack<T> stack, string stackName, Editor editor)
-        {
-            if (expectedSize != stack.Count)
-            {
-                Debug.LogError($"{stackName} size mismatch in {editor.name} editor");
-            }
-        }
-
-        private struct EditorData
-        {
-            public Editor editor;
-            public int labelWidthStackSize;
-            public int indentLevelStackSize;
-            public int ColorStackSize;
         }
     }
 }

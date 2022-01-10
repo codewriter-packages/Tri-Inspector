@@ -99,9 +99,10 @@ namespace TriInspector.Elements
 
             EditorGUI.BeginChangeCheck();
 
-            TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - labelWidthExtra);
-            _reorderableListGui.DoList(position);
-            TriGuiHelper.PopLabelWidth();
+            using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - labelWidthExtra))
+            {
+                _reorderableListGui.DoList(position);
+            }
 
             if (EditorGUI.EndChangeCheck())
             {
@@ -149,23 +150,22 @@ namespace TriInspector.Elements
 
         private void DrawHeaderCallback(Rect rect)
         {
-            TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel);
-
-            var labelRect = new Rect(rect)
+            using (TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel))
             {
-                xMin = rect.xMin + 10,
-                xMax = rect.xMax,
-            };
+                var labelRect = new Rect(rect)
+                {
+                    xMin = rect.xMin + 10,
+                    xMax = rect.xMax,
+                };
 
-            var arraySizeRect = new Rect(rect)
-            {
-                xMin = rect.xMax - 100,
-            };
+                var arraySizeRect = new Rect(rect)
+                {
+                    xMin = rect.xMax - 100,
+                };
 
-            TriEditorGUI.Foldout(labelRect, _property);
-            GUI.Label(arraySizeRect, $"{_reorderableListGui.count} items", Styles.ItemsCount);
-
-            TriGuiHelper.PopIndentLevel();
+                TriEditorGUI.Foldout(labelRect, _property);
+                GUI.Label(arraySizeRect, $"{_reorderableListGui.count} items", Styles.ItemsCount);
+            }
         }
 
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)

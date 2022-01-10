@@ -22,9 +22,10 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
-            TriGuiHelper.PushColor(_color);
-            GUI.Label(position, _message, EditorStyles.helpBox);
-            TriGuiHelper.PopColor();
+            using (TriGuiHelper.PushColor(_color))
+            {
+                GUI.Label(position, _message, EditorStyles.helpBox);
+            }
         }
 
         private static Color GetColor(MessageType type)

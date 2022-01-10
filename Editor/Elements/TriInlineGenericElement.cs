@@ -33,9 +33,10 @@ namespace TriInspector.Elements
                 position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);
             }
 
-            TriGuiHelper.PushLabelWidth(_labelWidth);
-            base.OnGUI(position);
-            TriGuiHelper.PopLabelWidth();
+            using (TriGuiHelper.PushLabelWidth(_labelWidth))
+            {
+                base.OnGUI(position);
+            }
         }
     }
 }

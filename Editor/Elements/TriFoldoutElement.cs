@@ -65,9 +65,10 @@ namespace TriInspector.Elements
                 return;
             }
 
-            TriGuiHelper.PushIndentLevel();
-            base.OnGUI(contentRect);
-            TriGuiHelper.PopIndentLevel();
+            using (TriGuiHelper.PushIndentLevel())
+            {
+                base.OnGUI(contentRect);
+            }
         }
 
         private bool GenerateChildren()
