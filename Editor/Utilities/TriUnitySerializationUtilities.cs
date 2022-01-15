@@ -35,7 +35,7 @@ namespace TriInspector.Utilities
             {
                 return false;
             }
-            
+
             if (type == typeof(string) ||
                 type == typeof(bool) ||
                 type == typeof(char) ||
