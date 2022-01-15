@@ -24,8 +24,10 @@ namespace TriInspector.Elements
         {
             using (TriGuiHelper.PushColor(_color))
             {
-                GUI.Label(position, _message, EditorStyles.helpBox);
+                GUI.Label(position, string.Empty, Styles.InfoBoxBg);
             }
+
+            GUI.Label(position, _message, Styles.InfoBoxContent);
         }
 
         private static Color GetColor(MessageType type)
@@ -33,13 +35,30 @@ namespace TriInspector.Elements
             switch (type)
             {
                 case MessageType.Error:
-                    return Color.red;
+                    return new Color(1f, 0.4f, 0.4f);
 
                 case MessageType.Warning:
-                    return Color.yellow;
+                    return new Color(1f, 0.8f, 0.2f);
 
                 default:
                     return Color.white;
+            }
+        }
+
+        private static class Styles
+        {
+            public static readonly GUIStyle InfoBoxBg;
+            public static readonly GUIStyle InfoBoxContent;
+
+            static Styles()
+            {
+                InfoBoxBg = new GUIStyle(EditorStyles.helpBox);
+                InfoBoxContent = new GUIStyle(EditorStyles.label)
+                {
+                    padding = InfoBoxBg.padding,
+                    fontSize = InfoBoxBg.fontSize,
+                    alignment = InfoBoxBg.alignment,
+                };
             }
         }
     }
