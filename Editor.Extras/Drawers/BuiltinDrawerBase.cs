@@ -15,9 +15,14 @@ namespace TriInspector.Drawers
             return base.CreateElement(propertyValue, next);
         }
 
+        public virtual int CompactModeLines => 1;
+        public virtual int WideModeLines => 1;
+
         public sealed override float GetHeight(float width, TriValue<T> propertyValue, TriElement next)
         {
-            return EditorGUIUtility.singleLineHeight;
+            var lineHeight = EditorGUIUtility.singleLineHeight;
+            var lines = EditorGUIUtility.wideMode ? WideModeLines : CompactModeLines;
+            return lineHeight * lines;
         }
 
         public sealed override void OnGUI(Rect position, TriValue<T> propertyValue, TriElement next)
