@@ -14,7 +14,6 @@ namespace TriInspector
         private readonly int _propertyIndex;
         private readonly ITriPropertyParent _parent;
         [CanBeNull] private readonly SerializedProperty _serializedProperty;
-        private List<TriProperty> _arrayElementProperties;
         private List<TriProperty> _childrenProperties;
 
         private GUIContent _displayNameBackingField;
@@ -182,7 +181,7 @@ namespace TriInspector
 
         [PublicAPI]
         public IReadOnlyList<TriProperty> ArrayElementProperties => PropertyType == TriPropertyType.Array
-            ? _arrayElementProperties
+            ? _childrenProperties
             : throw new InvalidOperationException("Cannot read ArrayElementProperties for " + PropertyType);
 
         [PublicAPI]
@@ -256,15 +255,10 @@ namespace TriInspector
                         }
                     }
 
-                    foreach (var childrenProperty in _childrenProperties)
-                    {
-                        childrenProperty.Update();
-                    }
-
                     break;
 
                 case TriPropertyType.Array:
-                    _arrayElementProperties ??= new List<TriProperty>();
+                    _childrenProperties ??= new List<TriProperty>();
 
                     var list = (IList) Value;
                     for (var i = 1; list != null && i < PropertyTree.TargetObjects.Length; i++)
@@ -278,30 +272,32 @@ namespace TriInspector
 
                     var listSize = list?.Count ?? 0;
 
-                    while (_arrayElementProperties.Count < listSize)
+                    while (_childrenProperties.Count < listSize)
                     {
-                        var index = _arrayElementProperties.Count;
+                        var index = _childrenProperties.Count;
                         var elementDefinition = _definition.ArrayElementDefinition;
                         var elementSerializedReference = _serializedProperty?.GetArrayElementAtIndex(index);
 
                         var elementProperty = new TriProperty(PropertyTree, this,
                             elementDefinition, index, elementSerializedReference);
 
-                        _arrayElementProperties.Add(elementProperty);
+                        _childrenProperties.Add(elementProperty);
                     }
 
-                    while (_arrayElementProperties.Count > listSize)
+                    while (_childrenProperties.Count > listSize)
                     {
-                        _arrayElementProperties.RemoveAt(_arrayElementProperties.Count - 1);
-                    }
-
-                    for (var index = 0; index < _arrayElementProperties.Count; index++)
-                    {
-                        var arrayElementProperty = _arrayElementProperties[index];
-                        arrayElementProperty.Update();
+                        _childrenProperties.RemoveAt(_childrenProperties.Count - 1);
                     }
 
                     break;
+            }
+
+            if (_childrenProperties != null)
+            {
+                foreach (var childrenProperty in _childrenProperties)
+                {
+                    childrenProperty.Update();
+                }
             }
         }
 
