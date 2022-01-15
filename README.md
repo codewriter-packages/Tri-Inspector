@@ -66,9 +66,13 @@ public class GroupDemo : TriMonoBehaviour
 }
 ```
 
-### Extensions
+### Customization
 
-Value Drawer
+#### Custom Drawers
+
+<details>
+  <summary>Custom Value Drawer</summary>
+
 ```csharp
 using TriInspector;
 using UnityEditor;
@@ -98,8 +102,11 @@ public class BoolDrawer : TriValueDrawer<bool>
     }
 }
 ```
+</details>
 
-Attribute Drawer
+<details>
+  <summary>Custom Attribute Drawer</summary>
+
 ```csharp
 using TriInspector;
 using UnityEditor;
@@ -119,8 +126,11 @@ public class LabelWidthDrawer : TriAttributeDrawer<LabelWidthAttribute>
     }
 }
 ```
+</details>
 
-Group Drawer
+<details>
+  <summary>Custom Group Drawer</summary>
+
 ```csharp
 using TriInspector;
 using TriInspector.Elements;
@@ -135,8 +145,13 @@ public class TriBoxGroupDrawer : TriGroupDrawer<DeclareBoxGroupAttribute>
     }
 }
 ```
+</details>
 
-Custom Value Validator
+#### Validators
+
+<details>
+  <summary>Custom Value Validator</summary>
+
 ```csharp
 using TriInspector;
 
@@ -151,8 +166,11 @@ public class MissingReferenceValidator<T> : TriValueValidator<T>
     }
 }
 ```
+</details>
 
-Custom Attribute Validator
+<details>
+  <summary>Custom Attribute Validators</summary>
+
 ```csharp
 using TriInspector;
 
@@ -166,8 +184,13 @@ public class RequiredValidator : TriAttributeValidator<RequiredAttribute>
     }
 }
 ```
+</details>
 
-Property Hide Processor
+#### Property Processors
+
+<details>
+  <summary>Custom Property Hide Processor</summary>
+
 ```csharp
 using TriInspector;
 using UnityEngine;
@@ -182,8 +205,11 @@ public class HideInPlayModeProcessor : TriPropertyHideProcessor<HideInPlayModeAt
     }
 }
 ```
+</details>
 
-Property Disable Processor
+<details>
+  <summary>Custom Property Disable Processor</summary>
+
 ```csharp
 using TriInspector;
 using UnityEngine;
@@ -198,6 +224,7 @@ public class DisableInPlayModeProcessor : TriPropertyDisableProcessor<DisableInP
     }
 }
 ```
+</details>
 
 ## How to Install
 Minimal Unity Version is 2019.3.
