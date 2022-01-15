@@ -17,6 +17,7 @@ namespace TriInspector
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
         private IReadOnlyList<TriCustomDrawer> _drawersBackingField;
+        private IReadOnlyList<TriValidator> _validatorsBackingField;
         private IReadOnlyList<TriPropertyHideProcessor> _hideProcessorsBackingField;
         private IReadOnlyList<TriPropertyDisableProcessor> _disableProcessorsBackingField;
 
@@ -114,6 +115,22 @@ namespace TriInspector
                 }
 
                 return _drawersBackingField;
+            }
+        }
+
+        public IReadOnlyList<TriValidator> Validators
+        {
+            get
+            {
+                if (_validatorsBackingField == null)
+                {
+                    _validatorsBackingField = Enumerable.Empty<TriValidator>()
+                        .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
+                        .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
+                        .ToList();
+                }
+
+                return _validatorsBackingField;
             }
         }
 

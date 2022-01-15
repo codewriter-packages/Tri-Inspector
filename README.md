@@ -17,6 +17,9 @@ public class BasicSample : TriMonoBehaviour
     [PropertySpace(SpaceBefore = 10, SpaceAfter = 20)]
     [PropertyTooltip("My Tooltip")]
     public float unityField;
+    
+    [Required]
+    public Material mat;
 
     [InlineEditor]
     public SampleScriptableObject objectReference;
@@ -127,6 +130,37 @@ using TriInspector.Elements;
 public class TriBoxGroupDrawer : TriGroupDrawer<DeclareBoxGroupAttribute>
 {
     public override TriPropertyCollectionBaseElement CreateElement(DeclareBoxGroupAttribute attribute)
+    {
+        // ...
+    }
+}
+```
+
+Custom Value Validator
+```csharp
+using TriInspector;
+
+[assembly: RegisterTriValueValidator(typeof(MissingReferenceValidator<>))]
+
+public class MissingReferenceValidator<T> : TriValueValidator<T>
+    where T : UnityEngine.Object
+{
+    public override TriValidationResult Validate(TriValue<T> propertyValue)
+    {
+        // ...
+    }
+}
+```
+
+Custom Attribute Validator
+```csharp
+using TriInspector;
+
+[assembly: RegisterTriAttributeValidator(typeof(RequiredValidator), ApplyOnArrayElement = true)]
+
+public class RequiredValidator : TriAttributeValidator<RequiredAttribute>
+{
+    public override TriValidationResult Validate(TriProperty property)
     {
         // ...
     }

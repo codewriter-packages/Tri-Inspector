@@ -30,6 +30,8 @@ namespace TriInspector
                 })
                 .ToList();
 
+            ValidationRequired = true;
+
             _mode = mode;
             _inspectorElement = new TriInspectorElement(this);
             _inspectorElement.AttachInternal();
@@ -52,6 +54,7 @@ namespace TriInspector
         public bool IsInlineEditor => (_mode & TriEditorMode.InlineEditor) != 0;
 
         internal bool RepaintRequired { get; set; }
+        internal bool ValidationRequired { get; set; }
 
         object ITriPropertyParent.GetValue(int targetIndex) => TargetObjects[targetIndex];
 
@@ -81,6 +84,14 @@ namespace TriInspector
             _inspectorElement.Update();
         }
 
+        internal void RunValidation()
+        {
+            foreach (var property in Properties)
+            {
+                property.RunValidation();
+            }
+        }
+
         internal void DoLayout()
         {
             var width = EditorGUIUtility.currentViewWidth;
@@ -92,6 +103,11 @@ namespace TriInspector
         public void RequestRepaint()
         {
             RepaintRequired = true;
+        }
+
+        public void RequestValidation()
+        {
+            ValidationRequired = true;
         }
     }
 

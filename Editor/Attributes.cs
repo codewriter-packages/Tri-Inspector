@@ -62,4 +62,28 @@ namespace TriInspector
 
         public Type ProcessorType { get; }
     }
+
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class RegisterTriValueValidatorAttribute : Attribute
+    {
+        public RegisterTriValueValidatorAttribute(Type validatorType)
+        {
+            ValidatorType = validatorType;
+        }
+
+        public Type ValidatorType { get; }
+        public bool ApplyOnArrayElement { get; set; } = true;
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public class RegisterTriAttributeValidatorAttribute : Attribute
+    {
+        public RegisterTriAttributeValidatorAttribute(Type validatorType)
+        {
+            ValidatorType = validatorType;
+        }
+
+        public Type ValidatorType { get; }
+        public bool ApplyOnArrayElement { get; set; }
+    }
 }

@@ -52,6 +52,21 @@ namespace TriInspector
             {
                 Profiler.EndSample();
             }
+            
+            Profiler.BeginSample("TriInspector.RunValidation()");
+            try
+            {
+                if (_inspector.ValidationRequired)
+                {
+                    _inspector.ValidationRequired = false;
+                    
+                    _inspector.RunValidation();
+                }
+            }
+            finally
+            {
+                Profiler.EndSample();
+            }
 
             EditorStack.Push(this);
             Profiler.BeginSample("TriInspector.DoLayout()");
@@ -65,7 +80,10 @@ namespace TriInspector
                 EditorStack.Pop();
             }
 
-            serializedObject.ApplyModifiedProperties();
+            if (serializedObject.ApplyModifiedProperties())
+            {
+                _inspector.RequestValidation();
+            }
 
             if (_inspector.RepaintRequired)
             {

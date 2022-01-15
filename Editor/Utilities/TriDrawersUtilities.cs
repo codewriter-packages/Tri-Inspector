@@ -12,6 +12,8 @@ namespace TriInspector.Utilities
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
         private static IReadOnlyList<RegisterTriAttributeDrawerAttribute> _allAttributeDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriValueDrawerAttribute> _allValueDrawerTypesBackingField;
+        private static IReadOnlyList<RegisterTriAttributeValidatorAttribute> _allAttributeValidatorTypesBackingField;
+        private static IReadOnlyList<RegisterTriValueValidatorAttribute> _allValueValidatorTypesBackingField;
         private static IReadOnlyList<RegisterTriPropertyHideProcessor> _allHideProcessorTypesBackingField;
         private static IReadOnlyList<RegisterTriPropertyDisableProcessor> _allDisableProcessorTypesBackingField;
 
@@ -69,6 +71,42 @@ namespace TriInspector.Utilities
                 }
 
                 return _allAttributeDrawerTypesBackingField;
+            }
+        }
+
+        public static IReadOnlyList<RegisterTriValueValidatorAttribute> AllValueValidatorTypes
+        {
+            get
+            {
+                if (_allValueValidatorTypesBackingField == null)
+                {
+                    _allValueValidatorTypesBackingField = (
+                        from asm in TriReflectionUtilities.Assemblies
+                        from attr in asm.GetCustomAttributes<RegisterTriValueValidatorAttribute>()
+                        where IsValueValidatorType(attr.ValidatorType, out _)
+                        select attr
+                    ).ToList();
+                }
+
+                return _allValueValidatorTypesBackingField;
+            }
+        }
+
+        public static IReadOnlyList<RegisterTriAttributeValidatorAttribute> AllAttributeValidatorTypes
+        {
+            get
+            {
+                if (_allAttributeValidatorTypesBackingField == null)
+                {
+                    _allAttributeValidatorTypesBackingField = (
+                        from asm in TriReflectionUtilities.Assemblies
+                        from attr in asm.GetCustomAttributes<RegisterTriAttributeValidatorAttribute>()
+                        where IsAttributeValidatorType(attr.ValidatorType, out _)
+                        select attr
+                    ).ToList();
+                }
+
+                return _allAttributeValidatorTypesBackingField;
             }
         }
 
@@ -133,6 +171,16 @@ namespace TriInspector.Utilities
             return TryGetBaseGenericTargetType(type, typeof(TriAttributeDrawer<>), out attributeType);
         }
 
+        private static bool IsValueValidatorType(Type type, out Type valueType)
+        {
+            return TryGetBaseGenericTargetType(type, typeof(TriValueValidator<>), out valueType);
+        }
+
+        private static bool IsAttributeValidatorType(Type type, out Type attributeType)
+        {
+            return TryGetBaseGenericTargetType(type, typeof(TriAttributeValidator<>), out attributeType);
+        }
+
         private static bool IsHideProcessorType(Type type, out Type attributeType)
         {
             return TryGetBaseGenericTargetType(type, typeof(TriPropertyHideProcessor<>), out attributeType);
@@ -167,6 +215,31 @@ namespace TriInspector.Utilities
                 {
                     it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
                     it.Order = drawer.Order;
+                    it.RawAttribute = attribute;
+                });
+        }
+
+        public static IEnumerable<TriValueValidator> CreateValueValidatorsFor(Type valueType)
+        {
+            return
+                from validator in AllValueValidatorTypes
+                where IsValueValidatorType(validator.ValidatorType, out var vt) &&
+                      IsValidTargetType(vt, valueType)
+                select CreateInstance<TriValueValidator>(validator.ValidatorType, valueType,
+                    it => { it.ApplyOnArrayElement = validator.ApplyOnArrayElement; });
+        }
+
+        public static IEnumerable<TriAttributeValidator> CreateAttributeValidatorsFor(
+            IReadOnlyList<Attribute> attributes)
+        {
+            return
+                from attribute in attributes
+                from validator in AllAttributeValidatorTypes
+                where IsAttributeValidatorType(validator.ValidatorType, out var vt) &&
+                      IsValidTargetType(vt, attribute.GetType())
+                select CreateInstance<TriAttributeValidator>(validator.ValidatorType, attribute.GetType(), it =>
+                {
+                    it.ApplyOnArrayElement = validator.ApplyOnArrayElement;
                     it.RawAttribute = attribute;
                 });
         }

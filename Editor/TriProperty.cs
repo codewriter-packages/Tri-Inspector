@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using TriInspector.Utilities;
 using UnityEditor;
@@ -10,11 +11,15 @@ namespace TriInspector
 {
     public sealed class TriProperty : ITriPropertyParent
     {
+        private static readonly IReadOnlyList<TriValidationResult> EmptyValidationResults =
+            new List<TriValidationResult>();
+        
         private readonly TriPropertyDefinition _definition;
         private readonly int _propertyIndex;
         private readonly ITriPropertyParent _parent;
         [CanBeNull] private readonly SerializedProperty _serializedProperty;
         private List<TriProperty> _childrenProperties;
+        private List<TriValidationResult> _validationResults;
 
         private GUIContent _displayNameBackingField;
 
@@ -36,6 +41,9 @@ namespace TriInspector
             Update();
         }
 
+        [PublicAPI]
+        public string DisplayName => DisplayNameContent.text;
+        
         [PublicAPI]
         public GUIContent DisplayNameContent
         {
@@ -137,6 +145,11 @@ namespace TriInspector
 
         public ITriPropertyParent Parent => _parent;
 
+        public bool HasValidators => _definition.Validators.Count != 0;
+
+        public IReadOnlyList<TriValidationResult> ValidationResults =>
+            _validationResults ?? EmptyValidationResults;
+
         [PublicAPI]
         public bool IsExpanded
         {
@@ -200,7 +213,10 @@ namespace TriInspector
         public void SetValue(object value)
         {
             // save any pending changes
-            PropertyTree.SerializedObject.ApplyModifiedProperties();
+            if (PropertyTree.SerializedObject.ApplyModifiedProperties())
+            {
+                PropertyTree.RequestValidation();
+            }
 
             // record object state for undp
             Undo.RegisterCompleteObjectUndo(PropertyTree.TargetObjects, "Inspector");
@@ -215,6 +231,8 @@ namespace TriInspector
             // actualize
             PropertyTree.SerializedObject.Update();
             Update();
+            
+            PropertyTree.RequestValidation();
         }
 
         internal void Update()
@@ -297,6 +315,25 @@ namespace TriInspector
                 foreach (var childrenProperty in _childrenProperties)
                 {
                     childrenProperty.Update();
+                }
+            }
+        }
+
+        internal void RunValidation()
+        {
+            if (HasValidators)
+            {
+                _validationResults = _definition.Validators
+                    .Select(it => it.Validate(this))
+                    .Where(it => it.MessageType != MessageType.None)
+                    .ToList();
+            }
+            
+            if (_childrenProperties != null)
+            {
+                foreach (var childrenProperty in _childrenProperties)
+                {
+                    childrenProperty.RunValidation();
                 }
             }
         }
