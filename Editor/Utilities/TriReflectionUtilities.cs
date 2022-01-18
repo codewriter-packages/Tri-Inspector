@@ -60,48 +60,26 @@ namespace TriInspector.Utilities
 
         public static IReadOnlyList<FieldInfo> GetAllInstanceFieldsInDeclarationOrder(Type type)
         {
-            var result = new List<FieldInfo>();
-            var typeTree = new Stack<Type>();
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                                       BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-            while (type != null)
-            {
-                typeTree.Push(type);
-                type = type.BaseType;
-            }
-
-            foreach (var t in typeTree)
-            {
-                const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
-                                           BindingFlags.Instance | BindingFlags.DeclaredOnly;
-
-                var fields = t.GetFields(flags);
-                result.AddRange(fields);
-            }
-
-            return result;
+            return GetAllMembersInDeclarationOrder(type, it => it.GetFields(flags));
         }
 
         public static IReadOnlyList<PropertyInfo> GetAllInstancePropertiesInDeclarationOrder(Type type)
         {
-            var result = new List<PropertyInfo>();
-            var typeTree = new Stack<Type>();
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                                       BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-            while (type != null)
-            {
-                typeTree.Push(type);
-                type = type.BaseType;
-            }
+            return GetAllMembersInDeclarationOrder(type, it => it.GetProperties(flags));
+        }
 
-            foreach (var t in typeTree)
-            {
-                const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
-                                           BindingFlags.Instance | BindingFlags.DeclaredOnly;
+        public static IReadOnlyList<MethodInfo> GetAllInstanceMethodsInDeclarationOrder(Type type)
+        {
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
+                                       BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-                var fields = t.GetProperties(flags);
-                result.AddRange(fields);
-            }
-
-            return result;
+            return GetAllMembersInDeclarationOrder(type, it => it.GetMethods(flags));
         }
 
         public static bool IsArrayOrList(Type type, out Type elementType)
@@ -132,6 +110,28 @@ namespace TriInspector.Utilities
             return assembly
                 .GetTypes()
                 .Single(it => it.Name == name);
+        }
+
+        private static IReadOnlyList<T> GetAllMembersInDeclarationOrder<T>(
+            Type type, Func<Type, T[]> select)
+            where T : MemberInfo
+        {
+            var result = new List<T>();
+            var typeTree = new Stack<Type>();
+
+            while (type != null)
+            {
+                typeTree.Push(type);
+                type = type.BaseType;
+            }
+
+            foreach (var t in typeTree)
+            {
+                var items = select(t);
+                result.AddRange(items);
+            }
+
+            return result;
         }
     }
 }

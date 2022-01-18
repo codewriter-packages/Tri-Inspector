@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using JetBrains.Annotations;
 using TriInspector.Utilities;
 using UnityEditor;
@@ -124,6 +125,8 @@ namespace TriInspector
             }
         }
 
+        [PublicAPI]
+        public MemberInfo MemberInfo => _definition.MemberInfo;
 
         [PublicAPI]
         public Type FieldType => _definition.FieldType;

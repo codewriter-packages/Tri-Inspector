@@ -13,21 +13,31 @@ namespace TriInspector
 
         private TriTypeDefinition(Type type)
         {
+            var fieldsOffset = 1;
             var fields = TriReflectionUtilities
                 .GetAllInstanceFieldsInDeclarationOrder(type)
                 .Where(IsSerialized)
-                .Select((it, ind) => new TriPropertyDefinition(ind + 1, it))
+                .Select((it, ind) => new TriPropertyDefinition(ind + fieldsOffset, it))
                 .ToList();
 
+            var propertiesOffset = fieldsOffset + fields.Count;
             var properties = TriReflectionUtilities
                 .GetAllInstancePropertiesInDeclarationOrder(type)
                 .Where(IsSerialized)
-                .Select((it, ind) => new TriPropertyDefinition(ind + fields.Count + 1, it))
+                .Select((it, ind) => new TriPropertyDefinition(ind + propertiesOffset, it))
+                .ToList();
+
+            var methodsOffset = propertiesOffset + properties.Count;
+            var methods = TriReflectionUtilities
+                .GetAllInstanceMethodsInDeclarationOrder(type)
+                .Where(IsSerialized)
+                .Select((it, ind) => new TriPropertyDefinition(ind + methodsOffset, it))
                 .ToList();
 
             Properties = Enumerable.Empty<TriPropertyDefinition>()
                 .Concat(fields)
                 .Concat(properties)
+                .Concat(methods)
                 .OrderBy(it => it.Order)
                 .ToList();
         }
@@ -42,6 +52,11 @@ namespace TriInspector
         private static bool IsSerialized(PropertyInfo propertyInfo)
         {
             return propertyInfo.GetCustomAttribute<ShowInInspector>() != null;
+        }
+
+        private static bool IsSerialized(MethodInfo methodInfo)
+        {
+            return methodInfo.GetCustomAttribute<ButtonAttribute>() != null;
         }
 
         public static TriTypeDefinition GetCached(Type type)
