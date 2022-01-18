@@ -38,28 +38,4 @@ namespace TriInspector
         [PublicAPI]
         public abstract TriValidationResult Validate(TriValue<T> propertyValue);
     }
-
-    public readonly struct TriValidationResult
-    {
-        public static TriValidationResult Valid => new TriValidationResult(null, MessageType.None);
-
-        private TriValidationResult(string message, MessageType messageType)
-        {
-            Message = message;
-            MessageType = messageType;
-        }
-
-        public string Message { get; }
-        public MessageType MessageType { get; }
-
-        public static TriValidationResult Error(string error)
-        {
-            return new TriValidationResult(error, MessageType.Error);
-        }
-
-        public static TriValidationResult Warning(string error)
-        {
-            return new TriValidationResult(error, MessageType.Warning);
-        }
-    }
 }

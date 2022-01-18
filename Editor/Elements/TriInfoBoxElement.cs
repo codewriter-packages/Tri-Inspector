@@ -9,9 +9,10 @@ namespace TriInspector.Elements
         private readonly GUIContent _message;
         private readonly Color _color;
 
-        public TriInfoBoxElement(string message, MessageType type = MessageType.None, Color? color = null)
+        public TriInfoBoxElement(string message, TriMessageType type = TriMessageType.None, Color? color = null)
         {
-            _message = new GUIContent(message, EditorGUIUtilityProxy.GetHelpIcon(type));
+            var messageType = GetMessageType(type);
+            _message = new GUIContent(message, EditorGUIUtilityProxy.GetHelpIcon(messageType));
             _color = color ?? GetColor(type);
         }
 
@@ -30,18 +31,30 @@ namespace TriInspector.Elements
             GUI.Label(position, _message, Styles.InfoBoxContent);
         }
 
-        private static Color GetColor(MessageType type)
+        private static Color GetColor(TriMessageType type)
         {
             switch (type)
             {
-                case MessageType.Error:
+                case TriMessageType.Error:
                     return new Color(1f, 0.4f, 0.4f);
 
-                case MessageType.Warning:
+                case TriMessageType.Warning:
                     return new Color(1f, 0.8f, 0.2f);
 
                 default:
                     return Color.white;
+            }
+        }
+
+        private static MessageType GetMessageType(TriMessageType type)
+        {
+            switch (type)
+            {
+                case TriMessageType.None: return MessageType.None;
+                case TriMessageType.Info: return MessageType.Info;
+                case TriMessageType.Warning: return MessageType.Warning;
+                case TriMessageType.Error: return MessageType.Error;
+                default: return MessageType.None;
             }
         }
 

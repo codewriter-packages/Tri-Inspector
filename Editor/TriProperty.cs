@@ -13,7 +13,7 @@ namespace TriInspector
     {
         private static readonly IReadOnlyList<TriValidationResult> EmptyValidationResults =
             new List<TriValidationResult>();
-        
+
         private readonly TriPropertyDefinition _definition;
         private readonly int _propertyIndex;
         private readonly ITriPropertyParent _parent;
@@ -43,7 +43,7 @@ namespace TriInspector
 
         [PublicAPI]
         public string DisplayName => DisplayNameContent.text;
-        
+
         [PublicAPI]
         public GUIContent DisplayNameContent
         {
@@ -231,7 +231,7 @@ namespace TriInspector
             // actualize
             PropertyTree.SerializedObject.Update();
             Update();
-            
+
             PropertyTree.RequestValidation();
         }
 
@@ -325,10 +325,10 @@ namespace TriInspector
             {
                 _validationResults = _definition.Validators
                     .Select(it => it.Validate(this))
-                    .Where(it => it.MessageType != MessageType.None)
+                    .Where(it => !it.IsValid)
                     .ToList();
             }
-            
+
             if (_childrenProperties != null)
             {
                 foreach (var childrenProperty in _childrenProperties)

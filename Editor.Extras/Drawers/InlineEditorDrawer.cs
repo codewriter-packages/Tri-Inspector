@@ -19,7 +19,7 @@ namespace TriInspector.Drawers
             {
                 var stack = new TriElement();
                 stack.AddChild(new TriInfoBoxElement($"InlineEditor valid only on Object fields",
-                    MessageType.Error));
+                    TriMessageType.Error));
                 stack.AddChild(next);
 
                 return stack;
