@@ -28,6 +28,14 @@ public class BasicSample : TriMonoBehaviour
     [DisableInPlayMode, EnableInPlayMode]
     public float conditional;
 
+    [PropertyOrder(3)]
+    [EnableInPlayMode]
+    [Button("Click Me!")]
+    private void CustomButton()
+    {
+        Debug.Log("Button clicked!");
+    }
+    
     [ShowInInspector]
     public float ReadonlyProperty => 123f;
 
