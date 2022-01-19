@@ -89,6 +89,8 @@ namespace TriInspector
             {
                 property.RunValidation();
             }
+            
+            RequestRepaint();
         }
 
         internal void DoLayout()
