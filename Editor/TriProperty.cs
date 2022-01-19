@@ -216,10 +216,7 @@ namespace TriInspector
         public void SetValue(object value)
         {
             // save any pending changes
-            if (PropertyTree.SerializedObject.ApplyModifiedProperties())
-            {
-                PropertyTree.RequestValidation();
-            }
+            PropertyTree.ApplySerializedObjectModifiedProperties();
 
             // record object state for undp
             Undo.RegisterCompleteObjectUndo(PropertyTree.TargetObjects, "Inspector");
@@ -232,7 +229,7 @@ namespace TriInspector
             }
 
             // actualize
-            PropertyTree.SerializedObject.Update();
+            PropertyTree.UpdateSerializedObject();
             Update();
 
             PropertyTree.RequestValidation();

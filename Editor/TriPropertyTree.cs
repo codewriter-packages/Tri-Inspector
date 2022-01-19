@@ -46,8 +46,7 @@ namespace TriInspector
         [PublicAPI]
         public Type TargetObjectType { get; }
 
-        [PublicAPI]
-        public SerializedObject SerializedObject { get; }
+        private SerializedObject SerializedObject { get; }
 
         public TriPropertyTree Root { get; }
 
@@ -100,6 +99,20 @@ namespace TriInspector
             _inspectorElement.OnGUI(rect);
         }
 
+        public void UpdateSerializedObject()
+        {
+            SerializedObject.Update();
+        }
+        
+        public void ApplySerializedObjectModifiedProperties()
+        {
+            if (SerializedObject.ApplyModifiedProperties())
+            {
+                RequestValidation();
+                RequestRepaint();
+            }
+        }
+        
         public void RequestRepaint()
         {
             RepaintRequired = true;
