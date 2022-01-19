@@ -26,6 +26,8 @@ public class BasicSample : TriMonoBehaviour
 
     [HideInPlayMode, ShowInPlayMode]
     [DisableInPlayMode, EnableInPlayMode]
+    [HideInEditMode, ShowInEditMode]
+    [DisableInEditMode, EnableInEditMode]
     public float conditional;
 
     [PropertyOrder(3)]
