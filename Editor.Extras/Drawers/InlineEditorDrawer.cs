@@ -13,18 +13,18 @@ namespace TriInspector.Drawers
 {
     public class InlineEditorDrawer : TriAttributeDrawer<InlineEditorAttribute>
     {
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override string CanDraw(TriProperty property)
         {
             if (!typeof(Object).IsAssignableFrom(property.FieldType))
             {
-                var stack = new TriElement();
-                stack.AddChild(new TriInfoBoxElement($"InlineEditor valid only on Object fields",
-                    TriMessageType.Error));
-                stack.AddChild(next);
-
-                return stack;
+                return "[InlineEditor] valid only on Object fields";
             }
 
+            return null;
+        }
+
+        public override TriElement CreateElement(TriProperty property, TriElement next)
+        {
             var element = new TriBoxGroupElement(new DeclareBoxGroupAttribute(""));
             element.AddChild(new ObjectReferenceFoldoutDrawerElement(property));
             element.AddChild(new InlineEditorElement(property));

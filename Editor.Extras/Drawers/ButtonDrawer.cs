@@ -10,6 +10,16 @@ namespace TriInspector.Drawers
 {
     public class ButtonDrawer : TriAttributeDrawer<ButtonAttribute>
     {
+        public override string CanDraw(TriProperty property)
+        {
+            if (property.MemberInfo is MethodInfo mi && mi.GetParameters().Length == 0)
+            {
+                return null;
+            }
+
+            return "[Button] valid only on methods without parameters";
+        }
+
         public override float GetHeight(float width, TriProperty property, TriElement next)
         {
             return EditorGUIUtility.singleLineHeight;
