@@ -30,11 +30,12 @@ namespace TriInspector
                 })
                 .ToList();
 
-            ValidationRequired = true;
-
             _mode = mode;
             _inspectorElement = new TriInspectorElement(this);
             _inspectorElement.AttachInternal();
+
+            Update();
+            RunValidation();
         }
 
         [PublicAPI]
@@ -79,8 +80,6 @@ namespace TriInspector
             {
                 property.Update();
             }
-
-            _inspectorElement.Update();
         }
 
         internal void RunValidation()
@@ -89,12 +88,13 @@ namespace TriInspector
             {
                 property.RunValidation();
             }
-            
+
             RequestRepaint();
         }
 
         internal void DoLayout()
         {
+            _inspectorElement.Update();
             var width = EditorGUIUtility.currentViewWidth;
             var height = _inspectorElement.GetHeight(width);
             var rect = GUILayoutUtility.GetRect(width, height);
@@ -105,7 +105,7 @@ namespace TriInspector
         {
             SerializedObject.Update();
         }
-        
+
         public void ApplySerializedObjectModifiedProperties()
         {
             if (SerializedObject.ApplyModifiedProperties())
@@ -114,7 +114,7 @@ namespace TriInspector
                 RequestRepaint();
             }
         }
-        
+
         public void RequestRepaint()
         {
             RepaintRequired = true;

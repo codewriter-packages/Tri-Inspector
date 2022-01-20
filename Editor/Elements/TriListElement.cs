@@ -29,27 +29,29 @@ namespace TriInspector.Elements
         public TriListElement(TriProperty property)
         {
             _property = property;
-
-            if (_property.TryGetSerializedProperty(out var serializedProperty) && serializedProperty.isArray)
+            _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
-                _reorderableListGui = new ReorderableList(serializedProperty.serializedObject, serializedProperty,
-                    true, true, true, true);
-            }
-            else
-            {
-                _reorderableListGui = new ReorderableList((IList) _property.Value,
-                    _property.ArrayElementType,
-                    false, true, true, true);
-            }
-
-            _reorderableListGui.drawHeaderCallback = DrawHeaderCallback;
-            _reorderableListGui.elementHeightCallback = ElementHeightCallback;
-            _reorderableListGui.drawElementCallback = DrawElementCallback;
+                draggable = false,
+                displayAdd = true,
+                displayRemove = true,
+                drawHeaderCallback = DrawHeaderCallback,
+                elementHeightCallback = ElementHeightCallback,
+                drawElementCallback = DrawElementCallback,
+            };
         }
 
         public override bool Update()
         {
             var dirty = false;
+
+            if (_property.TryGetSerializedProperty(out var serializedProperty) && serializedProperty.isArray)
+            {
+                _reorderableListGui.serializedProperty = serializedProperty;
+            }
+            else
+            {
+                _reorderableListGui.list = (IList) _property.Value;
+            }
 
             if (_property.IsExpanded)
             {

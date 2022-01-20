@@ -207,7 +207,7 @@ namespace TriInspector
         [CanBeNull]
         public object Value { get; private set; }
 
-        object ITriPropertyParent.GetValue(int targetIndex)
+        public object GetValue(int targetIndex)
         {
             return _definition.GetValue(this, targetIndex);
         }
@@ -237,7 +237,8 @@ namespace TriInspector
 
         internal void Update()
         {
-            var newValue = _definition.GetValue(this, 0);
+            ReadValue(this, out var newValue, out var newValueIsMixed);
+
             var newValueType = FieldType.IsValueType ? FieldType
                 : ReferenceEquals(Value, newValue) ? ValueType
                 : newValue?.GetType();
@@ -245,7 +246,7 @@ namespace TriInspector
 
             Value = newValue;
             ValueType = newValueType;
-            IsValueMixed = GetIsValueMixed(this, newValue);
+            IsValueMixed = newValueIsMixed;
 
             switch (PropertyType)
             {
@@ -278,17 +279,7 @@ namespace TriInspector
                 case TriPropertyType.Array:
                     _childrenProperties ??= new List<TriProperty>();
 
-                    var list = (IList) Value;
-                    for (var i = 1; list != null && i < PropertyTree.TargetObjects.Length; i++)
-                    {
-                        var otherList = (IList) _definition.GetValue(this, i);
-                        if (otherList == null || otherList.Count < list.Count)
-                        {
-                            Value = list = otherList;
-                        }
-                    }
-
-                    var listSize = list?.Count ?? 0;
+                    var listSize = ((IList) newValue)?.Count ?? 0;
 
                     while (_childrenProperties.Count < listSize)
                     {
@@ -388,58 +379,85 @@ namespace TriInspector
             }
         }
 
-        private static bool GetIsValueMixed(TriProperty property, object newValue)
+        private static void ReadValue(TriProperty property, out object newValue, out bool isMixed)
         {
+            newValue = property.GetValue(0);
+
             if (property.PropertyTree.TargetObjects.Length == 1)
             {
-                return false;
+                isMixed = false;
+                return;
             }
 
             switch (property.PropertyType)
             {
                 case TriPropertyType.Array:
                 {
-                    return false;
+                    var list = (IList) newValue;
+                    for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
+                    {
+                        if (list == null)
+                        {
+                            break;
+                        }
+
+                        var otherList = (IList) property.GetValue(i);
+                        if (otherList == null || otherList.Count < list.Count)
+                        {
+                            newValue = list = otherList;
+                        }
+                    }
+
+                    isMixed = true;
+                    return;
                 }
                 case TriPropertyType.Reference:
                 {
                     for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
                     {
-                        var otherValue = property._definition.GetValue(property, i);
+                        var otherValue = property.GetValue(i);
 
-                        if (newValue?.GetType() != otherValue.GetType())
+                        if (newValue?.GetType() != otherValue?.GetType())
                         {
-                            return true;
+                            isMixed = true;
+                            newValue = null;
+                            return;
                         }
                     }
 
-                    return false;
+                    isMixed = false;
+                    return;
                 }
                 case TriPropertyType.Generic:
                 {
-                    return false;
+                    isMixed = false;
+                    return;
                 }
                 case TriPropertyType.Primitive:
                 {
                     for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
                     {
-                        var otherValue = property._definition.GetValue(property, i);
+                        var otherValue = property.GetValue(i);
                         var otherValueIsSame = property.FieldType.IsValueType
                             ? otherValue.Equals(newValue)
                             : ReferenceEquals(otherValue, newValue);
 
                         if (!otherValueIsSame)
                         {
-                            return true;
+                            isMixed = true;
+                            return;
                         }
                     }
 
-                    return false;
+                    isMixed = false;
+                    return;
                 }
 
                 default:
                 {
-                    return false;
+                    Debug.LogError($"Unexpected property type: {property.PropertyType}");
+                    isMixed = true;
+                    return;
                 }
             }
         }
