@@ -24,6 +24,8 @@ namespace TriInspector
 
         private GUIContent _displayNameBackingField;
 
+        private string _isExpandedPrefsKey;
+
         internal TriProperty(
             TriPropertyTree propertyTree,
             ITriPropertyParent parent,
@@ -163,8 +165,10 @@ namespace TriInspector
                     return _serializedProperty.isExpanded;
                 }
 
-                // add saves
-                return true;
+                _isExpandedPrefsKey ??=
+                    $"TriInspector.expanded.{PropertyTree.TargetObjectType.Name}.{_definition.FieldType}";
+
+                return EditorPrefs.GetBool(_isExpandedPrefsKey, false);
             }
             set
             {
@@ -176,6 +180,10 @@ namespace TriInspector
                 if (_serializedProperty != null)
                 {
                     _serializedProperty.isExpanded = value;
+                }
+                else if (_isExpandedPrefsKey != null)
+                {
+                    EditorPrefs.SetBool(_isExpandedPrefsKey, value);
                 }
             }
         }
