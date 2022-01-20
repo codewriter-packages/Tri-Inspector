@@ -166,7 +166,7 @@ namespace TriInspector
                 }
 
                 _isExpandedPrefsKey ??=
-                    $"TriInspector.expanded.{PropertyTree.TargetObjectType.Name}.{_definition.FieldType}";
+                    $"TriInspector.expanded.{PropertyTree.TargetObjectType}.{MemberInfo}";
 
                 return EditorPrefs.GetBool(_isExpandedPrefsKey, false);
             }
