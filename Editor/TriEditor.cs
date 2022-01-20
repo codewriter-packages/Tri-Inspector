@@ -52,14 +52,14 @@ namespace TriInspector
             {
                 Profiler.EndSample();
             }
-            
+
             Profiler.BeginSample("TriInspector.RunValidation()");
             try
             {
                 if (_inspector.ValidationRequired)
                 {
                     _inspector.ValidationRequired = false;
-                    
+
                     _inspector.RunValidation();
                 }
             }
