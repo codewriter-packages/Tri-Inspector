@@ -1,0 +1,159 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using TriInspector;
+using TriInspector.Drawers;
+using TriInspector.Elements;
+using TriInspector.Utilities;
+using UnityEditor.IMGUI.Controls;
+using UnityEngine;
+
+[assembly: RegisterTriAttributeDrawer(typeof(TableListDrawer), TriDrawerOrder.Drawer)]
+
+namespace TriInspector.Drawers
+{
+    public class TableListDrawer : TriAttributeDrawer<TableListAttribute>
+    {
+        public override string CanDraw(TriProperty property)
+        {
+            if (property.PropertyType != TriPropertyType.Array)
+            {
+                return "[TableList] valid only on lists";
+            }
+
+            return null;
+        }
+
+        public override TriElement CreateElement(TriProperty property, TriElement next)
+        {
+            return new TableElement(property);
+        }
+
+        private class TableElement : TriElement
+        {
+            private readonly TableMultiColumnTreeView _treeView;
+
+            public TableElement(TriProperty property)
+            {
+                _treeView = new TableMultiColumnTreeView(property, this);
+            }
+
+            public override float GetHeight(float width)
+            {
+                return _treeView.totalHeight;
+            }
+
+            public override void OnGUI(Rect position)
+            {
+                _treeView.OnGUI(position);
+            }
+        }
+
+        [Serializable]
+        private class TableMultiColumnTreeView : TreeView
+        {
+            private readonly TriProperty _property;
+            private readonly TriElement _cellElementContainer;
+            private readonly Dictionary<string, int> _cellIndexByName;
+            private readonly Dictionary<TriProperty, TriElement> _cellElements;
+
+            public TableMultiColumnTreeView(TriProperty property, TriElement container)
+                : base(new TreeViewState(), BuildHeader(property))
+            {
+                _property = property;
+                _cellElementContainer = container;
+
+                _cellIndexByName = new Dictionary<string, int>();
+                _cellElements = new Dictionary<TriProperty, TriElement>();
+
+                rowHeight = 20;
+                showAlternatingRowBackgrounds = true;
+                showBorder = true;
+                useScrollView = false;
+
+                Reload();
+            }
+
+            protected override TreeViewItem BuildRoot()
+            {
+                var root = new TreeViewItem(0, -1, string.Empty);
+
+                for (var index = 0; index < _property.ArrayElementProperties.Count; index++)
+                {
+                    var rowChildProperty = _property.ArrayElementProperties[index];
+                    root.AddChild(new TableTreeElement(index, rowChildProperty));
+
+                    foreach (var cellValueProperty in rowChildProperty.ChildrenProperties)
+                    {
+                        if (!_cellIndexByName.ContainsKey(cellValueProperty.RawName))
+                        {
+                            _cellIndexByName.Add(cellValueProperty.RawName, _cellIndexByName.Count);
+                        }
+                    }
+                }
+
+                return root;
+            }
+
+            protected override void RowGUI(RowGUIArgs args)
+            {
+                var tableItem = (TableTreeElement) args.item;
+
+                foreach (var cellValueProperty in tableItem.Property.ChildrenProperties)
+                {
+                    var cellIndex = _cellIndexByName[cellValueProperty.RawName];
+                    var cellRect = args.GetCellRect(cellIndex);
+
+                    if (!_cellElements.ContainsKey(cellValueProperty))
+                    {
+                        var cellElement = new TriPropertyElement(cellValueProperty, true);
+                        _cellElements.Add(cellValueProperty, cellElement);
+                        _cellElementContainer.AddChild(cellElement);
+                    }
+
+                    using (TriGuiHelper.PushLabelWidth(1f)) // todo fix this
+                    {
+                        _cellElements[cellValueProperty].OnGUI(cellRect);
+                    }
+                }
+            }
+
+            private static MultiColumnHeader BuildHeader(TriProperty property)
+            {
+                var columns = property
+                    .ArrayElementProperties
+                    .SelectMany(it => it.ChildrenProperties)
+                    .GroupBy(it => it.RawName)
+                    .Select(it => it.First())
+                    .Select(it => new MultiColumnHeaderState.Column
+                    {
+                        headerContent = it.DisplayNameContent,
+                        autoResize = true,
+                        canSort = false,
+                        allowToggleVisibility = false,
+                    })
+                    .ToArray();
+
+                var header = new MultiColumnHeader(new MultiColumnHeaderState(columns))
+                {
+                    canSort = false,
+                };
+
+                header.ResizeToFit();
+
+                return header;
+            }
+        }
+
+        [Serializable]
+        private class TableTreeElement : TreeViewItem
+        {
+            public TableTreeElement(int id, TriProperty property) : base(id, 0)
+            {
+                Property = property;
+            }
+
+            public TriProperty Property { get; }
+        }
+    }
+}

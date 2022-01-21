@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace TriInspector.Elements
 {
-    internal class TriPropertyElement : TriElement
+    public class TriPropertyElement : TriElement
     {
         private readonly TriProperty _property;
 

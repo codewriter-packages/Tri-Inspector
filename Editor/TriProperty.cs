@@ -45,6 +45,9 @@ namespace TriInspector
         }
 
         [PublicAPI]
+        public string RawName => _definition.Name;
+
+        [PublicAPI]
         public string DisplayName => DisplayNameContent.text;
 
         [PublicAPI]
