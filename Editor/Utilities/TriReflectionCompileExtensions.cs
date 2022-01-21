@@ -84,6 +84,19 @@ namespace TriInspector.Utilities
             return lambda.Compile();
         }
 
+        public static Action<T1, T2> CompileStaticVoidMethod<T1, T2>(
+            this Type type, string name)
+        {
+            const BindingFlags flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            var method = GetMethod(type, name, 2, flags);
+
+            var a1 = Expression.Parameter(typeof(T1));
+            var a2 = Expression.Parameter(typeof(T2));
+            var body = Expression.Call(method, a1, a2);
+            var lambda = Expression.Lambda<Action<T1, T2>>(body, a1, a2);
+            return lambda.Compile();
+        }
+
         private static PropertyInfo GetProperty(this Type type, string name, BindingFlags flags)
         {
             var property = type.GetProperties(flags).SingleOrDefault(it => it.Name == name);
