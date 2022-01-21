@@ -28,16 +28,23 @@ namespace TriInspector.Elements
 
         public TriListElement(TriProperty property)
         {
+            property.TryGetAttribute(out ListDrawerSettings settings);
+
             _property = property;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
-                draggable = false,
-                displayAdd = true,
-                displayRemove = true,
+                draggable = settings?.Draggable ?? true,
+                displayAdd = settings == null || !settings.HideAddButton,
+                displayRemove = settings == null || !settings.HideRemoveButton,
                 drawHeaderCallback = DrawHeaderCallback,
                 elementHeightCallback = ElementHeightCallback,
                 drawElementCallback = DrawElementCallback,
             };
+
+            if (!_reorderableListGui.displayAdd && !_reorderableListGui.displayRemove)
+            {
+                _reorderableListGui.footerHeight = 0f;
+            }
         }
 
         public override bool Update()
@@ -166,7 +173,8 @@ namespace TriInspector.Elements
                 };
 
                 TriEditorGUI.Foldout(labelRect, _property);
-                GUI.Label(arraySizeRect, $"{_reorderableListGui.count} items", Styles.ItemsCount);
+                var label = _reorderableListGui.count == 0 ? "Empty" : $"{_reorderableListGui.count} items";
+                GUI.Label(arraySizeRect, label, Styles.ItemsCount);
             }
         }
 
