@@ -11,6 +11,11 @@ namespace TriInspector
         private static GUIStyle _contentBox;
         private static GUIStyle _box;
 
+        public static GUIStyle TabOnlyOne { get; } = "Tab onlyOne";
+        public static GUIStyle TabFirst { get; } = "Tab first";
+        public static GUIStyle TabMiddle { get; } = "Tab middle";
+        public static GUIStyle TabLast { get; } = "Tab last";
+
         public static GUIStyle HeaderBox
         {
             get

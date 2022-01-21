@@ -41,20 +41,20 @@ namespace TriInspector.Elements
                 var remaining = path.GetEnumerator();
                 if (remaining.MoveNext())
                 {
-                    AddGroupedChild(propertyElement, remaining.Current, remaining.Current, remaining);
+                    AddGroupedChild(propertyElement, property, remaining.Current, remaining.Current, remaining);
                 }
                 else
                 {
-                    AddChild(propertyElement);
+                    AddPropertyChild(propertyElement, property);
                 }
             }
             else
             {
-                AddChild(propertyElement);
+                AddPropertyChild(propertyElement, property);
             }
         }
 
-        private void AddGroupedChild(TriElement child, string currentPath, string currentName,
+        private void AddGroupedChild(TriElement child, TriProperty property, string currentPath, string currentName,
             IEnumerator<string> remainingPath)
         {
             if (_groups == null)
@@ -62,22 +62,23 @@ namespace TriInspector.Elements
                 _groups = new Dictionary<string, TriPropertyCollectionBaseElement>();
             }
 
-            var groupElement = CreateSubGroup(currentPath, currentName);
+            var groupElement = CreateSubGroup(property, currentPath, currentName);
 
             if (remainingPath.MoveNext())
             {
                 var nextPath = currentPath + "/" + remainingPath.Current;
                 var nextName = remainingPath.Current;
 
-                groupElement.AddGroupedChild(child, nextPath, nextName, remainingPath);
+                groupElement.AddGroupedChild(child, property, nextPath, nextName, remainingPath);
             }
             else
             {
-                groupElement.AddChild(child);
+                groupElement.AddPropertyChild(child, property);
             }
         }
 
-        private TriPropertyCollectionBaseElement CreateSubGroup(string groupPath, string groupName)
+        private TriPropertyCollectionBaseElement CreateSubGroup(TriProperty property,
+            string groupPath, string groupName)
         {
             if (!_groups.TryGetValue(groupName, out var groupElement))
             {
@@ -97,10 +98,15 @@ namespace TriInspector.Elements
 
                 _groups.Add(groupName, groupElement);
 
-                AddChild(groupElement);
+                AddPropertyChild(groupElement, property);
             }
 
             return groupElement;
+        }
+
+        protected virtual void AddPropertyChild(TriElement element, TriProperty property)
+        {
+            AddChild(element);
         }
 
         private class DefaultGroupElement : TriPropertyCollectionBaseElement

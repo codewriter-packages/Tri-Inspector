@@ -4,14 +4,8 @@ using UnityEngine;
 
 namespace TriInspector.Elements
 {
-    public class TriBoxGroupElement : TriPropertyCollectionBaseElement
+    public class TriBoxGroupElement : TriHeaderGroupBaseElement
     {
-        private const float HeaderWidth = 22;
-        private const float InsetTop = 4;
-        private const float InsetBottom = 4;
-        private const float InsetLeft = 4;
-        private const float InsetRight = 4;
-
         private readonly GUIContent _headerLabel;
 
         public TriBoxGroupElement(DeclareBoxGroupAttribute attribute)
@@ -21,58 +15,29 @@ namespace TriInspector.Elements
                 : new GUIContent(attribute.Title);
         }
 
-        public override float GetHeight(float width)
+        protected override float GetHeaderHeight(float width)
         {
-            var height = base.GetHeight(width) + InsetTop + InsetBottom;
-
-            if (_headerLabel != GUIContent.none)
+            if (string.IsNullOrEmpty(_headerLabel.text))
             {
-                height += HeaderWidth;
+                return 0f;
             }
 
-            return height;
+            return base.GetHeaderHeight(width);
         }
 
-        public override void OnGUI(Rect position)
+        protected override void DrawHeader(Rect position)
         {
-            var headerBgRect = new Rect(position)
+            TriEditorGUI.DrawBox(position, TriEditorStyles.HeaderBox);
+
+            var headerLabelRect = new Rect(position)
             {
-                height = _headerLabel != GUIContent.none ? HeaderWidth : 0,
-            };
-            var headerLabelRect = new Rect(headerBgRect)
-            {
-                xMin = headerBgRect.xMin + 6,
-                xMax = headerBgRect.xMax - 6,
-                yMin = headerBgRect.yMin + 2,
-                yMax = headerBgRect.yMax - 2,
-            };
-            var contentBgRect = new Rect(position)
-            {
-                yMin = headerBgRect.yMax,
-            };
-            var contentRect = new Rect(contentBgRect)
-            {
-                xMin = contentBgRect.xMin + InsetLeft,
-                xMax = contentBgRect.xMax - InsetRight,
-                yMin = contentBgRect.yMin + InsetTop,
-                yMax = contentBgRect.yMax - InsetBottom,
+                xMin = position.xMin + 6,
+                xMax = position.xMax - 6,
+                yMin = position.yMin + 2,
+                yMax = position.yMax - 2,
             };
 
-            if (_headerLabel != GUIContent.none)
-            {
-                TriEditorGUI.DrawBox(headerBgRect, TriEditorStyles.HeaderBox);
-                EditorGUI.LabelField(headerLabelRect, _headerLabel);
-                TriEditorGUI.DrawBox(contentBgRect, TriEditorStyles.ContentBox);
-            }
-            else
-            {
-                TriEditorGUI.DrawBox(contentBgRect, TriEditorStyles.Box);
-            }
-
-            using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - InsetLeft))
-            {
-                base.OnGUI(contentRect);
-            }
+            EditorGUI.LabelField(headerLabelRect, _headerLabel);
         }
     }
 }
