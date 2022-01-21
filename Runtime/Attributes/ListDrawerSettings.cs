@@ -10,5 +10,6 @@ namespace TriInspector
         public bool Draggable { get; set; } = true;
         public bool HideAddButton { get; set; }
         public bool HideRemoveButton { get; set; }
+        public bool AlwaysExpanded { get; set; }
     }
 }

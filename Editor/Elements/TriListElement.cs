@@ -14,6 +14,7 @@ namespace TriInspector.Elements
 
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
+        private readonly bool _alwaysExpanded;
 
         private float _lastContentWidth;
 
@@ -31,6 +32,7 @@ namespace TriInspector.Elements
             property.TryGetAttribute(out ListDrawerSettings settings);
 
             _property = property;
+            _alwaysExpanded = settings?.AlwaysExpanded ?? false;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
                 draggable = settings?.Draggable ?? true,
@@ -58,6 +60,11 @@ namespace TriInspector.Elements
             else
             {
                 _reorderableListGui.list = (IList) _property.Value;
+            }
+
+            if (_alwaysExpanded && !_property.IsExpanded)
+            {
+                _property.IsExpanded = true;
             }
 
             if (_property.IsExpanded)
@@ -161,18 +168,22 @@ namespace TriInspector.Elements
         {
             using (TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel))
             {
-                var labelRect = new Rect(rect)
-                {
-                    xMin = rect.xMin + 10,
-                    xMax = rect.xMax,
-                };
-
+                var labelRect = new Rect(rect);
                 var arraySizeRect = new Rect(rect)
                 {
                     xMin = rect.xMax - 100,
                 };
 
-                TriEditorGUI.Foldout(labelRect, _property);
+                if (_alwaysExpanded)
+                {
+                    EditorGUI.LabelField(labelRect, _property.DisplayNameContent);
+                }
+                else
+                {
+                    labelRect.x += 10;
+                    TriEditorGUI.Foldout(labelRect, _property);
+                }
+
                 var label = _reorderableListGui.count == 0 ? "Empty" : $"{_reorderableListGui.count} items";
                 GUI.Label(arraySizeRect, label, Styles.ItemsCount);
             }
