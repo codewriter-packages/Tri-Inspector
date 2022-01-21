@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace TriInspector.Utilities
@@ -13,42 +14,69 @@ namespace TriInspector.Utilities
 
             if (EditorGUI.DropdownButton(rect, typeNameContent, FocusType.Passive))
             {
-                CreateSelectorMenu(property);
+                var dropdown = new ReferenceTypeDropDown(property, new AdvancedDropdownState());
+                dropdown.Show(rect);
                 Event.current.Use();
             }
         }
 
-        private static void CreateSelectorMenu(TriProperty property)
+        private class ReferenceTypeDropDown : AdvancedDropdown
         {
-            var types = TriReflectionUtilities
-                .AllNonAbstractTypes
-                .Where(type => property.FieldType.IsAssignableFrom(type))
-                .Where(type => type.GetConstructor(Type.EmptyTypes) != null)
-                .ToList();
+            private readonly TriProperty _property;
 
-            var context = new GenericMenu();
-
-            // None
+            public ReferenceTypeDropDown(TriProperty property, AdvancedDropdownState state) : base(state)
             {
-                var on = property.ValueType == null;
-                context.AddItem(new GUIContent("[None]"), on, () => property.SetValue(null));
+                _property = property;
+                minimumSize = new Vector2(0, 120);
             }
 
-            context.AddSeparator("");
-
-            foreach (var itemType in types)
+            protected override AdvancedDropdownItem BuildRoot()
             {
-                var type = itemType;
+                var types = TriReflectionUtilities
+                    .AllNonAbstractTypes
+                    .Where(type => _property.FieldType.IsAssignableFrom(type))
+                    .Where(type => type.GetConstructor(Type.EmptyTypes) != null)
+                    .ToList();
 
-                var on = property.ValueType == type;
-                context.AddItem(new GUIContent(type.Name), on, () =>
+                var root = new AdvancedDropdownItem("Type");
+                root.AddChild(new ReferenceTypeItem(null));
+                root.AddSeparator();
+
+                foreach (var type in types)
                 {
-                    var instance = Activator.CreateInstance(type);
-                    property.SetValue(instance);
-                });
+                    root.AddChild(new ReferenceTypeItem(type));
+                }
+
+                return root;
             }
 
-            context.ShowAsContext();
+            protected override void ItemSelected(AdvancedDropdownItem item)
+            {
+                if (!(item is ReferenceTypeItem referenceTypeItem))
+                {
+                    return;
+                }
+
+                if (referenceTypeItem.Type == null)
+                {
+                    _property.SetValue(null);
+                }
+                else
+                {
+                    var instance = Activator.CreateInstance(referenceTypeItem.Type);
+                    _property.SetValue(instance);
+                }
+            }
+
+            private class ReferenceTypeItem : AdvancedDropdownItem
+            {
+                public ReferenceTypeItem(Type type) : base(type?.Name ?? "[None]")
+                {
+                    Type = type;
+                }
+
+                public Type Type { get; }
+            }
         }
     }
 }
