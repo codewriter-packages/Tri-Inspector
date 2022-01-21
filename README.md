@@ -63,6 +63,7 @@ public class BasicSample : TriMonoBehaviour
 [DeclareHorizontalGroup("header")]
 [DeclareBoxGroup("header/left", Title = "My Left Box")]
 [DeclareBoxGroup("header/right", Title = "My Right Box")]
+[DeclareTabGroup("tabs")]
 public class GroupDemo : TriMonoBehaviour
 {
     [Group("header/left")] public string h1;
@@ -73,6 +74,9 @@ public class GroupDemo : TriMonoBehaviour
 
     [Group("body")] public string b1;
     [Group("body")] public string b2;
+
+    [Group("tabs"), Tab("One")] public float tabOne;
+    [Group("tabs"), Tab("Two")] public float tabTwo;
 }
 ```
 
