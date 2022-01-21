@@ -8,7 +8,7 @@ using System;
 using TriInspector;
 using UnityEngine;
 
-public class BasicSample : TriMonoBehaviour
+public class BasicSample : MonoBehaviour
 {
     [PropertyOrder(1)]
     [HideLabel, LabelText("My Label"), LabelWidth(100)]
@@ -64,7 +64,7 @@ public class BasicSample : TriMonoBehaviour
 [DeclareBoxGroup("header/left", Title = "My Left Box")]
 [DeclareBoxGroup("header/right", Title = "My Right Box")]
 [DeclareTabGroup("tabs")]
-public class GroupDemo : TriMonoBehaviour
+public class GroupDemo : MonoBehaviour
 {
     [Group("header/left")] public string h1;
     [Group("header/left")] public string h2;
