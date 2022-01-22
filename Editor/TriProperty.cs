@@ -168,8 +168,10 @@ namespace TriInspector
                     return _serializedProperty.isExpanded;
                 }
 
-                _isExpandedPrefsKey ??=
-                    $"TriInspector.expanded.{PropertyTree.TargetObjectType}.{MemberInfo}";
+                if (_isExpandedPrefsKey == null)
+                {
+                    _isExpandedPrefsKey = $"TriInspector.expanded.{PropertyTree.TargetObjectType}.{MemberInfo}";
+                }
 
                 return EditorPrefs.GetBool(_isExpandedPrefsKey, false);
             }
@@ -265,7 +267,11 @@ namespace TriInspector
                 case TriPropertyType.Reference:
                     if (_childrenProperties == null || valueTypeChanged)
                     {
-                        _childrenProperties ??= new List<TriProperty>();
+                        if (_childrenProperties == null)
+                        {
+                            _childrenProperties = new List<TriProperty>();
+                        }
+
                         _childrenProperties.Clear();
 
                         var selfType = PropertyType == TriPropertyType.Reference ? ValueType : FieldType;
@@ -288,7 +294,10 @@ namespace TriInspector
                     break;
 
                 case TriPropertyType.Array:
-                    _childrenProperties ??= new List<TriProperty>();
+                    if (_childrenProperties == null)
+                    {
+                        _childrenProperties = new List<TriProperty>();
+                    }
 
                     var listSize = ((IList) newValue)?.Count ?? 0;
 

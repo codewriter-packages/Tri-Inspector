@@ -100,16 +100,16 @@ namespace TriInspector.Utilities
             return false;
         }
 
-        public static Type GetUnityEditorTypeByName(string name)
+        public static Type GetUnityEditorTypeByFullName(string name)
         {
-            return GetTypeByName(name, typeof(Editor).Assembly);
+            return GetTypeByFullName(name, typeof(Editor).Assembly);
         }
 
-        public static Type GetTypeByName(string name, Assembly assembly)
+        public static Type GetTypeByFullName(string name, Assembly assembly)
         {
             return assembly
                 .GetTypes()
-                .Single(it => it.Name == name);
+                .Single(it => it.FullName == name);
         }
 
         private static IReadOnlyList<T> GetAllMembersInDeclarationOrder<T>(

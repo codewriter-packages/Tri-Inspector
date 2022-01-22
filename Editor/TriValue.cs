@@ -1,6 +1,6 @@
 ﻿namespace TriInspector
 {
-    public readonly struct TriValue<T>
+    public struct TriValue<T>
     {
         internal TriValue(TriProperty property)
         {

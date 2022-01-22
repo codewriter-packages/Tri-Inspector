@@ -13,7 +13,7 @@ namespace TriInspector.Utilities
             if (_getHelpIcon == null)
             {
                 _getHelpIcon = TriReflectionUtilities
-                    .GetUnityEditorTypeByName("EditorGUIUtility")
+                    .GetUnityEditorTypeByFullName("UnityEditor.EditorGUIUtility")
                     .CompileStaticMethod<MessageType, Texture2D>("GetHelpIcon");
             }
 

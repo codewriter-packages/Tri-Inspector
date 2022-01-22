@@ -92,12 +92,23 @@ namespace TriInspector.Drawers
                     }
                 }
 
+                if (root.children == null)
+                {
+                    root.AddChild(new TreeViewItem(0, 0, "Empty"));
+                }
+
                 return root;
             }
 
             protected override void RowGUI(RowGUIArgs args)
             {
-                var tableItem = (TableTreeElement) args.item;
+                var tableItem = args.item as TableTreeElement;
+
+                if (tableItem == null)
+                {
+                    base.RowGUI(args);
+                    return;
+                }
 
                 foreach (var cellValueProperty in tableItem.Property.ChildrenProperties)
                 {
@@ -131,6 +142,17 @@ namespace TriInspector.Drawers
                         autoResize = true,
                         canSort = false,
                         allowToggleVisibility = false,
+                    })
+                    .Concat(new[]
+                    {
+                        new MultiColumnHeaderState.Column
+                        {
+                            headerContent = GUIContent.none,
+                            autoResize = false,
+                            canSort = false,
+                            allowToggleVisibility = false,
+                            width = 10,
+                        },
                     })
                     .ToArray();
 

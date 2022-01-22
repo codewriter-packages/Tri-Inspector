@@ -22,7 +22,7 @@ namespace TriInspector.Drawers
 
         private class ObjectReferenceDrawerElement : TriElement
         {
-            private readonly TriValue<T> _propertyValue;
+            private TriValue<T> _propertyValue;
 
             public ObjectReferenceDrawerElement(TriValue<T> propertyValue)
             {

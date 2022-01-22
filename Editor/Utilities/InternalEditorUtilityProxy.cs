@@ -12,7 +12,7 @@ namespace TriInspector.Utilities
             if (_getIsInspectorExpanded == null)
             {
                 _getIsInspectorExpanded = TriReflectionUtilities
-                    .GetUnityEditorTypeByName("InternalEditorUtility")
+                    .GetUnityEditorTypeByFullName("UnityEditorInternal.InternalEditorUtility")
                     .CompileStaticMethod<UnityEngine.Object, bool>("GetIsInspectorExpanded");
             }
 
@@ -24,7 +24,7 @@ namespace TriInspector.Utilities
             if (_setIsInspectorExpanded == null)
             {
                 _setIsInspectorExpanded = TriReflectionUtilities
-                    .GetUnityEditorTypeByName("InternalEditorUtility")
+                    .GetUnityEditorTypeByFullName("UnityEditorInternal.InternalEditorUtility")
                     .CompileStaticVoidMethod<UnityEngine.Object, bool>("SetIsInspectorExpanded");
             }
 

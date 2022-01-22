@@ -23,8 +23,12 @@ namespace TriInspector.Elements
             ReorderableListDrawHeaderMethod = typeof(ReorderableList)
                 .CompileVoidInstanceMethod<Rect>("DoListHeader");
 
+#if UNITY_2020_2_OR_NEWER
             ReorderableListClearCacheRecursiveMethod = typeof(ReorderableList)
                 .CompileVoidInstanceMethod("ClearCacheRecursive");
+#else
+            ReorderableListClearCacheRecursiveMethod = delegate { };
+#endif
         }
 
         public TriListElement(TriProperty property)

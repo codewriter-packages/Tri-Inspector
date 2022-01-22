@@ -21,7 +21,7 @@ namespace TriInspector.Drawers
 
         private class StringDrawerElement : TriElement
         {
-            private readonly TriValue<string> _propertyValue;
+            private TriValue<string> _propertyValue;
 
             public StringDrawerElement(TriValue<string> propertyValue)
             {

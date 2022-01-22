@@ -13,7 +13,7 @@ namespace TriInspector.Utilities
             if (_getHandler == null)
             {
                 _getHandler = TriReflectionUtilities
-                    .GetUnityEditorTypeByName("ScriptAttributeUtility")
+                    .GetUnityEditorTypeByFullName("UnityEditor.ScriptAttributeUtility")
                     .CompileStaticMethod<SerializedProperty, object>("GetHandler");
             }
 
@@ -42,7 +42,7 @@ namespace TriInspector.Utilities
                 if (_hasPropertyDrawerProperty == null)
                 {
                     _hasPropertyDrawerProperty = TriReflectionUtilities
-                        .GetUnityEditorTypeByName("PropertyHandler")
+                        .GetUnityEditorTypeByFullName("UnityEditor.PropertyHandler")
                         .CompileInstanceProperty<bool>("hasPropertyDrawer");
                 }
 
@@ -58,7 +58,7 @@ namespace TriInspector.Utilities
             if (_getHeightMethod == null)
             {
                 _getHeightMethod = TriReflectionUtilities
-                    .GetUnityEditorTypeByName("PropertyHandler")
+                    .GetUnityEditorTypeByFullName("UnityEditor.PropertyHandler")
                     .CompileInstanceMethod<SerializedProperty, GUIContent, bool, float>("GetHeight");
             }
 
@@ -74,7 +74,7 @@ namespace TriInspector.Utilities
             if (_onGuiMethod == null)
             {
                 _onGuiMethod = TriReflectionUtilities
-                    .GetUnityEditorTypeByName("PropertyHandler")
+                    .GetUnityEditorTypeByFullName("UnityEditor.PropertyHandler")
                     .CompileInstanceMethod<Rect, SerializedProperty, GUIContent, bool, bool>("OnGUI");
             }
 
