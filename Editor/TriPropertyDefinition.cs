@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TriInspector
 {
-    internal class TriPropertyDefinition
+    public class TriPropertyDefinition
     {
         private readonly Func<TriProperty, object, object> _valueGetter;
         [CanBeNull] private readonly Action<TriProperty, object, object> _valueSetter;

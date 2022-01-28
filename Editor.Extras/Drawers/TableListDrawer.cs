@@ -5,6 +5,7 @@ using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Elements;
 using TriInspector.Utilities;
+using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
@@ -112,7 +113,11 @@ namespace TriInspector.Drawers
 
                 foreach (var cellValueProperty in tableItem.Property.ChildrenProperties)
                 {
-                    var cellIndex = _cellIndexByName[cellValueProperty.RawName];
+                    if (!_cellIndexByName.TryGetValue(cellValueProperty.RawName, out var cellIndex))
+                    {
+                        continue;
+                    }
+
                     var cellRect = args.GetCellRect(cellIndex);
 
                     if (!_cellElements.ContainsKey(cellValueProperty))
@@ -131,14 +136,12 @@ namespace TriInspector.Drawers
 
             private static MultiColumnHeader BuildHeader(TriProperty property)
             {
-                var columns = property
-                    .ArrayElementProperties
-                    .SelectMany(it => it.ChildrenProperties)
-                    .GroupBy(it => it.RawName)
-                    .Select(it => it.First())
+                var columns = TriTypeDefinition
+                    .GetCached(property.ArrayElementType)
+                    .Properties
                     .Select(it => new MultiColumnHeaderState.Column
                     {
-                        headerContent = it.DisplayNameContent,
+                        headerContent = new GUIContent(ObjectNames.NicifyVariableName(it.Name)),
                         autoResize = true,
                         canSort = false,
                         allowToggleVisibility = false,

@@ -6,7 +6,7 @@ using TriInspector.Utilities;
 
 namespace TriInspector
 {
-    internal class TriTypeDefinition
+    public class TriTypeDefinition
     {
         private static readonly Dictionary<Type, TriTypeDefinition> Cache =
             new Dictionary<Type, TriTypeDefinition>();
