@@ -9,6 +9,8 @@ namespace TriInspector.Elements
 {
     internal class TriListElement : TriElement
     {
+        private static readonly GUIContent ListIsNullContent = new GUIContent("List is null");
+
         private static readonly Action<object, Rect> ReorderableListDrawHeaderMethod;
         private static readonly Action<object> ReorderableListClearCacheRecursiveMethod;
 
@@ -92,6 +94,11 @@ namespace TriInspector.Elements
 
         public override float GetHeight(float width)
         {
+            if (_property.Value == null)
+            {
+                return EditorGUIUtility.singleLineHeight;
+            }
+
             if (!_property.IsExpanded)
             {
                 return _reorderableListGui.headerHeight + 4f;
@@ -104,6 +111,12 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
+            if (_property.Value == null)
+            {
+                EditorGUI.LabelField(position, _property.DisplayNameContent, ListIsNullContent);
+                return;
+            }
+
             position = EditorGUI.IndentedRect(position);
 
             if (!_property.IsExpanded)
@@ -135,6 +148,18 @@ namespace TriInspector.Elements
 
         private bool GenerateChildren()
         {
+            if (_property.Value == null)
+            {
+                if (ChildrenCount == 0)
+                {
+                    return false;
+                }
+
+                ClearChildren();
+
+                return true;
+            }
+
             var count = _reorderableListGui.count;
 
             if (ChildrenCount == count)
