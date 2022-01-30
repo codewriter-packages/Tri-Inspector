@@ -27,7 +27,7 @@ namespace TriInspector.Elements
 
         protected override void DrawHeader(Rect position)
         {
-            TriEditorGUI.DrawBox(position, TriEditorStyles.HeaderBox);
+            TriEditorGUI.DrawBox(position, TriEditorStyles.TabOnlyOne);
 
             var headerLabelRect = new Rect(position)
             {

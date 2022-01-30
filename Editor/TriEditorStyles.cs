@@ -7,7 +7,6 @@ namespace TriInspector
     {
         private const string BaseResourcesPath = "Packages/com.triinspector/Editor/Resources/";
 
-        private static GUIStyle _headerBox;
         private static GUIStyle _contentBox;
         private static GUIStyle _box;
 
@@ -15,26 +14,6 @@ namespace TriInspector
         public static GUIStyle TabFirst { get; } = "Tab first";
         public static GUIStyle TabMiddle { get; } = "Tab middle";
         public static GUIStyle TabLast { get; } = "Tab last";
-
-        public static GUIStyle HeaderBox
-        {
-            get
-            {
-                if (_headerBox == null)
-                {
-                    _headerBox = new GUIStyle
-                    {
-                        border = new RectOffset(2, 2, 2, 2),
-                        normal =
-                        {
-                            background = LoadTexture("TriInspector_Header_Bg"),
-                        },
-                    };
-                }
-
-                return _headerBox;
-            }
-        }
 
         public static GUIStyle ContentBox
         {
