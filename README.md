@@ -59,26 +59,36 @@ public class BasicSample : MonoBehaviour
     }
 }
 
-[DeclareBoxGroup("body")]
 [DeclareHorizontalGroup("header")]
 [DeclareBoxGroup("header/left", Title = "My Left Box")]
-[DeclareBoxGroup("header/right", Title = "My Right Box")]
-[DeclareTabGroup("tabs")]
+[DeclareVerticalGroup("header/right")]
+[DeclareBoxGroup("header/right/top", Title = "My Right Box")]
+[DeclareTabGroup("header/right/tabs")]
+[DeclareBoxGroup("body")]
 public class GroupDemo : MonoBehaviour
 {
-    [Group("header/left")] public string h1;
-    [Group("header/left")] public string h2;
+    [Group("header/left")] public bool prop1;
+    [Group("header/left")] public int prop2;
+    [Group("header/left")] public string prop3;
+    [Group("header/left")] public Vector3 prop4;
 
-    [Group("header/right")] public string h3;
-    [Group("header/right")] public string h4;
+    [Group("header/right/top")] public string rightProp;
 
-    [Group("body")] public string b1;
-    [Group("body")] public string b2;
+    [Group("body")] public string body1;
+    [Group("body")] public string body2;
 
-    [Group("tabs"), Tab("One")] public float tabOne;
-    [Group("tabs"), Tab("Two")] public float tabTwo;
+    [Group("header/right/tabs"), Tab("One")] public float tabOne;
+    [Group("header/right/tabs"), Tab("Two")] public float tabTwo;
+    [Group("header/right/tabs"), Tab("Three")] public float tabThree;
+
+    [Group("header/right"), Button]
+    public void MyButton()
+    {
+    }
 }
 ```
+
+![GroupDemo Preview](https://user-images.githubusercontent.com/26966368/151707658-2e0c2e33-17d5-4cbb-8f83-d7d394ced6b6.png)
 
 ### Customization
 
