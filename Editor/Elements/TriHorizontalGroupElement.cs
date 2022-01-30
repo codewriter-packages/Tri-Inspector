@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using TriInspector.Utilities;
+using UnityEditor;
+using UnityEngine;
 
 namespace TriInspector.Elements
 {
@@ -13,10 +15,13 @@ namespace TriInspector.Elements
 
             var height = 0f;
 
+            var spacing = EditorGUIUtility.standardVerticalSpacing;
+            var totalWidth = width - spacing * (ChildrenCount - 1);
+            var childWidth = totalWidth / ChildrenCount;
+
             for (var i = 0; i < ChildrenCount; i++)
             {
                 var child = GetChild(i);
-                var childWidth = width / ChildrenCount;
                 var childHeight = child.GetHeight(childWidth);
 
                 height = Mathf.Max(height, childHeight);
@@ -32,7 +37,9 @@ namespace TriInspector.Elements
                 return;
             }
 
-            var childWidth = position.width / ChildrenCount;
+            var spacing = EditorGUIUtility.standardVerticalSpacing;
+            var totalWidth = position.width - spacing * (ChildrenCount - 1);
+            var childWidth = totalWidth / ChildrenCount;
 
             for (var i = 0; i < ChildrenCount; i++)
             {
@@ -40,10 +47,14 @@ namespace TriInspector.Elements
                 var childRect = new Rect(position)
                 {
                     width = childWidth,
-                    x = position.x + i * childWidth,
+                    height = child.GetHeight(childWidth),
+                    x = position.x + i * (childWidth + spacing),
                 };
 
-                child.OnGUI(childRect);
+                using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth / ChildrenCount))
+                {
+                    child.OnGUI(childRect);
+                }
             }
         }
     }
