@@ -130,8 +130,7 @@ namespace TriInspector.Drawers
                         _cellElementContainer.AddChild(cellElement);
                     }
 
-                    using (TriPropertyOverrideContext.Override(_propertyOverrideContext))
-                        //using (TriGuiHelper.PushLabelWidth(1f)) // todo fix this
+                    using (TriPropertyOverrideContext.BeginOverride(_propertyOverrideContext))
                     {
                         _cellElements[cellValueProperty].OnGUI(cellRect);
                     }
