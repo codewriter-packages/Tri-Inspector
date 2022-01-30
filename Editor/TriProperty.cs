@@ -55,6 +55,11 @@ namespace TriInspector
         {
             get
             {
+                if (TriPropertyOverrideContext.Current != null)
+                {
+                    return TriPropertyOverrideContext.Current.GetDisplayName(this);
+                }
+
                 if (_displayNameBackingField == null)
                 {
                     if (TryGetAttribute(out HideLabelAttribute _))

@@ -57,6 +57,7 @@ namespace TriInspector.Drawers
             private readonly TriElement _cellElementContainer;
             private readonly Dictionary<string, int> _cellIndexByName;
             private readonly Dictionary<TriProperty, TriElement> _cellElements;
+            private readonly TableListPropertyOverrideContext _propertyOverrideContext;
 
             public TableMultiColumnTreeView(TriProperty property, TriElement container)
                 : base(new TreeViewState(), BuildHeader(property))
@@ -66,6 +67,8 @@ namespace TriInspector.Drawers
 
                 _cellIndexByName = new Dictionary<string, int>();
                 _cellElements = new Dictionary<TriProperty, TriElement>();
+
+                _propertyOverrideContext = new TableListPropertyOverrideContext();
 
                 rowHeight = 20;
                 showAlternatingRowBackgrounds = true;
@@ -127,7 +130,8 @@ namespace TriInspector.Drawers
                         _cellElementContainer.AddChild(cellElement);
                     }
 
-                    using (TriGuiHelper.PushLabelWidth(1f)) // todo fix this
+                    using (TriPropertyOverrideContext.Override(_propertyOverrideContext))
+                        //using (TriGuiHelper.PushLabelWidth(1f)) // todo fix this
                     {
                         _cellElements[cellValueProperty].OnGUI(cellRect);
                     }
@@ -179,6 +183,14 @@ namespace TriInspector.Drawers
             }
 
             public TriProperty Property { get; }
+        }
+
+        private class TableListPropertyOverrideContext : TriPropertyOverrideContext
+        {
+            public override GUIContent GetDisplayName(TriProperty property)
+            {
+                return GUIContent.none;
+            }
         }
     }
 }

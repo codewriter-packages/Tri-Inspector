@@ -66,7 +66,10 @@ namespace TriInspector.Elements
             GUI.enabled &= _property.IsEnabled;
             EditorGUI.showMixedValue = _property.IsValueMixed;
 
-            base.OnGUI(position);
+            using (TriPropertyOverrideContext.BeginProperty())
+            {
+                base.OnGUI(position);
+            }
 
             EditorGUI.showMixedValue = oldShowMixedValue;
             GUI.enabled = oldEnabled;
