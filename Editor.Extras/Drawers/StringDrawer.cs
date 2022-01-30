@@ -13,7 +13,7 @@ namespace TriInspector.Drawers
         {
             if (value.Property.TryGetSerializedProperty(out var serializedProperty))
             {
-                return new StringSerializedPropertyDrawerElement(serializedProperty);
+                return new StringSerializedPropertyDrawerElement(value.Property, serializedProperty);
             }
 
             return new StringDrawerElement(value);
@@ -50,10 +50,12 @@ namespace TriInspector.Drawers
 
         private class StringSerializedPropertyDrawerElement : TriElement
         {
+            private readonly TriProperty _property;
             private readonly SerializedProperty _serializedProperty;
 
-            public StringSerializedPropertyDrawerElement(SerializedProperty serializedProperty)
+            public StringSerializedPropertyDrawerElement(TriProperty property, SerializedProperty serializedProperty)
             {
+                _property = property;
                 _serializedProperty = serializedProperty;
             }
 
@@ -64,7 +66,7 @@ namespace TriInspector.Drawers
 
             public override void OnGUI(Rect position)
             {
-                EditorGUI.PropertyField(position, _serializedProperty);
+                EditorGUI.PropertyField(position, _serializedProperty, _property.DisplayNameContent);
             }
         }
     }
