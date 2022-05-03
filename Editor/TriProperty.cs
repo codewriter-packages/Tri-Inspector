@@ -244,6 +244,8 @@ namespace TriInspector
             for (var targetIndex = 0; targetIndex < PropertyTree.TargetObjects.Length; targetIndex++)
             {
                 SetValueRecursive(this, value, targetIndex);
+                
+                EditorUtility.SetDirty(PropertyTree.TargetObjects[targetIndex]);
             }
 
             // actualize
