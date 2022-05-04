@@ -125,7 +125,10 @@ namespace TriInspector.Drawers
 
                     if (!_cellElements.ContainsKey(cellValueProperty))
                     {
-                        var cellElement = new TriPropertyElement(cellValueProperty, true);
+                        var cellElement = new TriPropertyElement(cellValueProperty, new TriPropertyElement.Props
+                        {
+                            forceInline = true,
+                        });
                         _cellElements.Add(cellValueProperty, cellElement);
                         _cellElementContainer.AddChild(cellElement);
                     }

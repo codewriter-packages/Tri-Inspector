@@ -170,7 +170,10 @@ namespace TriInspector.Elements
             while (ChildrenCount < count)
             {
                 var property = _property.ArrayElementProperties[ChildrenCount];
-                AddChild(new TriPropertyElement(property, true));
+                AddChild(new TriPropertyElement(property, new TriPropertyElement.Props
+                {
+                    forceInline = true,
+                }));
             }
 
             while (ChildrenCount > count)

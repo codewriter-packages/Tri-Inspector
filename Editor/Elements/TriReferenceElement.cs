@@ -7,20 +7,23 @@ namespace TriInspector.Elements
 {
     internal class TriReferenceElement : TriPropertyCollectionBaseElement
     {
-        private readonly bool _drawPrefixLabel;
-        private readonly bool _inline;
-        private readonly float _labelWidth;
+        private readonly Props _props;
         private readonly TriProperty _property;
 
         private Type _referenceType;
 
-        public TriReferenceElement(TriProperty property,
-            bool inline = false, bool drawPrefixLabel = false, float labelWidth = 0f)
+        [Serializable]
+        public struct Props
+        {
+            public bool inline;
+            public bool drawPrefixLabel;
+            public float labelWidth;
+        }
+
+        public TriReferenceElement(TriProperty property, Props props = default)
         {
             _property = property;
-            _inline = inline;
-            _drawPrefixLabel = drawPrefixLabel;
-            _labelWidth = labelWidth;
+            _props = props;
 
             DeclareGroups(property.ValueType);
         }
@@ -29,7 +32,7 @@ namespace TriInspector.Elements
         {
             var dirty = false;
 
-            if (_inline || _property.IsExpanded)
+            if (_props.inline || _property.IsExpanded)
             {
                 dirty |= GenerateChildren();
             }
@@ -47,7 +50,7 @@ namespace TriInspector.Elements
         {
             var height = EditorGUIUtility.singleLineHeight;
 
-            if (_inline || _property.IsExpanded)
+            if (_props.inline || _property.IsExpanded)
             {
                 height += base.GetHeight(width);
             }
@@ -57,7 +60,7 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
-            if (_drawPrefixLabel)
+            if (_props.drawPrefixLabel)
             {
                 var controlId = GUIUtility.GetControlID(FocusType.Passive);
                 position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);
@@ -82,11 +85,11 @@ namespace TriInspector.Elements
                 yMin = position.yMin + headerRect.height,
             };
 
-            if (_inline)
+            if (_props.inline)
             {
                 TriManagedReferenceGui.DrawTypeSelector(headerRect, _property);
 
-                using (TriGuiHelper.PushLabelWidth(_labelWidth))
+                using (TriGuiHelper.PushLabelWidth(_props.labelWidth))
                 {
                     base.OnGUI(contentRect);
                 }
@@ -99,7 +102,7 @@ namespace TriInspector.Elements
                 if (_property.IsExpanded)
                 {
                     using (TriGuiHelper.PushIndentLevel())
-                    using (TriGuiHelper.PushLabelWidth(_labelWidth))
+                    using (TriGuiHelper.PushLabelWidth(_props.labelWidth))
                     {
                         base.OnGUI(contentRect);
                     }

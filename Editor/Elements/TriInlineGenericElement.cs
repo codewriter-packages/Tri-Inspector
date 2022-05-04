@@ -1,4 +1,5 @@
-﻿using TriInspector.Utilities;
+﻿using System;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,16 +7,20 @@ namespace TriInspector.Elements
 {
     internal class TriInlineGenericElement : TriPropertyCollectionBaseElement
     {
-        private readonly bool _drawPrefixLabel;
-        private readonly float _labelWidth;
+        private readonly Props _props;
         private readonly TriProperty _property;
 
-        public TriInlineGenericElement(TriProperty property,
-            bool drawPrefixLabel = false, float labelWidth = 0f)
+        [Serializable]
+        public struct Props
+        {
+            public bool drawPrefixLabel;
+            public float labelWidth;
+        }
+
+        public TriInlineGenericElement(TriProperty property, Props props = default)
         {
             _property = property;
-            _drawPrefixLabel = drawPrefixLabel;
-            _labelWidth = labelWidth;
+            _props = props;
 
             DeclareGroups(property.ValueType);
 
@@ -27,13 +32,13 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
-            if (_drawPrefixLabel)
+            if (_props.drawPrefixLabel)
             {
                 var controlId = GUIUtility.GetControlID(FocusType.Passive);
                 position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);
             }
 
-            using (TriGuiHelper.PushLabelWidth(_labelWidth))
+            using (TriGuiHelper.PushLabelWidth(_props.labelWidth))
             {
                 base.OnGUI(position);
             }

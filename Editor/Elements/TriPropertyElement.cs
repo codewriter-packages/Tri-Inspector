@@ -1,4 +1,5 @@
-﻿using TriInspector.Utilities;
+﻿using System;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,11 +9,17 @@ namespace TriInspector.Elements
     {
         private readonly TriProperty _property;
 
-        public TriPropertyElement(TriProperty property, bool inline = false)
+        [Serializable]
+        public struct Props
+        {
+            public bool forceInline;
+        }
+
+        public TriPropertyElement(TriProperty property, Props props = default)
         {
             _property = property;
 
-            var element = CreateElement(property, inline);
+            var element = CreateElement(property, props);
 
             var drawers = property.AllDrawers;
             for (var index = drawers.Count - 1; index >= 0; index--)
@@ -75,7 +82,7 @@ namespace TriInspector.Elements
             GUI.enabled = oldEnabled;
         }
 
-        private static TriElement CreateElement(TriProperty property, bool inline = false)
+        private static TriElement CreateElement(TriProperty property, Props props)
         {
             var isSerializedProperty = property.TryGetSerializedProperty(out var serializedProperty);
 
@@ -96,12 +103,12 @@ namespace TriInspector.Elements
 
                     case TriPropertyType.Reference:
                     {
-                        return CreateReferenceElement(property, inline);
+                        return CreateReferenceElement(property, props);
                     }
 
                     case TriPropertyType.Generic:
                     {
-                        return CreateGenericElement(property, inline);
+                        return CreateGenericElement(property, props);
                     }
                 }
             }
@@ -119,31 +126,51 @@ namespace TriInspector.Elements
             return new TriListElement(property);
         }
 
-        private static TriElement CreateReferenceElement(TriProperty property, bool inline)
+        private static TriElement CreateReferenceElement(TriProperty property, Props props)
         {
-            if (inline)
-            {
-                return new TriReferenceElement(property, true);
-            }
-
             if (property.TryGetAttribute(out InlinePropertyAttribute inlineAttribute))
             {
-                return new TriReferenceElement(property, true, true, inlineAttribute.LabelWidth);
+                return new TriReferenceElement(property, new TriReferenceElement.Props
+                {
+                    inline = true,
+                    drawPrefixLabel = !props.forceInline,
+                    labelWidth = inlineAttribute.LabelWidth,
+                });
             }
 
-            return new TriReferenceElement(property);
+            if (props.forceInline)
+            {
+                return new TriReferenceElement(property, new TriReferenceElement.Props
+                {
+                    inline = true,
+                    drawPrefixLabel = false,
+                });
+            }
+
+            return new TriReferenceElement(property, new TriReferenceElement.Props
+            {
+                inline = false,
+                drawPrefixLabel = false,
+            });
         }
 
-        private static TriElement CreateGenericElement(TriProperty property, bool inline)
+        private static TriElement CreateGenericElement(TriProperty property, Props props)
         {
-            if (inline)
-            {
-                return new TriInlineGenericElement(property);
-            }
-
             if (property.TryGetAttribute(out InlinePropertyAttribute inlineAttribute))
             {
-                return new TriInlineGenericElement(property, true, inlineAttribute.LabelWidth);
+                return new TriInlineGenericElement(property, new TriInlineGenericElement.Props
+                {
+                    drawPrefixLabel = !props.forceInline,
+                    labelWidth = inlineAttribute.LabelWidth,
+                });
+            }
+
+            if (props.forceInline)
+            {
+                return new TriInlineGenericElement(property, new TriInlineGenericElement.Props
+                {
+                    drawPrefixLabel = false,
+                });
             }
 
             return new TriFoldoutElement(property);
