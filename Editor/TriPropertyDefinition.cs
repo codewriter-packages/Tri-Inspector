@@ -88,7 +88,9 @@ namespace TriInspector
                 if (_hideProcessorsBackingField == null)
                 {
                     _hideProcessorsBackingField =
-                        TriDrawersUtilities.CreateHideProcessorsFor(Attributes).ToList();
+                        TriDrawersUtilities.CreateHideProcessorsFor(Attributes)
+                            .Where(it => CanApplyOn(this, applyOnArrayElement: false))
+                            .ToList();
                 }
 
                 return _hideProcessorsBackingField;
@@ -102,7 +104,9 @@ namespace TriInspector
                 if (_disableProcessorsBackingField == null)
                 {
                     _disableProcessorsBackingField =
-                        TriDrawersUtilities.CreateDisableProcessorsFor(Attributes).ToList();
+                        TriDrawersUtilities.CreateDisableProcessorsFor(Attributes)
+                            .Where(it => CanApplyOn(this, applyOnArrayElement: false))
+                            .ToList();
                 }
 
                 return _disableProcessorsBackingField;
@@ -118,6 +122,7 @@ namespace TriInspector
                     _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
                         .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
                         .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
+                        .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .OrderBy(it => it.Order)
                         .ToList();
                 }
@@ -135,6 +140,7 @@ namespace TriInspector
                     _validatorsBackingField = Enumerable.Empty<TriValidator>()
                         .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
                         .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
+                        .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .ToList();
                 }
 
@@ -229,6 +235,17 @@ namespace TriInspector
         private static Action<TriProperty, object, object> MakeSetter(MethodInfo mi)
         {
             return (self, obj, value) => { };
+        }
+
+        private static bool CanApplyOn(TriPropertyDefinition definition, bool applyOnArrayElement)
+        {
+            if (definition.IsArrayElement && !applyOnArrayElement ||
+                definition.IsArray && applyOnArrayElement)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

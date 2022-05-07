@@ -26,12 +26,6 @@ namespace TriInspector.Elements
             {
                 var drawer = drawers[index];
 
-                if (_property.IsArrayElement && !drawer.ApplyOnArrayElement ||
-                    _property.IsArray && drawer.ApplyOnArrayElement)
-                {
-                    continue;
-                }
-
                 var canDrawMessage = drawer.CanDraw(_property);
                 if (!string.IsNullOrEmpty(canDrawMessage))
                 {
