@@ -3,7 +3,7 @@ using System.Reflection;
 using TriInspector;
 using TriInspector.Validators;
 
-[assembly: RegisterTriAttributeValidator(typeof(ValidateInputValidator), ApplyOnArrayElement = true)]
+[assembly: RegisterTriAttributeValidator(typeof(ValidateInputValidator))]
 
 namespace TriInspector.Validators
 {
