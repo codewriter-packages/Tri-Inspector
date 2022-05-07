@@ -20,6 +20,9 @@ public class BasicSample : MonoBehaviour
     
     [Required]
     public Material mat;
+    
+    [ValidateInput(nameof(ValidateTexture))]
+    public Texture tex;
 
     [InlineEditor]
     public SampleScriptableObject objectReference;
@@ -56,6 +59,13 @@ public class BasicSample : MonoBehaviour
     {
         public Vector3 position;
         public float rotation;
+    }
+    
+    private TriValidationResult ValidateTexture()
+    {
+        if (tex == null) return TriValidationResult.Error("Tex is null");
+
+        return TriValidationResult.Valid;
     }
 }
 
