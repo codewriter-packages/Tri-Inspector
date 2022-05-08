@@ -33,6 +33,10 @@ namespace TriInspector.Elements
                 drawElementCallback = DrawElementCallback,
             };
 
+            var canResize = property.TryGetSerializedProperty(out _) || !property.FieldType.IsArray;
+            _reorderableListGui.displayAdd &= canResize;
+            _reorderableListGui.displayRemove &= canResize;
+
             if (!_reorderableListGui.displayAdd && !_reorderableListGui.displayRemove)
             {
                 _reorderableListGui.footerHeight = 0f;
