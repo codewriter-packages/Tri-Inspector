@@ -266,6 +266,8 @@ Minimal Unity Version is 2020.3.
 Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
 <br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
 
+After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package
+
 ## License
 
 Tri-Inspector is [MIT licensed](./LICENSE.md).

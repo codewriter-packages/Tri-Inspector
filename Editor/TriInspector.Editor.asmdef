@@ -2,14 +2,15 @@
     "name": "TriInspector.Editor",
     "rootNamespace": "",
     "references": [
-        "TriInspector"
+        "TriInspector",
+        "Unity.InternalAPIEditorBridge.012"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
+    "overrideReferences": true,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],

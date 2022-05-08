@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
+using TriInspectorUnityInternalBridge;
 using TriInspector.Utilities;
 using UnityEditor;
 using UnityEditorInternal;
@@ -11,27 +11,11 @@ namespace TriInspector.Elements
     {
         private static readonly GUIContent ListIsNullContent = new GUIContent("List is null");
 
-        private static readonly Action<object, Rect> ReorderableListDrawHeaderMethod;
-        private static readonly Action<object> ReorderableListClearCacheRecursiveMethod;
-
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
 
         private float _lastContentWidth;
-
-        static TriListElement()
-        {
-            ReorderableListDrawHeaderMethod = typeof(ReorderableList)
-                .CompileVoidInstanceMethod<Rect>("DoListHeader");
-
-#if UNITY_2020_2_OR_NEWER
-            ReorderableListClearCacheRecursiveMethod = typeof(ReorderableList)
-                .CompileVoidInstanceMethod("ClearCacheRecursive");
-#else
-            ReorderableListClearCacheRecursiveMethod = delegate { };
-#endif
-        }
 
         public TriListElement(TriProperty property)
         {
@@ -86,7 +70,7 @@ namespace TriInspector.Elements
 
             if (dirty)
             {
-                ReorderableListClearCacheRecursiveMethod(_reorderableListGui);
+                ReorderableListProxy.ClearCacheRecursive(_reorderableListGui);
             }
 
             return dirty;
@@ -121,7 +105,7 @@ namespace TriInspector.Elements
 
             if (!_property.IsExpanded)
             {
-                ReorderableListDrawHeaderMethod(_reorderableListGui, new Rect(position)
+                ReorderableListProxy.DoListHeader(_reorderableListGui, new Rect(position)
                 {
                     yMax = position.yMax - 4,
                 });
