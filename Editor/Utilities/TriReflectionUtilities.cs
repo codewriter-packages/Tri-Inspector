@@ -34,7 +34,17 @@ namespace TriInspector.Utilities
                 if (_allNonAbstractTypesBackingField == null)
                 {
                     _allNonAbstractTypesBackingField = Assemblies
-                        .SelectMany(asm => asm.GetTypes())
+                        .SelectMany(asm =>
+                        {
+                            try
+                            {
+                                return asm.GetTypes();
+                            }
+                            catch (ReflectionTypeLoadException)
+                            {
+                                return Array.Empty<Type>();
+                            }
+                        })
                         .Where(type => !type.IsAbstract)
                         .ToList();
                 }
