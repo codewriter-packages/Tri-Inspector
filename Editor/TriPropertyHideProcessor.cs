@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace TriInspector
 {
@@ -6,6 +7,12 @@ namespace TriInspector
     {
         internal Attribute RawAttribute { get; set; }
 
+        [PublicAPI]
+        public virtual void Initialize(TriPropertyDefinition propertyDefinition)
+        {
+        }
+
+        [PublicAPI]
         public abstract bool IsHidden(TriProperty property);
     }
 

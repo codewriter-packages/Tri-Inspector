@@ -91,6 +91,11 @@ namespace TriInspector
                         TriDrawersUtilities.CreateHideProcessorsFor(Attributes)
                             .Where(it => CanApplyOn(this, applyOnArrayElement: false))
                             .ToList();
+
+                    foreach (var processor in _hideProcessorsBackingField)
+                    {
+                        processor.Initialize(this);
+                    }
                 }
 
                 return _hideProcessorsBackingField;
@@ -107,6 +112,11 @@ namespace TriInspector
                         TriDrawersUtilities.CreateDisableProcessorsFor(Attributes)
                             .Where(it => CanApplyOn(this, applyOnArrayElement: false))
                             .ToList();
+
+                    foreach (var processor in _disableProcessorsBackingField)
+                    {
+                        processor.Initialize(this);
+                    }
                 }
 
                 return _disableProcessorsBackingField;
@@ -125,6 +135,11 @@ namespace TriInspector
                         .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .OrderBy(it => it.Order)
                         .ToList();
+
+                    foreach (var drawer in _drawersBackingField)
+                    {
+                        drawer.Initialize(this);
+                    }
                 }
 
                 return _drawersBackingField;
@@ -142,6 +157,11 @@ namespace TriInspector
                         .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
                         .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .ToList();
+
+                    foreach (var validator in _validatorsBackingField)
+                    {
+                        validator.Initialize(this);
+                    }
                 }
 
                 return _validatorsBackingField;

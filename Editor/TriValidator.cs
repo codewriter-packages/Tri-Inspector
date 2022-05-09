@@ -9,6 +9,11 @@ namespace TriInspector
         internal bool ApplyOnArrayElement { get; set; }
 
         [PublicAPI]
+        public virtual void Initialize(TriPropertyDefinition propertyDefinition)
+        {
+        }
+
+        [PublicAPI]
         public abstract TriValidationResult Validate(TriProperty property);
     }
 
