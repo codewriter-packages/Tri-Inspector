@@ -7,7 +7,11 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public sealed class ButtonAttribute : Attribute
     {
-        public ButtonAttribute(string name = null)
+        public ButtonAttribute()
+        {
+        }
+
+        public ButtonAttribute(string name)
         {
             Name = name;
         }
