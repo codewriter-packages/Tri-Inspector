@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace TriInspector.Utilities
             {
                 var dropdown = new ReferenceTypeDropDown(property, new AdvancedDropdownState());
                 dropdown.Show(rect);
+                AdvancedDropdownProxy.SetShowHeader(dropdown, false);
                 Event.current.Use();
             }
         }
