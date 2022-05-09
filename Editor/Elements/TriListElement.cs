@@ -118,19 +118,9 @@ namespace TriInspector.Elements
 
             var labelWidthExtra = 6f + (_reorderableListGui.draggable ? 15f : 0f);
 
-            EditorGUI.BeginChangeCheck();
-
             using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - labelWidthExtra))
             {
                 _reorderableListGui.DoList(position);
-            }
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                if (_reorderableListGui.list != null)
-                {
-                    _property.SetValue(_reorderableListGui.list);
-                }
             }
         }
 
