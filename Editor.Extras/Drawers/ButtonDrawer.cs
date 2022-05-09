@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using TriInspector;
 using TriInspector.Drawers;
 using UnityEditor;
@@ -31,14 +32,26 @@ namespace TriInspector.Drawers
 
             if (GUI.Button(position, name))
             {
-                var methodInfo = (MethodInfo) property.MemberInfo;
-
-                for (var i = 0; i < property.PropertyTree.TargetObjects.Length; i++)
-                {
-                    var parentValue = property.Parent.GetValue(i);
-                    methodInfo.Invoke(parentValue, new object[0]);
-                }
+                InvokeButton(property, Array.Empty<object>());
             }
+        }
+
+        private static void InvokeButton(TriProperty property, object[] parameters)
+        {
+            var methodInfo = (MethodInfo) property.MemberInfo;
+
+            property.ModifyAndRecordForUndo(targetIndex =>
+            {
+                try
+                {
+                    var parentValue = property.Parent.GetValue(targetIndex);
+                    methodInfo.Invoke(parentValue, parameters);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogException(e);
+                }
+            });
         }
     }
 }

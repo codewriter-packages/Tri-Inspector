@@ -233,6 +233,11 @@ namespace TriInspector
         [PublicAPI]
         public void SetValue(object value)
         {
+            ModifyAndRecordForUndo(targetIndex => SetValueRecursive(this, value, targetIndex));
+        }
+
+        public void ModifyAndRecordForUndo(Action<int> call)
+        {
             // save any pending changes
             PropertyTree.ApplySerializedObjectModifiedProperties();
 
@@ -243,8 +248,8 @@ namespace TriInspector
             // set value for all targets
             for (var targetIndex = 0; targetIndex < PropertyTree.TargetObjects.Length; targetIndex++)
             {
-                SetValueRecursive(this, value, targetIndex);
-                
+                call.Invoke(targetIndex);
+
                 EditorUtility.SetDirty(PropertyTree.TargetObjects[targetIndex]);
             }
 
