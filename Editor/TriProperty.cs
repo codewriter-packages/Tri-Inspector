@@ -236,6 +236,16 @@ namespace TriInspector
             ModifyAndRecordForUndo(targetIndex => SetValueRecursive(this, value, targetIndex));
         }
 
+        [PublicAPI]
+        public void SetValues(Func<int, object> getValue)
+        {
+            ModifyAndRecordForUndo(targetIndex =>
+            {
+                var value = getValue.Invoke(targetIndex);
+                SetValueRecursive(this, value, targetIndex);
+            });
+        }
+
         public void ModifyAndRecordForUndo(Action<int> call)
         {
             // save any pending changes

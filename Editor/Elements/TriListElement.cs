@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using TriInspectorUnityInternalBridge;
 using TriInspector.Utilities;
 using UnityEditor;
@@ -9,8 +10,6 @@ namespace TriInspector.Elements
 {
     internal class TriListElement : TriElement
     {
-        private static readonly GUIContent ListIsNullContent = new GUIContent("List is null");
-
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
@@ -31,11 +30,10 @@ namespace TriInspector.Elements
                 drawHeaderCallback = DrawHeaderCallback,
                 elementHeightCallback = ElementHeightCallback,
                 drawElementCallback = DrawElementCallback,
+                onAddCallback = AddElementCallback,
+                onRemoveCallback = RemoveElementCallback,
+                onReorderCallbackWithDetails = ReorderCallback,
             };
-
-            var canResize = property.TryGetSerializedProperty(out _) || !property.FieldType.IsArray;
-            _reorderableListGui.displayAdd &= canResize;
-            _reorderableListGui.displayRemove &= canResize;
 
             if (!_reorderableListGui.displayAdd && !_reorderableListGui.displayRemove)
             {
@@ -51,9 +49,15 @@ namespace TriInspector.Elements
             {
                 _reorderableListGui.serializedProperty = serializedProperty;
             }
-            else
+            else if (_property.Value != null)
             {
                 _reorderableListGui.list = (IList) _property.Value;
+            }
+            else if (_reorderableListGui.list == null)
+            {
+                _reorderableListGui.list = (IList) (_property.FieldType.IsArray
+                    ? Array.CreateInstance(_property.ArrayElementType, 0)
+                    : Activator.CreateInstance(_property.FieldType));
             }
 
             if (_alwaysExpanded && !_property.IsExpanded)
@@ -82,11 +86,6 @@ namespace TriInspector.Elements
 
         public override float GetHeight(float width)
         {
-            if (_property.Value == null)
-            {
-                return EditorGUIUtility.singleLineHeight;
-            }
-
             if (!_property.IsExpanded)
             {
                 return _reorderableListGui.headerHeight + 4f;
@@ -99,12 +98,6 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
-            if (_property.Value == null)
-            {
-                EditorGUI.LabelField(position, _property.DisplayNameContent, ListIsNullContent);
-                return;
-            }
-
             position = EditorGUI.IndentedRect(position);
 
             if (!_property.IsExpanded)
@@ -124,20 +117,115 @@ namespace TriInspector.Elements
             }
         }
 
-        private bool GenerateChildren()
+        private void AddElementCallback(ReorderableList reorderableList)
         {
-            if (_property.Value == null)
+            if (_property.TryGetSerializedProperty(out _))
             {
-                if (ChildrenCount == 0)
-                {
-                    return false;
-                }
-
-                ClearChildren();
-
-                return true;
+                ReorderableList.defaultBehaviours.DoAddButton(reorderableList);
+                return;
             }
 
+            var template = CloneValue(_property);
+
+            _property.SetValues(targetIndex =>
+            {
+                var value = (IList) _property.GetValue(targetIndex);
+
+                if (_property.FieldType.IsArray)
+                {
+                    var array = Array.CreateInstance(_property.ArrayElementType, template.Length + 1);
+                    Array.Copy(template, array, template.Length);
+                    value = array;
+                }
+                else
+                {
+                    if (value == null)
+                    {
+                        value = (IList) Activator.CreateInstance(_property.FieldType);
+                    }
+
+                    var newElement = CreateDefaultElementValue(_property);
+                    value.Add(newElement);
+                }
+
+                return value;
+            });
+        }
+
+        private void RemoveElementCallback(ReorderableList reorderableList)
+        {
+            if (_property.TryGetSerializedProperty(out _))
+            {
+                ReorderableList.defaultBehaviours.DoRemoveButton(reorderableList);
+                return;
+            }
+
+            var template = CloneValue(_property);
+            var ind = reorderableList.index;
+
+            _property.SetValues(targetIndex =>
+            {
+                var value = (IList) _property.GetValue(targetIndex);
+
+                if (_property.FieldType.IsArray)
+                {
+                    var array = Array.CreateInstance(_property.ArrayElementType, template.Length - 1);
+                    Array.Copy(template, 0, array, 0, ind);
+                    Array.Copy(template, ind + 1, array, ind, array.Length - ind);
+                    value = array;
+                }
+                else
+                {
+                    value?.RemoveAt(ind);
+                }
+
+                return value;
+            });
+        }
+
+        private void ReorderCallback(ReorderableList list, int oldIndex, int newIndex)
+        {
+            if (_property.TryGetSerializedProperty(out _))
+            {
+                return;
+            }
+
+            var mainValue = _property.Value;
+
+            _property.SetValues(targetIndex =>
+            {
+                var value = (IList) _property.GetValue(targetIndex);
+
+                if (value == mainValue)
+                {
+                    return value;
+                }
+
+                var element = value[oldIndex];
+                for (var index = 0; index < value.Count - 1; ++index)
+                {
+                    if (index >= oldIndex)
+                    {
+                        value[index] = value[index + 1];
+                    }
+                }
+
+                for (var index = value.Count - 1; index > 0; --index)
+                {
+                    if (index > newIndex)
+                    {
+                        value[index] = value[index - 1];
+                    }
+                }
+
+                value[newIndex] = element;
+
+                return value;
+            });
+        }
+
+        private bool GenerateChildren()
+        {
             var count = _reorderableListGui.count;
 
             if (ChildrenCount == count)
@@ -217,6 +305,22 @@ namespace TriInspector.Elements
             }
 
             return GetChild(index).GetHeight(_lastContentWidth);
+        }
+
+        private static object CreateDefaultElementValue(TriProperty property)
+        {
+            var canActivate = property.ArrayElementType.IsValueType ||
+                              property.ArrayElementType.GetConstructor(Type.EmptyTypes) != null;
+
+            return canActivate ? Activator.CreateInstance(property.ArrayElementType) : null;
+        }
+
+        private static Array CloneValue(TriProperty property)
+        {
+            var list = (IList) property.Value;
+            var template = Array.CreateInstance(property.ArrayElementType, list?.Count ?? 0);
+            list?.CopyTo(template, 0);
+            return template;
         }
 
         private static class Styles
