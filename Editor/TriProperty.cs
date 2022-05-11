@@ -264,7 +264,7 @@ namespace TriInspector
             }
 
             // actualize
-            PropertyTree.UpdateSerializedObject();
+            PropertyTree.ForceUpdateSerializedObject();
             Update();
 
             PropertyTree.RequestValidation();

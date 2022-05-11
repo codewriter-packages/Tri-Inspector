@@ -101,8 +101,9 @@ namespace TriInspector
             _inspectorElement.OnGUI(rect);
         }
 
-        public void UpdateSerializedObject()
+        public void ForceUpdateSerializedObject()
         {
+            SerializedObject.SetIsDifferentCacheDirty();
             SerializedObject.Update();
         }
 
