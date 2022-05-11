@@ -28,7 +28,7 @@ namespace TriInspector.Resolvers
         public static ValueResolver<string> ResolveString(TriPropertyDefinition propertyDefinition,
             string expression)
         {
-            if (expression.StartsWith("$"))
+            if (expression != null && expression.StartsWith("$"))
             {
                 return Resolve<string>(propertyDefinition, expression.Substring(1));
             }
