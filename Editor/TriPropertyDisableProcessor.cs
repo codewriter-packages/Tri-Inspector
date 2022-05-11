@@ -19,5 +19,7 @@ namespace TriInspector
     public abstract class TriPropertyDisableProcessor<TAttribute> : TriPropertyDisableProcessor
         where TAttribute : DisableBaseAttribute
     {
+        [PublicAPI]
+        public TAttribute Attribute => (TAttribute) RawAttribute;
     }
 }
