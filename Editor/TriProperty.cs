@@ -267,7 +267,17 @@ namespace TriInspector
             PropertyTree.ForceUpdateSerializedObject();
             Update();
 
-            PropertyTree.RequestValidation();
+            NotifyValueChanged();
+        }
+
+        public void NotifyValueChanged()
+        {
+            ((ITriPropertyParent) this).NotifyValueChanged(this);
+        }
+
+        void ITriPropertyParent.NotifyValueChanged(TriProperty property)
+        {
+            _parent.NotifyValueChanged(property);
         }
 
         internal void Update()
@@ -561,6 +571,8 @@ namespace TriInspector
     public interface ITriPropertyParent
     {
         object GetValue(int targetIndex);
+
+        void NotifyValueChanged(TriProperty property);
     }
 
     public enum TriPropertyType

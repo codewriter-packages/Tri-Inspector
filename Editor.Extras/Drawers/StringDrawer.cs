@@ -66,7 +66,14 @@ namespace TriInspector.Drawers
 
             public override void OnGUI(Rect position)
             {
+                EditorGUI.BeginChangeCheck();
+
                 EditorGUI.PropertyField(position, _serializedProperty, _property.DisplayNameContent);
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    _property.NotifyValueChanged();
+                }
             }
         }
     }

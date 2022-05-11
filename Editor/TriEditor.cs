@@ -67,8 +67,6 @@ namespace TriInspector
             {
                 Profiler.EndSample();
             }
-            
-            EditorGUI.BeginChangeCheck();
 
             EditorStack.Push(this);
             Profiler.BeginSample("TriInspector.DoLayout()");
@@ -80,11 +78,6 @@ namespace TriInspector
             {
                 Profiler.EndSample();
                 EditorStack.Pop();
-            }
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                _inspector.RequestValidation();
             }
 
             if (serializedObject.ApplyModifiedProperties())

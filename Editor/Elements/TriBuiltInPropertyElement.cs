@@ -27,7 +27,14 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
+            EditorGUI.BeginChangeCheck();
+
             _propertyHandler.OnGUI(position, _serializedProperty, _property.DisplayNameContent, true);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                _property.NotifyValueChanged();
+            }
         }
     }
 }

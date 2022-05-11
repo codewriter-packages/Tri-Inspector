@@ -116,6 +116,11 @@ namespace TriInspector
             }
         }
 
+        public void NotifyValueChanged(TriProperty property)
+        {
+            RequestValidation();
+        }
+
         public void RequestRepaint()
         {
             RepaintRequired = true;
