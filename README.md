@@ -1,80 +1,194 @@
 # Tri Inspector [![Github license](https://img.shields.io/github/license/codewriter-packages/Tri-Inspector.svg?style=flat-square)](#) [![Unity 2020.3](https://img.shields.io/badge/Unity-2020.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/Tri-Inspector?style=flat-square)
 _Advanced inspector attributes for Unity_
 
-### Usage
+- [Attributes](#Attributes)
+  - [Misc](#Misc)
+  - [Styling](#Styling)
+  - [Collections](#Collections)
+  - [Conditionals](#Conditionals)
+  - [Buttons](#Buttons)
+  - [Debug](#Debug)
+  - [Groups](#Groups)
+- [Customization](#Customization)
+  - [Custom Drawers](#Custom-Drawers)
+  - [Validators](#Validators)
+  - [Property Processors](#Property-Processors)
+- [How to Install](#How-to-Install)
+- [License](#License)
 
+## Attributes
+
+### Misc
+#### ShowInInspector
 ```csharp
-using System;
-using TriInspector;
-using UnityEngine;
+private float field;
 
-public class BasicSample : MonoBehaviour
+[ShowInInspector]
+public float ReadOnlyProperty => field;
+
+[ShowInInspector]
+public float EditableProperty
 {
-    [PropertyOrder(1)]
-    [HideLabel, LabelText("My Label"), LabelWidth(100)]
-    [GUIColor(0, 1, 0), Space, Indent, ReadOnly]
-    [Title("My Title"), Header("My Header")]
-    [PropertySpace(SpaceBefore = 10, SpaceAfter = 20)]
-    [PropertyTooltip("My Tooltip")]
-    public float unityField;
-    
-    [Required]
-    [OnValueChanged(nameof(OnMaterialChanged))]
-    public Material mat;
-    
-    [ValidateInput(nameof(ValidateTexture))]
-    public Texture tex;
+    get => field;
+    set => field = value;
+}
+```
 
-    [InlineEditor]
-    public SampleScriptableObject objectReference;
+#### PropertyOrder
+```csharp
+[PropertyOrder(1)]
+```
 
-    [HideInPlayMode, ShowInPlayMode]
-    [DisableInPlayMode, EnableInPlayMode]
-    [HideInEditMode, ShowInEditMode]
-    [DisableInEditMode, EnableInEditMode]
-    public float conditional;
+#### ReadOnly
+```csharp
+[ReadOnly]
+```
 
-    [PropertyOrder(3)]
-    [EnableInPlayMode]
-    [Button("Click Me!")]
-    private void CustomButton()
-    {
-        Debug.Log("Button clicked!");
-    }
-    
-    [ShowInInspector]
-    public float ReadonlyProperty => 123f;
+#### Required
+```csharp
+[Required]
+```
 
-    [ShowInInspector]
-    public float EditableProperty
-    {
-        get => unityField;
-        set => unityField = value;
-    }
+#### OnValueChanged
+```csharp
+[OnValueChanged(nameof(OnMaterialChanged))]
+public Material mat; 
 
-    [InlineProperty(LabelWidth = 60)]
-    public Config config = new Config();
+private void OnMaterialChanged()
+{
+    Debug.Log("Material changed!");
+}
+```
 
-    [Serializable]
-    public class Config
-    {
-        public Vector3 position;
-        public float rotation;
-    }
-    
-    private void OnMaterialChanged()
-    {
-        Debug.Log("Material changed!");
-    }
-    
-    private TriValidationResult ValidateTexture()
-    {
-        if (tex == null) return TriValidationResult.Error("Tex is null");
+#### ValidateInput
+```csharp
+[ValidateInput(nameof(ValidateTexture))]
+public Textute tex;
 
-        return TriValidationResult.Valid;
-    }
+private TriValidationResult ValidateTexture()
+{
+    if (tex == null) return TriValidationResult.Error("Tex is null");
+    return TriValidationResult.Valid;
 }
 
+```
+
+### Styling
+
+#### HideLabel
+```csharp
+[HideLabel]
+```
+
+#### LabelText
+```csharp
+[LabelText("My Label")]
+```
+
+#### LabelWidth
+```csharp
+[LabelWidth(100)]
+```
+
+#### GUIColor
+```csharp
+[GUIColor(0, 1, 0)]
+```
+
+#### Space
+```csharp
+[Space]
+```
+
+#### Indent
+```csharp
+[Indent]
+```
+
+#### Title
+```csharp
+[Title("My Title")]
+```
+
+#### Header
+```csharp
+[Header("My Header")]
+```
+
+#### PropertySpace
+```csharp
+[PropertySpace(SpaceBefore = 10, 
+               SpaceAfter = 20)]
+```
+
+#### PropertyTooltip
+```csharp
+[PropertyTooltip("My Tooltip")]
+```
+
+#### InlineEditor
+```csharp
+[InlineEditor]
+```
+
+#### InlineProperty
+```csharp
+[InlineProperty]
+```
+
+### Collections
+
+#### ListDrawerSettings
+```csharp
+[ListDrawerSettings(Draggable = true,
+                    HideAddButton = false,
+                    HideRemoveButton = false,
+                    AlwaysExpanded = true]
+```
+
+### Conditionals
+
+#### HideInPlayMode / ShowInPlayMode
+```csharp
+[HideInPlayMode] [ShowInPlayMode]
+```
+
+#### DisableInPlayMode / EnableInPlayMode
+```csharp
+[DisableInPlayMode] [EnableInPlayMode]
+```
+
+#### HideInEditMode / ShowInEditMode
+```csharp
+[HideInEditMode] [ShowInEditMode]
+```
+
+#### DisableInEditMode / EnableInEditMode
+```csharp
+[DisableInEditMode] [EnableInEditMode]
+```
+
+### Buttons
+
+#### Button
+```csharp
+[Button("My Button")]
+private void DoButton()
+{
+    Debug.Log("Button clicked!");
+}
+```
+
+### Debug
+
+#### ShowDrawerChain
+```csharp
+[ShowDrawerChain]
+```
+
+### Groups
+
+```csharp
 [DeclareHorizontalGroup("header")]
 [DeclareBoxGroup("header/left", Title = "My Left Box")]
 [DeclareVerticalGroup("header/right")]
