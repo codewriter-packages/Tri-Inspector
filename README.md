@@ -3,6 +3,7 @@ _Advanced inspector attributes for Unity_
 
 - [Attributes](#Attributes)
   - [Misc](#Misc)
+  - [Validation](#Validation)
   - [Styling](#Styling)
   - [Collections](#Collections)
   - [Conditionals](#Conditionals)
@@ -20,6 +21,9 @@ _Advanced inspector attributes for Unity_
 
 ### Misc
 #### ShowInInspector
+
+Shows non-serialized property in the inspector.
+
 ```csharp
 private float field;
 
@@ -35,21 +39,25 @@ public float EditableProperty
 ```
 
 #### PropertyOrder
+
+Changes property order in the inspector.
+
 ```csharp
 [PropertyOrder(1)]
 ```
 
 #### ReadOnly
+
+Makes property non-editable.
+
 ```csharp
 [ReadOnly]
 ```
 
-#### Required
-```csharp
-[Required]
-```
-
 #### OnValueChanged
+
+Invokes callback on property modification.
+
 ```csharp
 [OnValueChanged(nameof(OnMaterialChanged))]
 public Material mat; 
@@ -59,6 +67,21 @@ private void OnMaterialChanged()
     Debug.Log("Material changed!");
 }
 ```
+
+### Validation
+
+Tri Inspector has some builtin validators such as `missing reference` and `type mismatch` error. 
+Additionally you can mark out your code with validation attributes 
+or even write own validators.
+
+![Builtin](https://user-images.githubusercontent.com/26966368/167894126-ac5b4722-c930-4304-b183-4b8cc461f083.png)
+#### Required
+```csharp
+[Required]
+public Material mat;
+```
+
+![Required](https://user-images.githubusercontent.com/26966368/167895375-a1c31812-081f-4033-b7e4-a0c3c43963f0.png)
 
 #### ValidateInput
 ```csharp
@@ -73,12 +96,15 @@ private TriValidationResult ValidateTexture()
 
 ```
 
+![ValidateInput](https://user-images.githubusercontent.com/26966368/167895864-cb181383-6f23-4f7f-8c3b-b683760e1d8a.png)
+
 ### Styling
 
 #### HideLabel
 ```csharp
 [HideLabel]
 ```
+![HideLabel](https://user-images.githubusercontent.com/26966368/167896272-577cbc8f-95be-4b75-97b6-b67d58eba4d1.png)
 
 #### LabelText
 ```csharp
@@ -108,7 +134,10 @@ private TriValidationResult ValidateTexture()
 #### Title
 ```csharp
 [Title("My Title")]
+public int val;
 ```
+
+![Title](https://user-images.githubusercontent.com/26966368/167898501-24a8c472-08b1-4010-b00e-ef7dcc33dfae.png)
 
 #### Header
 ```csharp
@@ -129,12 +158,27 @@ private TriValidationResult ValidateTexture()
 #### InlineEditor
 ```csharp
 [InlineEditor]
+public Material mat;
 ```
+
+![InlineEditor](https://user-images.githubusercontent.com/26966368/167896721-79724d1c-570f-4e01-b3e1-8c83aacca661.png)
 
 #### InlineProperty
 ```csharp
-[InlineProperty]
+public MinMax rangeFoldout;
+
+[InlineProperty(LabelWidth = 40)]
+public MinMax rangeInline;
+
+[Serializable]
+public class MinMax
+{
+    public int min;
+    public int max;
+}
 ```
+
+![InlineProperty](https://user-images.githubusercontent.com/26966368/167899261-6a3ceeda-609e-47d0-b8a0-38f4331cc9f9.png)
 
 ### Collections
 
@@ -143,8 +187,10 @@ private TriValidationResult ValidateTexture()
 [ListDrawerSettings(Draggable = true,
                     HideAddButton = false,
                     HideRemoveButton = false,
-                    AlwaysExpanded = true]
+                    AlwaysExpanded = false)]
 ```
+
+![ListDrawerSettings](https://user-images.githubusercontent.com/26966368/167897095-cde06fdb-8b4c-422c-92dc-8ed781006c6e.png)
 
 ### Conditionals
 
@@ -178,6 +224,8 @@ private void DoButton()
     Debug.Log("Button clicked!");
 }
 ```
+
+![Button](https://user-images.githubusercontent.com/26966368/167897368-79fdb050-a2f3-4c37-be3f-54f10f46880e.png)
 
 ### Debug
 
