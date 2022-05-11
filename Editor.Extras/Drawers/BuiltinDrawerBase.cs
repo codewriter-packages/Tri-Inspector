@@ -27,7 +27,7 @@ namespace TriInspector.Drawers
 
         public sealed override void OnGUI(Rect position, TriValue<T> propertyValue, TriElement next)
         {
-            var value = propertyValue.Value;
+            var value = propertyValue.SmartValue;
 
             EditorGUI.BeginChangeCheck();
 
@@ -35,7 +35,7 @@ namespace TriInspector.Drawers
 
             if (EditorGUI.EndChangeCheck())
             {
-                propertyValue.Value = value;
+                propertyValue.SmartValue = value;
             }
         }
 
