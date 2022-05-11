@@ -19,6 +19,7 @@ public class BasicSample : MonoBehaviour
     public float unityField;
     
     [Required]
+    [OnValueChanged(nameof(OnMaterialChanged))]
     public Material mat;
     
     [ValidateInput(nameof(ValidateTexture))]
@@ -59,6 +60,11 @@ public class BasicSample : MonoBehaviour
     {
         public Vector3 position;
         public float rotation;
+    }
+    
+    private void OnMaterialChanged()
+    {
+        Debug.Log("Material changed!");
     }
     
     private TriValidationResult ValidateTexture()

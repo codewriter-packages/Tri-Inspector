@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using TriInspector.Resolvers;
 using TriInspector.Utilities;
 using UnityEngine;
 
@@ -62,6 +63,11 @@ namespace TriInspector
                 IsArray = true;
                 ArrayElementType = elementType;
             }
+
+            if (Attributes.TryGet(out OnValueChangedAttribute onValueChangedAttribute))
+            {
+                OnValueChanged = ActionResolver.Resolve(this, onValueChangedAttribute.Method);
+            }
         }
 
         public MemberInfo MemberInfo { get; }
@@ -80,6 +86,8 @@ namespace TriInspector
         public Type ArrayElementType { get; }
 
         public bool IsArray { get; }
+
+        [CanBeNull] public ActionResolver OnValueChanged { get; }
 
         public IReadOnlyList<TriPropertyHideProcessor> HideProcessors
         {

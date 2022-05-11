@@ -277,6 +277,17 @@ namespace TriInspector
 
         void ITriPropertyParent.NotifyValueChanged(TriProperty property)
         {
+            if (_definition.OnValueChanged != null)
+            {
+                _serializedProperty?.serializedObject.ApplyModifiedProperties();
+
+                for (var targetIndex = 0; targetIndex < PropertyTree.TargetObjects.Length; targetIndex++)
+                {
+                    _definition.OnValueChanged.InvokeForTarget(this, targetIndex);
+                    EditorUtility.SetDirty(PropertyTree.TargetObjects[targetIndex]);
+                }
+            }
+
             _parent.NotifyValueChanged(property);
         }
 
