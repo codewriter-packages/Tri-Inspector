@@ -407,6 +407,21 @@ namespace TriInspector
             return false;
         }
 
+        public static bool AreValuesEqual(Type type, object a, object b)
+        {
+            if (type == typeof(string))
+            {
+                return string.Equals((string) a, (string) b);
+            }
+
+            if (type.IsValueType || type == typeof(string))
+            {
+                return a.Equals(b);
+            }
+
+            return ReferenceEquals(a, b);
+        }
+
         private static void SetValueRecursive(TriProperty property, object value, int targetIndex)
         {
             // for value types we must recursively set all parent objects
@@ -480,11 +495,7 @@ namespace TriInspector
                     for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
                     {
                         var otherValue = property.GetValue(i);
-                        var otherValueIsSame = property.FieldType.IsValueType
-                            ? otherValue.Equals(newValue)
-                            : ReferenceEquals(otherValue, newValue);
-
-                        if (!otherValueIsSame)
+                        if (!AreValuesEqual(property.FieldType, otherValue, newValue))
                         {
                             isMixed = true;
                             return;
