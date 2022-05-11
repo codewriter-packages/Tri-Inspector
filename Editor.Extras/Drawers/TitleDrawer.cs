@@ -1,5 +1,6 @@
 ﻿using TriInspector;
 using TriInspector.Drawers;
+using TriInspector.Resolvers;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,6 +14,25 @@ namespace TriInspector.Drawers
         private const int SpaceBeforeLine = 2;
         private const int LineHeight = 2;
         private const int SpaceBeforeContent = 3;
+
+        private ValueResolver<string> _titleResolver;
+
+        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        {
+            base.Initialize(propertyDefinition);
+
+            _titleResolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Title);
+        }
+
+        public override string CanDraw(TriProperty property)
+        {
+            if (_titleResolver.TryGetErrorString(out var error))
+            {
+                return error;
+            }
+
+            return base.CanDraw(property);
+        }
 
         public override float GetHeight(float width, TriProperty property, TriElement next)
         {
@@ -44,7 +64,8 @@ namespace TriInspector.Drawers
                 yMin = lineRect.yMax + SpaceBeforeContent,
             };
 
-            GUI.Label(titleRect, Attribute.Title, EditorStyles.boldLabel);
+            var title = _titleResolver.GetValue(property, "Error");
+            GUI.Label(titleRect, title, EditorStyles.boldLabel);
             EditorGUI.DrawRect(lineRect, Color.gray);
 
             next.OnGUI(contentRect);
