@@ -194,6 +194,39 @@ public class MinMax
 
 ### Conditionals
 
+#### ShowIf
+```csharp
+public bool visible;
+
+[ShowIf(nameof(visible))]
+public float val;
+```
+
+#### HideIf
+```csharp
+public bool visible;
+
+[HideIf(nameof(visible))]
+public float val;
+```
+
+#### EnableIf
+```csharp
+public bool visible;
+
+[EnableIf(nameof(visible))]
+public float val;
+```
+
+#### DisableIf
+```csharp
+public bool visible;
+
+[DisableIf(nameof(visible))]
+public float val;
+```
+
+
 #### HideInPlayMode / ShowInPlayMode
 ```csharp
 [HideInPlayMode] [ShowInPlayMode]
