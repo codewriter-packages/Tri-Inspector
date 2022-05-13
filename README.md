@@ -24,17 +24,19 @@ _Advanced inspector attributes for Unity_
 
 Shows non-serialized property in the inspector.
 
+![ShowInInspector](https://user-images.githubusercontent.com/26966368/168230693-a1a389a6-1a3b-4b94-b4b5-0764e88591f4.png)
+
 ```csharp
-private float field;
+private float _field;
 
 [ShowInInspector]
-public float ReadOnlyProperty => field;
+public float ReadOnlyProperty => _field;
 
 [ShowInInspector]
 public float EditableProperty
 {
-    get => field;
-    set => field = value;
+    get => _field;
+    set => _field = value;
 }
 ```
 
@@ -42,16 +44,24 @@ public float EditableProperty
 
 Changes property order in the inspector.
 
+![PropertyOrder](https://user-images.githubusercontent.com/26966368/168231223-c6628a8d-0d0a-47c1-8850-dc4e789fa14f.png)
+
 ```csharp
-[PropertyOrder(1)]
+public float first;
+
+[PropertyOrder(0)]
+public float second;
 ```
 
 #### ReadOnly
 
-Makes property non-editable.
+Makes property non-editable in the inspector.
+
+![ReadOnly](https://user-images.githubusercontent.com/26966368/168231817-948ef153-eb98-42fb-88ad-3e8d17925b43.png)
 
 ```csharp
 [ReadOnly]
+public Vector3 vec;
 ```
 
 #### OnValueChanged
@@ -74,29 +84,33 @@ Tri Inspector has some builtin validators such as `missing reference` and `type 
 Additionally you can mark out your code with validation attributes 
 or even write own validators.
 
-![Builtin](https://user-images.githubusercontent.com/26966368/167894126-ac5b4722-c930-4304-b183-4b8cc461f083.png)
+![Builtin-Validators](https://user-images.githubusercontent.com/26966368/168232996-04de69a5-91c2-45d8-89b9-627b498db2ce.png)
+
 #### Required
+
+![Required](https://user-images.githubusercontent.com/26966368/168233232-596535b4-bab8-462e-b5d8-7a1c090e5143.png)
+
 ```csharp
 [Required]
 public Material mat;
 ```
 
-![Required](https://user-images.githubusercontent.com/26966368/167895375-a1c31812-081f-4033-b7e4-a0c3c43963f0.png)
-
 #### ValidateInput
+
+![ValidateInput](https://user-images.githubusercontent.com/26966368/168233592-b4dcd4d4-88ec-4213-a2e5-667719feb0b8.png)
+
 ```csharp
 [ValidateInput(nameof(ValidateTexture))]
-public Textute tex;
+public Texture tex;
 
 private TriValidationResult ValidateTexture()
 {
     if (tex == null) return TriValidationResult.Error("Tex is null");
+    if (!tex.isReadable) return TriValidationResult.Warning("Tex must be readable");
     return TriValidationResult.Valid;
 }
 
 ```
-
-![ValidateInput](https://user-images.githubusercontent.com/26966368/167895864-cb181383-6f23-4f7f-8c3b-b683760e1d8a.png)
 
 ### Styling
 
@@ -104,7 +118,6 @@ private TriValidationResult ValidateTexture()
 ```csharp
 [HideLabel]
 ```
-![HideLabel](https://user-images.githubusercontent.com/26966368/167896272-577cbc8f-95be-4b75-97b6-b67d58eba4d1.png)
 
 #### LabelText
 ```csharp
@@ -137,8 +150,6 @@ private TriValidationResult ValidateTexture()
 public int val;
 ```
 
-![Title](https://user-images.githubusercontent.com/26966368/167898501-24a8c472-08b1-4010-b00e-ef7dcc33dfae.png)
-
 #### Header
 ```csharp
 [Header("My Header")]
@@ -156,14 +167,18 @@ public int val;
 ```
 
 #### InlineEditor
+
+![InlineEditor](https://user-images.githubusercontent.com/26966368/168234617-86a7f500-e635-46f8-90f2-5696e5ae7e63.png)
+
 ```csharp
 [InlineEditor]
 public Material mat;
 ```
 
-![InlineEditor](https://user-images.githubusercontent.com/26966368/167896721-79724d1c-570f-4e01-b3e1-8c83aacca661.png)
-
 #### InlineProperty
+
+![InlineProperty](https://user-images.githubusercontent.com/26966368/168234909-1e6bec90-18ed-4d56-91ca-fe09118e1b72.png)
+
 ```csharp
 public MinMax rangeFoldout;
 
@@ -178,19 +193,19 @@ public class MinMax
 }
 ```
 
-![InlineProperty](https://user-images.githubusercontent.com/26966368/167899261-6a3ceeda-609e-47d0-b8a0-38f4331cc9f9.png)
-
 ### Collections
 
 #### ListDrawerSettings
+
+![ListDrawerSettings](https://user-images.githubusercontent.com/26966368/168235372-1a460037-672c-424f-b2f0-6bf4641c0119.png)
+
 ```csharp
 [ListDrawerSettings(Draggable = true,
                     HideAddButton = false,
                     HideRemoveButton = false,
                     AlwaysExpanded = false)]
+public List<Material> list;
 ```
-
-![ListDrawerSettings](https://user-images.githubusercontent.com/26966368/167897095-cde06fdb-8b4c-422c-92dc-8ed781006c6e.png)
 
 ### Conditionals
 
@@ -250,15 +265,16 @@ public float val;
 ### Buttons
 
 #### Button
+
+![Button](https://user-images.githubusercontent.com/26966368/168235907-2b5ed6d4-d00b-4cd6-999c-432abd0a2230.png)
+
 ```csharp
-[Button("My Button")]
+[Button("Click me!")]
 private void DoButton()
 {
     Debug.Log("Button clicked!");
 }
 ```
-
-![Button](https://user-images.githubusercontent.com/26966368/167897368-79fdb050-a2f3-4c37-be3f-54f10f46880e.png)
 
 ### Debug
 
@@ -268,6 +284,8 @@ private void DoButton()
 ```
 
 ### Groups
+
+![Groups](https://user-images.githubusercontent.com/26966368/168236396-b28eba4a-7fe7-4a5c-b185-55fabf1aabf5.png)
 
 ```csharp
 [DeclareHorizontalGroup("header")]
@@ -292,14 +310,12 @@ public class GroupDemo : MonoBehaviour
     [Group("header/right/tabs"), Tab("Two")] public float tabTwo;
     [Group("header/right/tabs"), Tab("Three")] public float tabThree;
 
-    [Group("header/right"), Button]
+    [Group("header/right"), Button("Click me!")]
     public void MyButton()
     {
     }
 }
 ```
-
-![GroupDemo Preview](https://user-images.githubusercontent.com/26966368/151707658-2e0c2e33-17d5-4cbb-8f83-d7d394ced6b6.png)
 
 ### Customization
 
@@ -467,7 +483,9 @@ Minimal Unity Version is 2020.3.
 Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
 <br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
 
-After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package
+After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package. 
+
+Then in `ProjectSettings`/`TriInspector` enable `Full` mode for Tri Inspector.
 
 ## License
 
