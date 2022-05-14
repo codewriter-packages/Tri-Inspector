@@ -9,7 +9,11 @@ namespace TriInspector
     {
         public int Indent { get; }
 
-        public IndentAttribute(int indent = 1)
+        public IndentAttribute() : this(1)
+        {
+        }
+
+        public IndentAttribute(int indent)
         {
             Indent = indent;
         }
