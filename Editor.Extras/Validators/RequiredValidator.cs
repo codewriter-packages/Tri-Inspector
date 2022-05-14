@@ -14,7 +14,7 @@ namespace TriInspector.Validators
                 var isNull = string.IsNullOrEmpty((string) property.Value);
                 if (isNull)
                 {
-                    var message = Attribute.Message ?? $"{property.DisplayName} is required";
+                    var message = Attribute.Message ?? $"{GetName(property)} is required";
                     return TriValidationResult.Error(message);
                 }
             }
@@ -23,7 +23,7 @@ namespace TriInspector.Validators
                 var isNull = null == (UnityEngine.Object) property.Value;
                 if (isNull)
                 {
-                    var message = Attribute.Message ?? $"{property.DisplayName} is required";
+                    var message = Attribute.Message ?? $"{GetName(property)} is required";
                     return TriValidationResult.Error(message);
                 }
             }
@@ -33,6 +33,17 @@ namespace TriInspector.Validators
             }
 
             return TriValidationResult.Valid;
+        }
+
+        private static string GetName(TriProperty property)
+        {
+            var name = property.DisplayName;
+            if (string.IsNullOrEmpty(name))
+            {
+                name = property.RawName;
+            }
+
+            return name;
         }
     }
 }
