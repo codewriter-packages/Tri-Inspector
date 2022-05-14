@@ -64,7 +64,7 @@ namespace TriInspector
                 {
                     if (TryGetAttribute(out HideLabelAttribute _))
                     {
-                        _displayNameBackingField = GUIContent.none;
+                        _displayNameBackingField = new GUIContent("");
                     }
                     else if (IsArrayElement)
                     {
@@ -79,7 +79,7 @@ namespace TriInspector
                 if (IsArrayElement)
                 {
                 }
-                else if (_displayNameBackingField != GUIContent.none)
+                else
                 {
                     if (TryGetAttribute(out LabelTextAttribute labelTextAttribute))
                     {
