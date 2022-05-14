@@ -56,6 +56,7 @@ namespace TriInspector.Drawers
                 name = property.RawName;
             }
 
+            position = EditorGUI.IndentedRect(position);
             if (GUI.Button(position, name))
             {
                 InvokeButton(property, Array.Empty<object>());
