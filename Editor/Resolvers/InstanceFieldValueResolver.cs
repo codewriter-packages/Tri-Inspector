@@ -23,7 +23,7 @@ namespace TriInspector.Resolvers
             foreach (var fieldInfo in parentType.GetFields(flags))
             {
                 if (fieldInfo.Name == expression &&
-                    fieldInfo.FieldType == typeof(T))
+                    typeof(T).IsAssignableFrom(fieldInfo.FieldType))
                 {
                     resolver = new InstanceFieldValueResolver<T>(fieldInfo);
                     return true;

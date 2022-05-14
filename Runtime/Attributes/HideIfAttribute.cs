@@ -5,9 +5,13 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     [Conditional("UNITY_EDITOR")]
-    public class HideIfAttribute : ConditionalHideAttribute
+    public class HideIfAttribute : ConditionalHideBaseAttribute
     {
-        public HideIfAttribute(string condition) : base(condition)
+        public HideIfAttribute(string condition) : this(condition, true)
+        {
+        }
+
+        public HideIfAttribute(string condition, object value) : base(condition, value)
         {
         }
     }

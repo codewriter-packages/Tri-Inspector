@@ -23,7 +23,7 @@ namespace TriInspector.Resolvers
             foreach (var methodInfo in parentType.GetMethods(flags))
             {
                 if (methodInfo.Name == expression &&
-                    methodInfo.ReturnType == typeof(T) &&
+                    typeof(T).IsAssignableFrom(methodInfo.ReturnType) &&
                     methodInfo.GetParameters() is var parameterInfos &&
                     parameterInfos.Length == 0)
                 {

@@ -8,11 +8,11 @@ using TriInspector.Resolvers;
 namespace TriInspector.Processors
 {
     public abstract class HideIfProcessorBase<T> : TriPropertyHideProcessor<T>
-        where T : ConditionalHideAttribute
+        where T : ConditionalHideBaseAttribute
     {
         private readonly bool _inverse;
 
-        private ValueResolver<bool> _conditionResolver;
+        private ValueResolver<object> _conditionResolver;
 
         protected HideIfProcessorBase(bool inverse)
         {
@@ -23,12 +23,14 @@ namespace TriInspector.Processors
         {
             base.Initialize(propertyDefinition);
 
-            _conditionResolver = ValueResolver.Resolve<bool>(propertyDefinition, Attribute.Condition);
+            _conditionResolver = ValueResolver.Resolve<object>(propertyDefinition, Attribute.Condition);
         }
 
         public sealed override bool IsHidden(TriProperty property)
         {
-            return _conditionResolver.GetValue(property) != _inverse;
+            var val = _conditionResolver.GetValue(property);
+            var equal = val?.Equals(Attribute.Value) ?? Attribute.Value == null;
+            return equal != _inverse;
         }
     }
 

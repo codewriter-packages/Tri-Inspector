@@ -23,7 +23,7 @@ namespace TriInspector.Resolvers
             foreach (var propertyInfo in parentType.GetProperties(flags))
             {
                 if (propertyInfo.Name == expression &&
-                    propertyInfo.PropertyType == typeof(T) &&
+                    typeof(T).IsAssignableFrom(propertyInfo.PropertyType) &&
                     propertyInfo.CanRead)
                 {
                     resolver = new InstancePropertyValueResolver<T>(propertyInfo);

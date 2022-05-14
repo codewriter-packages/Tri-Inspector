@@ -5,9 +5,13 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     [Conditional("UNITY_EDITOR")]
-    public class DisableIfAttribute : ConditionalDisableAttribute
+    public class DisableIfAttribute : ConditionalDisableBaseAttribute
     {
-        public DisableIfAttribute(string condition) : base(condition)
+        public DisableIfAttribute(string condition) : this(condition, true)
+        {
+        }
+
+        public DisableIfAttribute(string condition, object value) : base(condition, value)
         {
         }
     }
