@@ -1,6 +1,8 @@
 # Tri Inspector [![Github license](https://img.shields.io/github/license/codewriter-packages/Tri-Inspector.svg?style=flat-square)](#) [![Unity 2020.3](https://img.shields.io/badge/Unity-2020.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/Tri-Inspector?style=flat-square)
 _Advanced inspector attributes for Unity_
 
+![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/168415510-819b4fc0-d5ea-4795-b67f-7bd20b2f6adb.png)
+
 - [Attributes](#Attributes)
   - [Misc](#Misc)
   - [Validation](#Validation)
