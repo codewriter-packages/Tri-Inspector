@@ -44,7 +44,17 @@ namespace TriInspector.Drawers
 
         public override void OnGUI(Rect position, TriProperty property, TriElement next)
         {
-            var name = _nameResolver.GetValue(property, property.DisplayName);
+            var name = _nameResolver.GetValue(property);
+
+            if (string.IsNullOrEmpty(name))
+            {
+                name = property.DisplayName;
+            }
+
+            if (string.IsNullOrEmpty(name))
+            {
+                name = property.RawName;
+            }
 
             if (GUI.Button(position, name))
             {
