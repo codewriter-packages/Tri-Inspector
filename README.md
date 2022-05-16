@@ -1,27 +1,29 @@
 # Tri Inspector [![Github license](https://img.shields.io/github/license/codewriter-packages/Tri-Inspector.svg?style=flat-square)](#) [![Unity 2020.3](https://img.shields.io/badge/Unity-2020.3+-2296F3.svg?style=flat-square)](#) ![GitHub package.json version](https://img.shields.io/github/package-json/v/codewriter-packages/Tri-Inspector?style=flat-square)
+
 _Advanced inspector attributes for Unity_
 
 ![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/168415510-819b4fc0-d5ea-4795-b67f-7bd20b2f6adb.png)
 
 - [Attributes](#Attributes)
-  - [Misc](#Misc)
-  - [Validation](#Validation)
-  - [Styling](#Styling)
-  - [Collections](#Collections)
-  - [Conditionals](#Conditionals)
-  - [Buttons](#Buttons)
-  - [Debug](#Debug)
-  - [Groups](#Groups)
+    - [Misc](#Misc)
+    - [Validation](#Validation)
+    - [Styling](#Styling)
+    - [Collections](#Collections)
+    - [Conditionals](#Conditionals)
+    - [Buttons](#Buttons)
+    - [Debug](#Debug)
+    - [Groups](#Groups)
 - [Customization](#Customization)
-  - [Custom Drawers](#Custom-Drawers)
-  - [Validators](#Validators)
-  - [Property Processors](#Property-Processors)
+    - [Custom Drawers](#Custom-Drawers)
+    - [Validators](#Validators)
+    - [Property Processors](#Property-Processors)
 - [How to Install](#How-to-Install)
 - [License](#License)
 
 ## Attributes
 
 ### Misc
+
 #### ShowInInspector
 
 Shows non-serialized property in the inspector.
@@ -82,9 +84,7 @@ private void OnMaterialChanged()
 
 ### Validation
 
-Tri Inspector has some builtin validators such as `missing reference` and `type mismatch` error. 
-Additionally you can mark out your code with validation attributes 
-or even write own validators.
+Tri Inspector has some builtin validators such as `missing reference` and `type mismatch` error. Additionally you can mark out your code with validation attributes or even write own validators.
 
 ![Builtin-Validators](https://user-images.githubusercontent.com/26966368/168232996-04de69a5-91c2-45d8-89b9-627b498db2ce.png)
 
@@ -116,56 +116,137 @@ private TriValidationResult ValidateTexture()
 
 ### Styling
 
-#### HideLabel
+#### Title
+
+![Title](https://user-images.githubusercontent.com/26966368/168528842-10ba070e-74ab-4377-8f33-7a55609494f4.png)
+
 ```csharp
+[Title("My Title")]
+public string val;
+
+[Title("$" + nameof(_myTitleField))]
+public Rect rect;
+
+[Title("$" + nameof(MyTitleProperty))]
+public Vector3 vec;
+
+[Title("Button Title")]
+[Button]
+public void MyButton()
+{
+}
+
+private string _myTitleField = "Serialized Title";
+
+private string MyTitleProperty => DateTime.Now.ToLongTimeString();
+```
+
+#### HideLabel
+
+![HideLabel](https://user-images.githubusercontent.com/26966368/168528934-353f2843-b6ea-4f4f-b56e-24e006eca6ae.png)
+
+```csharp
+[Title("Wide Vector")]
 [HideLabel]
+public Vector3 vector;
+
+[Title("Wide String")]
+[HideLabel]
+public string str;
 ```
 
 #### LabelText
+
+![LabelText](https://user-images.githubusercontent.com/26966368/168529002-8fb17112-f74c-4535-b399-aefdb352f73a.png)
+
 ```csharp
-[LabelText("My Label")]
+[LabelText("Custom Label")]
+public int val;
+
+[LabelText("$" + nameof(DynamicLabel))]
+public Vector3 vec;
+
+public string DynamicLabel => DateTime.Now.ToShortTimeString();
 ```
 
 #### LabelWidth
+
+![LabelWidth](https://user-images.githubusercontent.com/26966368/168529051-c90bce09-92a7-4afd-b961-d19f03e826f3.png)
+
 ```csharp
-[LabelWidth(100)]
+public int defaultWidth;
+
+[LabelWidth(40)]
+public int thin;
+
+[LabelWidth(300)]
+public int customInspectorVeryLongPropertyName;
 ```
 
 #### GUIColor
-```csharp
-[GUIColor(0, 1, 0)]
-```
 
-#### Space
+![GUIColor](https://user-images.githubusercontent.com/26966368/168529122-048cd964-358c-453b-ab3a-aa7137bab4f7.png)
+
 ```csharp
-[Space]
+[GUIColor(0.8f, 1.0f, 0.6f)]
+public Vector3 vec;
+
+[GUIColor(0.6f, 0.9f, 1.0f)]
+[Button]
+public void BlueButton() { }
+
+[GUIColor(1.0f, 0.6f, 0.6f)]
+[Button]
+public void RedButton() { }
 ```
 
 #### Indent
+
+![Indent](https://user-images.githubusercontent.com/26966368/168528565-2972221d-2cb3-49f1-8000-a425e4ff6cea.png)
+
 ```csharp
+[Title("Custom Indent")]
 [Indent]
-```
+public int a;
 
-#### Title
-```csharp
-[Title("My Title")]
-public int val;
-```
+[Indent(2)]
+public int b;
 
-#### Header
-```csharp
-[Header("My Header")]
+[Indent(3)]
+public int c;
+
+[Indent(4)]
+public int d;
 ```
 
 #### PropertySpace
+
+![PropertySpace](https://user-images.githubusercontent.com/26966368/168529641-ee61c950-cb15-4a4e-986b-c9fa8c82dd4d.png)
+
 ```csharp
-[PropertySpace(SpaceBefore = 10, 
-               SpaceAfter = 20)]
+[Space, PropertyOrder(0)]
+public Vector3 vecField;
+
+[ShowInInspector, PropertyOrder(1)]
+[PropertySpace(SpaceBefore = 10, SpaceAfter = 30)]
+public Rect RectProperty { get; set; }
+
+[PropertyOrder(2)]
+public bool b;
 ```
 
 #### PropertyTooltip
+
+![PropertyTooltip](https://user-images.githubusercontent.com/26966368/168530124-95609470-a495-4eb3-9059-f6203ead995f.png)
+
 ```csharp
-[PropertyTooltip("My Tooltip")]
+[PropertyTooltip("This is tooltip")]
+public Rect rect;
+
+[PropertyTooltip("$" + nameof(DynamicTooltip))]
+public Vector3 vec;
+
+public string DynamicTooltip => DateTime.Now.ToShortTimeString();
 ```
 
 #### InlineEditor
@@ -212,14 +293,31 @@ public List<Material> list;
 ### Conditionals
 
 #### ShowIf
-```csharp
-public bool visible;
 
-[ShowIf(nameof(visible))]
-public float val;
+![ShowIf](https://user-images.githubusercontent.com/26966368/168531065-af5dad6a-8aea-4ca9-9730-da5feac0099a.png)
+
+```csharp
+public Material material;
+public bool toggle;
+public SomeEnum someEnum;
+
+[ShowIf(nameof(material), null)]
+public Vector3 showWhenMaterialIsNull;
+
+[ShowIf(nameof(toggle))]
+public Vector3 showWhenToggleIsTrue;
+
+[ShowIf(nameof(toggle), false)]
+public Vector3 showWhenToggleIsFalse;
+
+[ShowIf(nameof(someEnum), SomeEnum.Two)]
+public Vector3 showWhenSomeEnumIsTwo;
+
+public enum SomeEnum { One, Two, Three }
 ```
 
 #### HideIf
+
 ```csharp
 public bool visible;
 
@@ -228,6 +326,7 @@ public float val;
 ```
 
 #### EnableIf
+
 ```csharp
 public bool visible;
 
@@ -236,6 +335,7 @@ public float val;
 ```
 
 #### DisableIf
+
 ```csharp
 public bool visible;
 
@@ -243,23 +343,26 @@ public bool visible;
 public float val;
 ```
 
-
 #### HideInPlayMode / ShowInPlayMode
+
 ```csharp
 [HideInPlayMode] [ShowInPlayMode]
 ```
 
 #### DisableInPlayMode / EnableInPlayMode
+
 ```csharp
 [DisableInPlayMode] [EnableInPlayMode]
 ```
 
 #### HideInEditMode / ShowInEditMode
+
 ```csharp
 [HideInEditMode] [ShowInEditMode]
 ```
 
 #### DisableInEditMode / EnableInEditMode
+
 ```csharp
 [DisableInEditMode] [EnableInEditMode]
 ```
@@ -281,8 +384,16 @@ private void DoButton()
 ### Debug
 
 #### ShowDrawerChain
+
+![ShowDrawerChain](https://user-images.githubusercontent.com/26966368/168531723-5f2b2d7a-a4c1-4727-8ab5-e7b82a52182e.png)
+
 ```csharp
 [ShowDrawerChain]
+[Indent]
+[PropertySpace]
+[Title("Custom Title")]
+[GUIColor(1.0f, 0.8f, 0.8f)]
+public Vector3 vec;
 ```
 
 ### Groups
@@ -355,6 +466,7 @@ public class BoolDrawer : TriValueDrawer<bool>
     }
 }
 ```
+
 </details>
 
 <details>
@@ -379,6 +491,7 @@ public class LabelWidthDrawer : TriAttributeDrawer<LabelWidthAttribute>
     }
 }
 ```
+
 </details>
 
 <details>
@@ -398,6 +511,7 @@ public class TriBoxGroupDrawer : TriGroupDrawer<DeclareBoxGroupAttribute>
     }
 }
 ```
+
 </details>
 
 #### Validators
@@ -419,6 +533,7 @@ public class MissingReferenceValidator<T> : TriValueValidator<T>
     }
 }
 ```
+
 </details>
 
 <details>
@@ -437,6 +552,7 @@ public class RequiredValidator : TriAttributeValidator<RequiredAttribute>
     }
 }
 ```
+
 </details>
 
 #### Property Processors
@@ -458,6 +574,7 @@ public class HideInPlayModeProcessor : TriPropertyHideProcessor<HideInPlayModeAt
     }
 }
 ```
+
 </details>
 
 <details>
@@ -477,15 +594,17 @@ public class DisableInPlayModeProcessor : TriPropertyDisableProcessor<DisableInP
     }
 }
 ```
+
 </details>
 
 ## How to Install
+
 Minimal Unity Version is 2020.3.
 
 Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
 <br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
 
-After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package. 
+After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package.
 
 Then in `ProjectSettings`/`TriInspector` enable `Full` mode for Tri Inspector.
 
