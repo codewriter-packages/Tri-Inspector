@@ -81,14 +81,14 @@ namespace TriInspector
                 }
                 else
                 {
-                    if (TryGetAttribute(out LabelTextAttribute labelTextAttribute))
+                    if (_definition.CustomLabel != null)
                     {
-                        _displayNameBackingField.text = labelTextAttribute.Text;
+                        _displayNameBackingField.text = _definition.CustomLabel.GetValue(this, "");
                     }
 
-                    if (TryGetAttribute(out PropertyTooltipAttribute tooltipAttribute))
+                    if (_definition.CustomTooltip != null)
                     {
-                        _displayNameBackingField.tooltip = tooltipAttribute.Tooltip;
+                        _displayNameBackingField.tooltip = _definition.CustomTooltip.GetValue(this, "");
                     }
                 }
 

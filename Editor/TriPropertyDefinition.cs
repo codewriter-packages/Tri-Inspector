@@ -68,6 +68,16 @@ namespace TriInspector
             {
                 OnValueChanged = ActionResolver.Resolve(this, onValueChangedAttribute.Method);
             }
+
+            if (Attributes.TryGet(out LabelTextAttribute labelTextAttribute))
+            {
+                CustomLabel = ValueResolver.ResolveString(this, labelTextAttribute.Text);
+            }
+
+            if (Attributes.TryGet(out PropertyTooltipAttribute tooltipAttribute))
+            {
+                CustomTooltip = ValueResolver.ResolveString(this, tooltipAttribute.Tooltip);
+            }
         }
 
         public MemberInfo MemberInfo { get; }
@@ -88,6 +98,8 @@ namespace TriInspector
         public bool IsArray { get; }
 
         [CanBeNull] public ActionResolver OnValueChanged { get; }
+        [CanBeNull] public ValueResolver<string> CustomLabel { get; }
+        [CanBeNull] public ValueResolver<string> CustomTooltip { get; }
 
         public IReadOnlyList<TriPropertyHideProcessor> HideProcessors
         {
