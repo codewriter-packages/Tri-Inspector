@@ -23,7 +23,7 @@ namespace TriInspector.Resolvers
         [PublicAPI]
         public void InvokeForAllTargets(TriProperty property)
         {
-            for (var targetIndex = 0; targetIndex < property.PropertyTree.TargetObjects.Length; targetIndex++)
+            for (var targetIndex = 0; targetIndex < property.PropertyTree.TargetsCount; targetIndex++)
             {
                 InvokeForTarget(property, targetIndex);
             }

@@ -29,7 +29,7 @@ namespace TriInspector
 
         private void OnDisable()
         {
-            _inspector?.Destroy();
+            _inspector?.Dispose();
             _inspector = null;
         }
 

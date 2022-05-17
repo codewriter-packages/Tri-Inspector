@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace TriInspector
 {
-    public sealed class TriPropertyTree : ITriPropertyParent
+    public sealed class TriPropertyTree : ITriPropertyParent, ITriPropertyTree
     {
         private readonly TriEditorMode _mode;
         private readonly TriInspectorElement _inspectorElement;
@@ -19,7 +19,6 @@ namespace TriInspector
             SerializedObject = serializedObject ?? throw new ArgumentNullException(nameof(serializedObject));
             TargetObjects = serializedObject.targetObjects;
             TargetObjectType = TargetObjects[0].GetType();
-            Root = this;
 
             Properties = TriTypeDefinition.GetCached(TargetObjectType)
                 .Properties
@@ -31,7 +30,7 @@ namespace TriInspector
                 .ToList();
 
             _mode = mode;
-            _inspectorElement = new TriInspectorElement(this);
+            _inspectorElement = new TriInspectorElement(TargetObjectType, Properties);
             _inspectorElement.AttachInternal();
 
             Update();
@@ -47,11 +46,15 @@ namespace TriInspector
         [PublicAPI]
         public Type TargetObjectType { get; }
 
+        [PublicAPI]
+        public int TargetsCount => TargetObjects.Length;
+
         private SerializedObject SerializedObject { get; }
 
-        public TriPropertyTree Root { get; }
-
         public bool IsInlineEditor => (_mode & TriEditorMode.InlineEditor) != 0;
+
+        public bool TargetIsPersistent => TargetObjects[0] is var targetObject &&
+                                          targetObject != null && !EditorUtility.IsPersistent(targetObject);
 
         internal bool RepaintRequired { get; set; }
         internal bool ValidationRequired { get; set; }
@@ -64,7 +67,7 @@ namespace TriInspector
             return new TriPropertyTree(scriptableObject, mode);
         }
 
-        internal void Destroy()
+        public void Dispose()
         {
             if (!_inspectorElement.IsAttached)
             {
@@ -101,23 +104,31 @@ namespace TriInspector
             _inspectorElement.OnGUI(rect);
         }
 
-        public void ForceUpdateSerializedObject()
+        public void UpdateAfterValueModification()
         {
             SerializedObject.SetIsDifferentCacheDirty();
             SerializedObject.Update();
         }
 
-        public void ApplySerializedObjectModifiedProperties()
+        public void PrepareForValueModification()
         {
             if (SerializedObject.ApplyModifiedProperties())
             {
                 RequestValidation();
                 RequestRepaint();
             }
+
+            Undo.RegisterCompleteObjectUndo(TargetObjects, "Inspector");
+            Undo.FlushUndoRecordObjects();
         }
 
         public void NotifyValueChanged(TriProperty property)
         {
+            foreach (var targetObject in TargetObjects)
+            {
+                EditorUtility.SetDirty(targetObject);
+            }
+
             RequestValidation();
         }
 
@@ -130,6 +141,17 @@ namespace TriInspector
         {
             ValidationRequired = true;
         }
+    }
+
+    public interface ITriPropertyTree : IDisposable
+    {
+        Type TargetObjectType { get; }
+        int TargetsCount { get; }
+        bool TargetIsPersistent { get; }
+
+        void PrepareForValueModification();
+        void UpdateAfterValueModification();
+        void RequestRepaint();
     }
 
     [Flags]
