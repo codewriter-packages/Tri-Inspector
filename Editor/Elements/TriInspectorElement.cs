@@ -1,12 +1,15 @@
-﻿namespace TriInspector.Elements
+﻿using System;
+using System.Collections.Generic;
+
+namespace TriInspector.Elements
 {
     internal class TriInspectorElement : TriPropertyCollectionBaseElement
     {
-        public TriInspectorElement(TriPropertyTree propertyTree)
+        public TriInspectorElement(Type targetObjectType, IReadOnlyList<TriProperty> properties)
         {
-            DeclareGroups(propertyTree.TargetObjectType);
+            DeclareGroups(targetObjectType);
 
-            foreach (var childProperty in propertyTree.Properties)
+            foreach (var childProperty in properties)
             {
                 AddProperty(childProperty);
             }

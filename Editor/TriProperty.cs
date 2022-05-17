@@ -27,7 +27,7 @@ namespace TriInspector
         private string _isExpandedPrefsKey;
 
         internal TriProperty(
-            TriPropertyTree propertyTree,
+            ITriPropertyTree propertyTree,
             ITriPropertyParent parent,
             TriPropertyDefinition definition,
             int propertyIndex,
@@ -219,7 +219,7 @@ namespace TriInspector
             : throw new InvalidOperationException("Cannot read ArrayElementProperties for " + PropertyType);
 
         [PublicAPI]
-        public TriPropertyTree PropertyTree { get; }
+        public ITriPropertyTree PropertyTree { get; }
 
         [PublicAPI]
         [CanBeNull]
@@ -249,22 +249,19 @@ namespace TriInspector
         public void ModifyAndRecordForUndo(Action<int> call)
         {
             // save any pending changes
-            PropertyTree.ApplySerializedObjectModifiedProperties();
+            PropertyTree.PrepareForValueModification();
 
             // record object state for undp
-            Undo.RegisterCompleteObjectUndo(PropertyTree.TargetObjects, "Inspector");
             Undo.FlushUndoRecordObjects();
 
             // set value for all targets
-            for (var targetIndex = 0; targetIndex < PropertyTree.TargetObjects.Length; targetIndex++)
+            for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)
             {
                 call.Invoke(targetIndex);
-
-                EditorUtility.SetDirty(PropertyTree.TargetObjects[targetIndex]);
             }
 
             // actualize
-            PropertyTree.ForceUpdateSerializedObject();
+            PropertyTree.UpdateAfterValueModification();
             Update();
 
             NotifyValueChanged();
@@ -281,10 +278,9 @@ namespace TriInspector
             {
                 _serializedProperty?.serializedObject.ApplyModifiedProperties();
 
-                for (var targetIndex = 0; targetIndex < PropertyTree.TargetObjects.Length; targetIndex++)
+                for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)
                 {
                     _definition.OnValueChanged.InvokeForTarget(this, targetIndex);
-                    EditorUtility.SetDirty(PropertyTree.TargetObjects[targetIndex]);
                 }
             }
 
@@ -461,7 +457,7 @@ namespace TriInspector
         {
             newValue = property.GetValue(0);
 
-            if (property.PropertyTree.TargetObjects.Length == 1)
+            if (property.PropertyTree.TargetsCount == 1)
             {
                 isMixed = false;
                 return;
@@ -472,7 +468,7 @@ namespace TriInspector
                 case TriPropertyType.Array:
                 {
                     var list = (IList) newValue;
-                    for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
+                    for (var i = 1; i < property.PropertyTree.TargetsCount; i++)
                     {
                         if (list == null)
                         {
@@ -491,7 +487,7 @@ namespace TriInspector
                 }
                 case TriPropertyType.Reference:
                 {
-                    for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
+                    for (var i = 1; i < property.PropertyTree.TargetsCount; i++)
                     {
                         var otherValue = property.GetValue(i);
 
@@ -513,7 +509,7 @@ namespace TriInspector
                 }
                 case TriPropertyType.Primitive:
                 {
-                    for (var i = 1; i < property.PropertyTree.TargetObjects.Length; i++)
+                    for (var i = 1; i < property.PropertyTree.TargetsCount; i++)
                     {
                         var otherValue = property.GetValue(i);
                         if (!AreValuesEqual(property.FieldType, otherValue, newValue))
