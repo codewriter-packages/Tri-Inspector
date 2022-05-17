@@ -45,7 +45,6 @@ namespace TriInspector.Utilities
             {
                 var types = TriReflectionUtilities
                     .AllNonAbstractTypes
-                    .Where(type => type.IsPublic)
                     .Where(type => !typeof(Object).IsAssignableFrom(type))
                     .Where(type => _property.FieldType.IsAssignableFrom(type))
                     .Where(type => type.GetConstructor(Type.EmptyTypes) != null)
