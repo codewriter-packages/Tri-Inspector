@@ -11,19 +11,16 @@ namespace TriInspector
 
         private TriPropertyTree _inspector;
 
+        private TriEditorMode _editorMode;
+
         private void OnEnable()
         {
-            var mode = TriEditorMode.None;
+            _editorMode = TriEditorMode.None;
 
             var isInlineEditor = EditorStack.Count > 0;
             if (isInlineEditor)
             {
-                mode |= TriEditorMode.InlineEditor;
-            }
-
-            if (serializedObject.targetObject != null)
-            {
-                _inspector = TriPropertyTree.Create(serializedObject, mode);
+                _editorMode |= TriEditorMode.InlineEditor;
             }
         }
 
@@ -37,8 +34,12 @@ namespace TriInspector
         {
             if (_inspector == null)
             {
-                DrawDefaultInspector();
-                return;
+                if (serializedObject.targetObjects.Length == 0)
+                {
+                    return;
+                }
+
+                _inspector = TriPropertyTree.Create(serializedObject, _editorMode);
             }
 
             serializedObject.UpdateIfRequiredOrScript();
