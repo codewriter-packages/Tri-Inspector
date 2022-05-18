@@ -252,7 +252,7 @@ namespace TriInspector
             PropertyTree.PrepareForValueModification();
 
             // record object state for undp
-            Undo.FlushUndoRecordObjects();
+            PropertyTree.ForceCreateUndoGroup();
 
             // set value for all targets
             for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)

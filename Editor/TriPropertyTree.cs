@@ -104,10 +104,10 @@ namespace TriInspector
             _inspectorElement.OnGUI(rect);
         }
 
-        public void UpdateAfterValueModification()
+        public void ForceCreateUndoGroup()
         {
-            SerializedObject.SetIsDifferentCacheDirty();
-            SerializedObject.Update();
+            Undo.RegisterCompleteObjectUndo(TargetObjects, "Inspector");
+            Undo.FlushUndoRecordObjects();
         }
 
         public void PrepareForValueModification()
@@ -117,9 +117,12 @@ namespace TriInspector
                 RequestValidation();
                 RequestRepaint();
             }
+        }
 
-            Undo.RegisterCompleteObjectUndo(TargetObjects, "Inspector");
-            Undo.FlushUndoRecordObjects();
+        public void UpdateAfterValueModification()
+        {
+            SerializedObject.SetIsDifferentCacheDirty();
+            SerializedObject.Update();
         }
 
         public void NotifyValueChanged(TriProperty property)
@@ -149,6 +152,7 @@ namespace TriInspector
         int TargetsCount { get; }
         bool TargetIsPersistent { get; }
 
+        void ForceCreateUndoGroup();
         void PrepareForValueModification();
         void UpdateAfterValueModification();
         void RequestRepaint();
