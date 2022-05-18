@@ -23,6 +23,8 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
+            position = EditorGUI.IndentedRect(position);
+            
             using (TriGuiHelper.PushColor(_color))
             {
                 GUI.Label(position, string.Empty, Styles.InfoBoxBg);
