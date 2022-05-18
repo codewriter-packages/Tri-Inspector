@@ -4,6 +4,7 @@ _Advanced inspector attributes for Unity_
 
 ![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/168415510-819b4fc0-d5ea-4795-b67f-7bd20b2f6adb.png)
 
+- [How to Install](#How-to-Install)
 - [Attributes](#Attributes)
     - [Misc](#Misc)
     - [Validation](#Validation)
@@ -17,8 +18,20 @@ _Advanced inspector attributes for Unity_
     - [Custom Drawers](#Custom-Drawers)
     - [Validators](#Validators)
     - [Property Processors](#Property-Processors)
-- [How to Install](#How-to-Install)
+- [Integrations](#Integrations)
+    - [Odin Inspector](#Odin-Inspector)
 - [License](#License)
+
+## How to Install
+
+Minimal Unity Version is 2020.3.
+
+Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
+<br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
+
+After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package.
+
+Then in `ProjectSettings`/`TriInspector` enable `Full` mode for Tri Inspector.
 
 ## Attributes
 
@@ -597,16 +610,73 @@ public class DisableInPlayModeProcessor : TriPropertyDisableProcessor<DisableInP
 
 </details>
 
-## How to Install
+## Integrations
 
-Minimal Unity Version is 2020.3.
+### Odin Inspector
 
-Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
-<br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
+Tri Inspector is able to work in compatibility mode with Odin Inspector. 
+In this mode, the primary interface will be drawn by the Odin Inspector. However, 
+parts of the interface can be rendered by the Tri Inspector.
 
-After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package.
+In order for the interface to be rendered by Tri instead of Odin, it is necessary to:
+- Use TriMonoBehaviour instead of MonoBehaviour
+- Use TriScriptableObject instead of ScriptableObject
+- Mark serializable classes with DrawWithTriInspector
 
-Then in `ProjectSettings`/`TriInspector` enable `Full` mode for Tri Inspector.
+```csharp
+public class ThisBehaviourDrawnByOdin : MonoBehaviour
+{
+    [Sirenix.OdinInspector.InfoBox("Will be drawn by Odin Inspector as usual")]
+    [Sirenix.OdinInspector.BoxGroup("box", LabelText = "Box Group")]
+    public Texture tex;
+
+    [Sirenix.OdinInspector.InfoBox("Will be drawn by Odin Inspector as usual")]
+    public ThisClassDrawnByOdin odin;
+
+    [Sirenix.OdinInspector.InfoBox("This class marked with [DrawWithTriInspector] " +
+                                   "so will be drawn by Tri Inspector")]
+    public ThisClassDrawnByTri tri;
+}
+
+[DeclareBoxGroup("box", Title = "Box Group")]
+public class ThisBehaviourDrawnByTri : TriMonoBehaviour
+{
+    [TriInspector.InfoBox("Parent class inherits from TriMonoBehaviour " +
+                          "so all fields will be drawn by Tri Inspector")]
+    [TriInspector.Group("box")]
+    public Texture tex;
+
+    [TriInspector.InfoBox("It is impossible to draw Odin inside Tri, " +
+                          "so this field will be drawn by Tri too")]
+    public ThisClassDrawnByOdin wrong;
+
+    [TriInspector.InfoBox("Will be drawn by Tri Inspector too")]
+    // This field drawn by Tri Inspector
+    public ThisClassDrawnByTri tri;
+}
+
+[Serializable]
+public class ThisClassDrawnByOdin
+{
+    [Sirenix.OdinInspector.LabelText("Float Field")]
+    public float f;
+    
+    [Sirenix.OdinInspector.ListDrawerSettings(Expanded = true)]
+    public List<Material> materials;
+}
+
+[Serializable, DrawWithTriInspector]
+public class ThisClassDrawnByTri
+{
+    [TriInspector.LabelText("Float Field")]
+    public float f;
+
+    [TriInspector.ListDrawerSettings(AlwaysExpanded = true)]
+    public List<Material> materials;
+}
+```
+
+![Odin-Inspector-Integration](https://user-images.githubusercontent.com/26966368/169118626-dc5e5f10-2274-4232-967b-2811fb7fd34b.png)
 
 ## License
 
