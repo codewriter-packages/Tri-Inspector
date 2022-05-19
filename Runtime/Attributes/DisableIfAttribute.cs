@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TriInspector
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
     [Conditional("UNITY_EDITOR")]
     public class DisableIfAttribute : ConditionalDisableBaseAttribute
     {
