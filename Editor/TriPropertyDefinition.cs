@@ -152,6 +152,14 @@ namespace TriInspector
                     _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
                         .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
                         .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
+                        .Concat(new[]
+                        {
+                            new ValidatorsDrawer
+                            {
+                                Order = TriDrawerOrder.Validator,
+                                ApplyOnArrayElement = true,
+                            },
+                        })
                         .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .OrderBy(it => it.Order)
                         .ToList();

@@ -36,11 +36,6 @@ namespace TriInspector.Elements
                 element = drawer.CreateElementInternal(property, element);
             }
 
-            if (property.HasValidators)
-            {
-                AddChild(new TriPropertyValidationResultElement(property));
-            }
-
             AddChild(element);
         }
 
