@@ -154,11 +154,8 @@ namespace TriInspector
                         .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
                         .Concat(new[]
                         {
-                            new ValidatorsDrawer
-                            {
-                                Order = TriDrawerOrder.Validator,
-                                ApplyOnArrayElement = true,
-                            },
+                            new ValidatorsDrawer {Order = TriDrawerOrder.Validator, ApplyOnArrayElement = true,},
+                            new ValidatorsDrawer {Order = TriDrawerOrder.Validator, ApplyOnArrayElement = false,},
                         })
                         .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .OrderBy(it => it.Order)
