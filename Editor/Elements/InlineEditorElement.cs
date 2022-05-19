@@ -86,12 +86,14 @@ namespace TriInspector.Elements
             }
             else
             {
-                if (_editor == null && _property.IsExpanded && !_property.IsValueMixed)
+                var shouldDrawEditor = _property.IsExpanded && !_property.IsValueMixed;
+
+                if (_editor == null && shouldDrawEditor && _property.Value is Object obj && obj != null)
                 {
-                    _editor = Editor.CreateEditor((Object) _property.Value);
+                    _editor = Editor.CreateEditor(obj);
                 }
 
-                if (_editor != null && _property.IsExpanded && !_property.IsValueMixed)
+                if (_editor != null && shouldDrawEditor)
                 {
                     Rect indentedEditorPosition;
                     using (TriGuiHelper.PushIndentLevel())
