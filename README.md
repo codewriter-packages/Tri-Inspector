@@ -127,6 +127,32 @@ private TriValidationResult ValidateTexture()
 
 ```
 
+#### InfoBox
+
+![InfoBox](https://user-images.githubusercontent.com/26966368/169318171-d1a02212-48f1-41d1-b0aa-e2e1b25df262.png)
+
+```csharp
+[Title("InfoBox Message Types")]
+[InfoBox("Default info box")]
+public int a;
+
+[InfoBox("None info box", TriMessageType.None)]
+public int b;
+
+[InfoBox("Warning info box", TriMessageType.Warning)]
+public int c;
+
+[InfoBox("Error info box", TriMessageType.Error)]
+public int d;
+
+[InfoBox("$" + nameof(DynamicInfo), visibleIf: nameof(VisibleInEditMode))]
+public Vector3 vec;
+
+private string DynamicInfo => "Dynamic info box: " + DateTime.Now.ToLongTimeString();
+
+private bool VisibleInEditMode => !Application.isPlaying;
+```
+
 ### Styling
 
 #### Title

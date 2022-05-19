@@ -9,11 +9,13 @@ namespace TriInspector
     {
         public string Text { get; }
         public TriMessageType MessageType { get; }
+        public string VisibleIf { get; }
 
-        public InfoBoxAttribute(string text, TriMessageType messageType = TriMessageType.Info)
+        public InfoBoxAttribute(string text, TriMessageType messageType = TriMessageType.Info, string visibleIf = null)
         {
             Text = text;
             MessageType = messageType;
+            VisibleIf = visibleIf;
         }
     }
 }

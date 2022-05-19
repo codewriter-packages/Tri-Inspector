@@ -4,7 +4,7 @@
     {
         public static TriValidationResult Valid => new TriValidationResult(true, null, TriMessageType.None);
 
-        private TriValidationResult(bool valid, string message, TriMessageType messageType)
+        public TriValidationResult(bool valid, string message, TriMessageType messageType)
         {
             IsValid = valid;
             Message = message;
