@@ -5,7 +5,7 @@ namespace TriInspector
 {
     public static class TriEditorStyles
     {
-        private const string BaseResourcesPath = "Packages/com.triinspector/Editor/Resources/";
+        private const string BaseResourcesPath = "Packages/com.codewriter.triinspector/Editor/Resources/";
 
         private static GUIStyle _contentBox;
         private static GUIStyle _box;
