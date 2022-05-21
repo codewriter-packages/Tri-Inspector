@@ -20,6 +20,7 @@ _Advanced inspector attributes for Unity_
     - [Property Processors](#Property-Processors)
 - [Integrations](#Integrations)
     - [Odin Inspector](#Odin-Inspector)
+    - [Odin Validator](#Odin-Validator)
 - [License](#License)
 
 ## How to Install
@@ -644,65 +645,16 @@ Tri Inspector is able to work in compatibility mode with Odin Inspector.
 In this mode, the primary interface will be drawn by the Odin Inspector. However, 
 parts of the interface can be rendered by the Tri Inspector.
 
-In order for the interface to be rendered by Tri instead of Odin, it is necessary to:
-- Use TriMonoBehaviour instead of MonoBehaviour
-- Use TriScriptableObject instead of ScriptableObject
-- Mark serializable classes with DrawWithTriInspector
+In order for the interface to be rendered by Tri instead of Odin, 
+it is necessary to mark classes with `[DrawWithTriInspector]` attribute.
 
-```csharp
-public class ThisBehaviourDrawnByOdin : MonoBehaviour
-{
-    [Sirenix.OdinInspector.InfoBox("Will be drawn by Odin Inspector as usual")]
-    [Sirenix.OdinInspector.BoxGroup("box", LabelText = "Box Group")]
-    public Texture tex;
+### Odin Validator
 
-    [Sirenix.OdinInspector.InfoBox("Will be drawn by Odin Inspector as usual")]
-    public ThisClassDrawnByOdin odin;
+Tri Inspector is integrated with the Odin Validator
+so all validation results from Tri attributes will be shown 
+in the Odin Validator window.
 
-    [Sirenix.OdinInspector.InfoBox("This class marked with [DrawWithTriInspector] " +
-                                   "so will be drawn by Tri Inspector")]
-    public ThisClassDrawnByTri tri;
-}
-
-[DeclareBoxGroup("box", Title = "Box Group")]
-public class ThisBehaviourDrawnByTri : TriMonoBehaviour
-{
-    [TriInspector.InfoBox("Parent class inherits from TriMonoBehaviour " +
-                          "so all fields will be drawn by Tri Inspector")]
-    [TriInspector.Group("box")]
-    public Texture tex;
-
-    [TriInspector.InfoBox("It is impossible to draw Odin inside Tri, " +
-                          "so this field will be drawn by Tri too")]
-    public ThisClassDrawnByOdin wrong;
-
-    [TriInspector.InfoBox("Will be drawn by Tri Inspector too")]
-    // This field drawn by Tri Inspector
-    public ThisClassDrawnByTri tri;
-}
-
-[Serializable]
-public class ThisClassDrawnByOdin
-{
-    [Sirenix.OdinInspector.LabelText("Float Field")]
-    public float f;
-    
-    [Sirenix.OdinInspector.ListDrawerSettings(Expanded = true)]
-    public List<Material> materials;
-}
-
-[Serializable, DrawWithTriInspector]
-public class ThisClassDrawnByTri
-{
-    [TriInspector.LabelText("Float Field")]
-    public float f;
-
-    [TriInspector.ListDrawerSettings(AlwaysExpanded = true)]
-    public List<Material> materials;
-}
-```
-
-![Odin-Inspector-Integration](https://user-images.githubusercontent.com/26966368/169118626-dc5e5f10-2274-4232-967b-2811fb7fd34b.png)
+![Odin-Validator-Integration](https://user-images.githubusercontent.com/26966368/169645537-d8f0b50f-46af-4804-95e8-337ff3b5ae83.png)
 
 ## License
 

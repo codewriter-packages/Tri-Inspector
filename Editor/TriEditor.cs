@@ -9,7 +9,7 @@ namespace TriInspector
     {
         private static readonly Stack<Editor> EditorStack = new Stack<Editor>();
 
-        private TriPropertyTree _inspector;
+        private TriPropertyTreeForSerializedObject _inspector;
 
         private TriEditorMode _editorMode;
 
@@ -39,7 +39,14 @@ namespace TriInspector
                     return;
                 }
 
-                _inspector = TriPropertyTree.Create(serializedObject, _editorMode);
+                if (serializedObject.targetObject == null)
+                {
+                    EditorGUILayout.HelpBox("Script is missing", MessageType.Warning);
+                    return;
+                }
+
+                _inspector = new TriPropertyTreeForSerializedObject(serializedObject);
+                _inspector.Initialize(_editorMode);
             }
 
             serializedObject.UpdateIfRequiredOrScript();
@@ -59,8 +66,6 @@ namespace TriInspector
             {
                 if (_inspector.ValidationRequired)
                 {
-                    _inspector.ValidationRequired = false;
-
                     _inspector.RunValidation();
                 }
             }
@@ -73,7 +78,7 @@ namespace TriInspector
             Profiler.BeginSample("TriInspector.DoLayout()");
             try
             {
-                _inspector.DoLayout();
+                _inspector.Draw();
             }
             finally
             {
@@ -88,8 +93,6 @@ namespace TriInspector
 
             if (_inspector.RepaintRequired)
             {
-                _inspector.RepaintRequired = false;
-
                 Repaint();
             }
         }

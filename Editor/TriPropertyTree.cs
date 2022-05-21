@@ -1,34 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
 using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace TriInspector
 {
-    public sealed class TriPropertyTree : ITriPropertyParent, ITriPropertyTree
+    public abstract class TriPropertyTree : ITriPropertyParent
     {
-        private readonly TriEditorMode _mode;
-        private readonly TriInspectorElement _inspectorElement;
+        private TriInspectorElement _inspectorElement;
+        private TriEditorMode _mode;
 
-        private TriPropertyTree([NotNull] SerializedObject serializedObject, TriEditorMode mode)
+        public IReadOnlyList<TriProperty> Properties { get; protected set; }
+
+        public bool IsInlineEditor => (_mode & TriEditorMode.InlineEditor) != 0;
+
+        public Type TargetObjectType { get; protected set; }
+        public int TargetsCount { get; protected set; }
+        public bool TargetIsPersistent { get; protected set; }
+
+        public bool ValidationRequired { get; private set; }
+        public bool RepaintRequired { get; private set; }
+
+        public void Initialize(TriEditorMode mode)
         {
-            SerializedObject = serializedObject ?? throw new ArgumentNullException(nameof(serializedObject));
-            TargetObjects = serializedObject.targetObjects;
-            TargetObjectType = TargetObjects[0].GetType();
-
-            Properties = TriTypeDefinition.GetCached(TargetObjectType)
-                .Properties
-                .Select((propertyDefinition, index) =>
-                {
-                    var serializedProperty = serializedObject.FindProperty(propertyDefinition.Name);
-                    return new TriProperty(this, this, propertyDefinition, index, serializedProperty);
-                })
-                .ToList();
-
             _mode = mode;
             _inspectorElement = new TriInspectorElement(TargetObjectType, Properties);
             _inspectorElement.AttachInternal();
@@ -37,37 +32,7 @@ namespace TriInspector
             RunValidation();
         }
 
-        [PublicAPI]
-        public IReadOnlyList<TriProperty> Properties { get; }
-
-        [PublicAPI]
-        public Object[] TargetObjects { get; }
-
-        [PublicAPI]
-        public Type TargetObjectType { get; }
-
-        [PublicAPI]
-        public int TargetsCount => TargetObjects.Length;
-
-        private SerializedObject SerializedObject { get; }
-
-        public bool IsInlineEditor => (_mode & TriEditorMode.InlineEditor) != 0;
-
-        public bool TargetIsPersistent => TargetObjects[0] is var targetObject &&
-                                          targetObject != null && !EditorUtility.IsPersistent(targetObject);
-
-        internal bool RepaintRequired { get; set; }
-        internal bool ValidationRequired { get; set; }
-
-        object ITriPropertyParent.GetValue(int targetIndex) => TargetObjects[targetIndex];
-
-        internal static TriPropertyTree Create(SerializedObject scriptableObject,
-            TriEditorMode mode = TriEditorMode.None)
-        {
-            return new TriPropertyTree(scriptableObject, mode);
-        }
-
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (!_inspectorElement.IsAttached)
             {
@@ -77,7 +42,7 @@ namespace TriInspector
             _inspectorElement.DetachInternal();
         }
 
-        internal void Update()
+        public virtual void Update()
         {
             foreach (var property in Properties)
             {
@@ -85,8 +50,10 @@ namespace TriInspector
             }
         }
 
-        internal void RunValidation()
+        public void RunValidation()
         {
+            ValidationRequired = false;
+
             foreach (var property in Properties)
             {
                 property.RunValidation();
@@ -95,8 +62,10 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        internal void DoLayout()
+        public void Draw()
         {
+            RepaintRequired = false;
+
             _inspectorElement.Update();
             var width = EditorGUIUtility.currentViewWidth;
             var height = _inspectorElement.GetHeight(width);
@@ -104,38 +73,15 @@ namespace TriInspector
             _inspectorElement.OnGUI(rect);
         }
 
-        public void ForceCreateUndoGroup()
+        public void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)
         {
-            Undo.RegisterCompleteObjectUndo(TargetObjects, "Inspector");
-            Undo.FlushUndoRecordObjects();
-        }
-
-        public void PrepareForValueModification()
-        {
-            if (SerializedObject.ApplyModifiedProperties())
+            foreach (var triProperty in Properties)
             {
-                RequestValidation();
-                RequestRepaint();
+                triProperty.EnumerateValidationResults(call);
             }
         }
 
-        public void UpdateAfterValueModification()
-        {
-            SerializedObject.SetIsDifferentCacheDirty();
-            SerializedObject.Update();
-        }
-
-        public void NotifyValueChanged(TriProperty property)
-        {
-            foreach (var targetObject in TargetObjects)
-            {
-                EditorUtility.SetDirty(targetObject);
-            }
-
-            RequestValidation();
-        }
-
-        public void RequestRepaint()
+        public virtual void RequestRepaint()
         {
             RepaintRequired = true;
         }
@@ -143,19 +89,15 @@ namespace TriInspector
         public void RequestValidation()
         {
             ValidationRequired = true;
+
+            RequestRepaint();
         }
-    }
 
-    public interface ITriPropertyTree : IDisposable
-    {
-        Type TargetObjectType { get; }
-        int TargetsCount { get; }
-        bool TargetIsPersistent { get; }
-
-        void ForceCreateUndoGroup();
-        void PrepareForValueModification();
-        void UpdateAfterValueModification();
-        void RequestRepaint();
+        public abstract object GetValue(int targetIndex);
+        public abstract void NotifyValueChanged(TriProperty property);
+        public abstract void ForceCreateUndoGroup();
+        public abstract void PrepareForValueModification();
+        public abstract void UpdateAfterValueModification();
     }
 
     [Flags]

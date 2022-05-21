@@ -27,7 +27,7 @@ namespace TriInspector
         private string _isExpandedPrefsKey;
 
         internal TriProperty(
-            ITriPropertyTree propertyTree,
+            TriPropertyTree propertyTree,
             ITriPropertyParent parent,
             TriPropertyDefinition definition,
             int propertyIndex,
@@ -219,7 +219,7 @@ namespace TriInspector
             : throw new InvalidOperationException("Cannot read ArrayElementProperties for " + PropertyType);
 
         [PublicAPI]
-        public ITriPropertyTree PropertyTree { get; }
+        public TriPropertyTree PropertyTree { get; }
 
         [PublicAPI]
         [CanBeNull]
@@ -384,6 +384,25 @@ namespace TriInspector
                 foreach (var childrenProperty in _childrenProperties)
                 {
                     childrenProperty.RunValidation();
+                }
+            }
+        }
+
+        internal void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)
+        {
+            if (_validationResults != null)
+            {
+                foreach (var result in _validationResults)
+                {
+                    call.Invoke(this, result);
+                }
+            }
+
+            if (_childrenProperties != null)
+            {
+                foreach (var childrenProperty in _childrenProperties)
+                {
+                    childrenProperty.EnumerateValidationResults(call);
                 }
             }
         }

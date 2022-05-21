@@ -1,41 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
-using TriInspector.Elements;
 using UnityEditor;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace TriInspector.Editor.Integrations.Odin
 {
-    public class TriPropertyTreeForOdin<T> : ITriPropertyParent, ITriPropertyTree
+    public class TriPropertyTreeForOdin<T> : TriPropertyTree
     {
         private readonly IPropertyValueEntry<T> _odinValueEntry;
         private readonly InspectorProperty _odinProperty;
-        private readonly IReadOnlyList<TriProperty> _triProperties;
-        private readonly TriInspectorElement _triInspectorElement;
         private readonly SerializedProperty _serializedProperty;
-
-        private bool _validationRequired;
 
         public TriPropertyTreeForOdin(IPropertyValueEntry<T> odinValueEntry)
         {
             _odinValueEntry = odinValueEntry;
             _odinProperty = odinValueEntry.Property;
+            _serializedProperty = _odinProperty.Tree.GetUnityPropertyForPath(_odinProperty.Path, out _);
 
             TargetObjectType = _odinProperty.Tree.TargetType;
             TargetsCount = _odinProperty.Tree.WeakTargets.Count;
             TargetIsPersistent = _odinProperty.Tree.WeakTargets[0] is Object obj &&
                                  obj != null && EditorUtility.IsPersistent(obj);
 
-            _serializedProperty = _odinProperty.Tree.GetUnityPropertyForPath(_odinProperty.Path, out _);
+            UpdateEmittedScriptableObject();
 
-            UpdateAfterValueModification();
+            _serializedProperty.serializedObject.SetIsDifferentCacheDirty();
+            _serializedProperty.serializedObject.Update();
 
-            _triProperties = TriTypeDefinition.GetCached(odinValueEntry.TypeOfValue)
+            _odinProperty.Update();
+
+            Properties = TriTypeDefinition.GetCached(odinValueEntry.TypeOfValue)
                 .Properties
                 .Select((propertyDefinition, index) =>
                 {
@@ -43,49 +38,22 @@ namespace TriInspector.Editor.Integrations.Odin
                     return new TriProperty(this, this, propertyDefinition, index, serializedProperty);
                 })
                 .ToList();
-
-            _triInspectorElement = new TriInspectorElement(odinValueEntry.TypeOfValue, _triProperties);
-            _triInspectorElement.AttachInternal();
-
-            _triProperties.ForEach(it => it.Update());
-            _triProperties.ForEach(it => it.RunValidation());
         }
 
-        public void Draw()
+        public override void Update()
         {
             UpdateEmittedScriptableObject();
-            _triProperties.ForEach(it => it.Update());
 
-            if (_validationRequired)
-            {
-                _validationRequired = false;
-
-                _triProperties.ForEach(it => it.RunValidation());
-            }
-
-            _triInspectorElement.Update();
-            var width = EditorGUIUtility.currentViewWidth;
-            var height = _triInspectorElement.GetHeight(width);
-            var rect = GUILayoutUtility.GetRect(width, height);
-            _triInspectorElement.OnGUI(rect);
+            base.Update();
         }
 
-        public Type TargetObjectType { get; }
-        public int TargetsCount { get; }
-        public bool TargetIsPersistent { get; }
-
-        public void Dispose()
-        {
-            _triInspectorElement?.DetachInternal();
-        }
-
-        public void ForceCreateUndoGroup()
+        public override void ForceCreateUndoGroup()
         {
             _odinProperty.RecordForUndo(forceCompleteObjectUndo: true);
             Undo.FlushUndoRecordObjects();
         }
 
-        public void PrepareForValueModification()
+        public override void PrepareForValueModification()
         {
             var dirty = false;
             dirty |= _odinValueEntry.ApplyChanges();
@@ -94,12 +62,12 @@ namespace TriInspector.Editor.Integrations.Odin
 
             if (dirty)
             {
-                _validationRequired = true;
-                GUIHelper.RequestRepaint();
+                RequestValidation();
+                RequestRepaint();
             }
         }
 
-        public void UpdateAfterValueModification()
+        public override void UpdateAfterValueModification()
         {
             UpdateEmittedScriptableObject();
 
@@ -109,21 +77,25 @@ namespace TriInspector.Editor.Integrations.Odin
             _odinProperty.Update();
         }
 
-        public void RequestRepaint()
+        public override void RequestRepaint()
         {
+            base.RequestRepaint();
+
             GUIHelper.RequestRepaint();
         }
 
-        public object GetValue(int targetIndex)
+        public override object GetValue(int targetIndex)
         {
             return _odinValueEntry.Values[targetIndex];
         }
 
-        public void NotifyValueChanged(TriProperty property)
+        public override void NotifyValueChanged(TriProperty property)
         {
             ApplyEmittedScriptableObject();
 
             _odinValueEntry.Values.ForceMarkDirty();
+
+            RequestValidation();
         }
 
         private void UpdateEmittedScriptableObject()
