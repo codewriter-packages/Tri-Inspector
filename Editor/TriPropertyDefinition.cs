@@ -154,8 +154,7 @@ namespace TriInspector
                         .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
                         .Concat(new[]
                         {
-                            new ValidatorsDrawer {Order = TriDrawerOrder.Validator, ApplyOnArrayElement = true,},
-                            new ValidatorsDrawer {Order = TriDrawerOrder.Validator, ApplyOnArrayElement = false,},
+                            new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
                         })
                         .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
                         .OrderBy(it => it.Order)
@@ -282,10 +281,15 @@ namespace TriInspector
             return (self, obj, value) => { };
         }
 
-        private static bool CanApplyOn(TriPropertyDefinition definition, bool applyOnArrayElement)
+        private static bool CanApplyOn(TriPropertyDefinition definition, bool? applyOnArrayElement)
         {
-            if (definition.IsArrayElement && !applyOnArrayElement ||
-                definition.IsArray && applyOnArrayElement)
+            if (!applyOnArrayElement.HasValue)
+            {
+                return true;
+            }
+
+            if (definition.IsArrayElement && !applyOnArrayElement.Value ||
+                definition.IsArray && applyOnArrayElement.Value)
             {
                 return false;
             }

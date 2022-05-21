@@ -5,7 +5,7 @@ namespace TriInspector
     public abstract class TriCustomDrawer
     {
         internal int Order { get; set; }
-        internal bool ApplyOnArrayElement { get; set; }
+        internal bool? ApplyOnArrayElement { get; set; }
 
         [PublicAPI]
         public virtual void Initialize(TriPropertyDefinition propertyDefinition)
