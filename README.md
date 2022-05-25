@@ -25,14 +25,10 @@ _Advanced inspector attributes for Unity_
 
 ## How to Install
 
-Minimal Unity Version is 2020.3.
-
 Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
 <br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
 
-After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package.
-
-Then in `ProjectSettings`/`TriInspector` enable `Full` mode for Tri Inspector.
+After installing the package, you need to unpack the `Installer.unitypackage` that comes with the package to fix compiler errors.
 
 ## Attributes
 
@@ -647,6 +643,9 @@ parts of the interface can be rendered by the Tri Inspector.
 
 In order for the interface to be rendered by Tri instead of Odin, 
 it is necessary to mark classes with `[DrawWithTriInspector]` attribute.
+
+Alternatively, you can mark the entire assembly with an attribute `[assembly:DrawWithTriInspector]`
+to draw all types in the assembly using the Tri Inspector.
 
 ### Odin Validator
 
