@@ -5,7 +5,9 @@ using UnityEngine.Profiling;
 
 namespace TriInspector
 {
-    public abstract class TriEditor : Editor
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(Object), editorForChildClasses: true, isFallback = true)]
+    public class TriEditor : Editor
     {
         private static readonly Stack<Editor> EditorStack = new Stack<Editor>();
 
