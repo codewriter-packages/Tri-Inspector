@@ -1,5 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
 using TriInspector.Utilities;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine;
 namespace TriInspector.Editor.Integrations.Odin
 {
     [DrawerPriority(0.0, 10000.0, 1.0)]
-    public class OdinFieldDrawer<T> : OdinAttributeDrawer<DrawWithTriInspectorAttribute, T>, IDisposable
+    public class OdinFieldDrawer<T> : OdinValueDrawer<T>, IDisposable
     {
         private TriPropertyTree _propertyTree;
 
@@ -18,10 +19,16 @@ namespace TriInspector.Editor.Integrations.Odin
                 return false;
             }
 
+            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
+                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+            {
+                return false;
+            }
+
             return true;
         }
 
-        protected override bool CanDrawAttributeValueProperty(InspectorProperty property)
+        protected override bool CanDrawValueProperty(InspectorProperty property)
         {
             if (property.IsTreeRoot)
             {

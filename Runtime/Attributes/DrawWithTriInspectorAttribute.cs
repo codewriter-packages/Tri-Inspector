@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TriInspector
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Assembly)]
     [Conditional("UNITY_EDITOR")]
     public class DrawWithTriInspectorAttribute : Attribute
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.Validation;
 using TriInspector.Editor.Integrations.Odin;
@@ -8,7 +9,7 @@ using UnityEditor;
 
 namespace TriInspector.Editor.Integrations.Odin
 {
-    public class OdinObjectValidator<T> : AttributeValidator<DrawWithTriInspectorAttribute, T>, IDisposable
+    public class OdinObjectValidator<T> : ValueValidator<T>, IDisposable
         where T : UnityEngine.Object
     {
         private TriPropertyTreeForSerializedObject _propertyTree;
@@ -19,6 +20,14 @@ namespace TriInspector.Editor.Integrations.Odin
 
         public override bool CanValidateProperty(InspectorProperty property)
         {
+            var type = property.Info.TypeOfValue;
+
+            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
+                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+            {
+                return false;
+            }
+
             if (!property.IsTreeRoot)
             {
                 return false;

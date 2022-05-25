@@ -1,16 +1,28 @@
 ﻿using System;
+using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 using UnityEngine;
 
 namespace TriInspector.Editor.Integrations.Odin
 {
     [DrawerPriority(0.0, 10000.0, 1.0)]
-    public class OdinObjectDrawer<T> : OdinAttributeDrawer<DrawWithTriInspectorAttribute, T>, IDisposable
+    public class OdinObjectDrawer<T> : OdinValueDrawer<T>, IDisposable
         where T : UnityEngine.Object
     {
         private TriPropertyTree _propertyTree;
 
-        protected override bool CanDrawAttributeValueProperty(InspectorProperty property)
+        public override bool CanDrawTypeFilter(Type type)
+        {
+            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
+                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        protected override bool CanDrawValueProperty(InspectorProperty property)
         {
             if (!property.IsTreeRoot)
             {
