@@ -1,5 +1,4 @@
-﻿using Sirenix.OdinInspector;
-using Sirenix.OdinInspector.Editor.Validation;
+﻿using Sirenix.OdinInspector.Editor.Validation;
 
 namespace TriInspector.Editor.Integrations.Odin
 {
@@ -7,27 +6,30 @@ namespace TriInspector.Editor.Integrations.Odin
     {
         public static void CopyValidationResultsTo(this TriPropertyTree tree, ValidationResult result)
         {
-            tree.EnumerateValidationResults((property, triResult) => result.Add(triResult));
+            tree.EnumerateValidationResults(result.AddIfError);
+            tree.EnumerateValidationResults(result.AddIfWarning);
         }
 
-        private static void Add(this ValidationResult result, TriValidationResult src)
+        private static void AddIfError(this ValidationResult result,
+            TriProperty property, TriValidationResult triResult)
         {
-            var severity = src.GetOdinValidatorSeverity();
-            result.Add(severity, src.Message);
-        }
-
-        private static ValidatorSeverity GetOdinValidatorSeverity(this TriValidationResult result)
-        {
-            switch (result.MessageType)
+            if (triResult.MessageType != TriMessageType.Error)
             {
-                case TriMessageType.Error:
-                    return ValidatorSeverity.Error;
-
-                case TriMessageType.Warning:
-                    return ValidatorSeverity.Warning;
+                return;
             }
 
-            return ValidatorSeverity.Ignore;
+            result.AddError(triResult.Message);
+        }
+
+        private static void AddIfWarning(this ValidationResult result,
+            TriProperty property, TriValidationResult triResult)
+        {
+            if (triResult.MessageType != TriMessageType.Warning)
+            {
+                return;
+            }
+
+            result.AddWarning(triResult.Message);
         }
     }
 }

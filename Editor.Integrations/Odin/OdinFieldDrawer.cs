@@ -35,6 +35,16 @@ namespace TriInspector.Editor.Integrations.Odin
                 return false;
             }
 
+            for (var parent = property.Parent; parent != null; parent = parent.Parent)
+            {
+                var parentType = parent.ValueEntry.TypeOfValue;
+                if (parentType.IsDefined<DrawWithTriInspectorAttribute>() ||
+                    parentType.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+                {
+                    return false;
+                }
+            }
+
             return true;
         }
 
@@ -43,7 +53,7 @@ namespace TriInspector.Editor.Integrations.Odin
             base.Initialize();
 
             _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
-            _propertyTree.Initialize(TriEditorMode.None);
+            _propertyTree.Initialize();
         }
 
         public void Dispose()

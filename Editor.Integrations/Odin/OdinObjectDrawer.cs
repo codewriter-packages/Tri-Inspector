@@ -1,6 +1,7 @@
 ﻿using System;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
+using TriInspector.Utilities;
 using UnityEngine;
 
 namespace TriInspector.Editor.Integrations.Odin
@@ -43,7 +44,7 @@ namespace TriInspector.Editor.Integrations.Odin
 
             var serializedObject = Property.Tree.UnitySerializedObject;
             _propertyTree = new TriPropertyTreeForSerializedObject(serializedObject);
-            _propertyTree.Initialize(TriEditorMode.None);
+            _propertyTree.Initialize();
         }
 
         public void Dispose()
@@ -53,6 +54,12 @@ namespace TriInspector.Editor.Integrations.Odin
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
+            if (TriGuiHelper.IsEditorTargetPushed(ValueEntry.SmartValue))
+            {
+                GUILayout.Label("Recursive inline editors not supported");
+                return;
+            }
+
             _propertyTree.Update();
 
             if (_propertyTree.ValidationRequired)
@@ -60,7 +67,10 @@ namespace TriInspector.Editor.Integrations.Odin
                 _propertyTree.RunValidation();
             }
 
-            _propertyTree.Draw();
+            using (TriGuiHelper.PushEditorTarget(ValueEntry.SmartValue))
+            {
+                _propertyTree.Draw();
+            }
         }
     }
 }

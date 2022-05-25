@@ -17,7 +17,12 @@ namespace TriInspector.Editor.Integrations.Odin
 
         public override bool CanValidateProperty(InspectorProperty property)
         {
-            var type = property.Info.TypeOfValue;
+            if (property.IsTreeRoot)
+            {
+                return false;
+            }
+
+            var type = property.ValueEntry.TypeOfValue;
 
             if (typeof(UnityEngine.Object).IsAssignableFrom(type))
             {
@@ -30,9 +35,14 @@ namespace TriInspector.Editor.Integrations.Odin
                 return false;
             }
 
-            if (property.IsTreeRoot)
+            for (var parent = property.Parent; parent != null; parent = parent.Parent)
             {
-                return false;
+                var parentType = parent.ValueEntry.TypeOfValue;
+                if (parentType.IsDefined<DrawWithTriInspectorAttribute>() ||
+                    parentType.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+                {
+                    return false;
+                }
             }
 
             return true;
@@ -41,7 +51,7 @@ namespace TriInspector.Editor.Integrations.Odin
         protected override void Initialize()
         {
             _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
-            _propertyTree.Initialize(TriEditorMode.None);
+            _propertyTree.Initialize();
         }
 
         public void Dispose()

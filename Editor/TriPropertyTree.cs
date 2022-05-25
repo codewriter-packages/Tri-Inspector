@@ -9,11 +9,8 @@ namespace TriInspector
     public abstract class TriPropertyTree : ITriPropertyParent
     {
         private TriInspectorElement _inspectorElement;
-        private TriEditorMode _mode;
 
         public IReadOnlyList<TriProperty> Properties { get; protected set; }
-
-        public bool IsInlineEditor => (_mode & TriEditorMode.InlineEditor) != 0;
 
         public Type TargetObjectType { get; protected set; }
         public int TargetsCount { get; protected set; }
@@ -22,9 +19,8 @@ namespace TriInspector
         public bool ValidationRequired { get; private set; }
         public bool RepaintRequired { get; private set; }
 
-        public void Initialize(TriEditorMode mode)
+        public void Initialize()
         {
-            _mode = mode;
             _inspectorElement = new TriInspectorElement(TargetObjectType, Properties);
             _inspectorElement.AttachInternal();
 
@@ -98,12 +94,5 @@ namespace TriInspector
         public abstract void ForceCreateUndoGroup();
         public abstract void PrepareForValueModification();
         public abstract void UpdateAfterValueModification();
-    }
-
-    [Flags]
-    public enum TriEditorMode
-    {
-        None = 0,
-        InlineEditor = 1 << 0,
     }
 }

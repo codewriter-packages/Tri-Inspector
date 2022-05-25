@@ -78,7 +78,7 @@ namespace TriInspector.Elements
 
             var lastEditorRect = Rect.zero;
 
-            if (TriEditor.IsEditorForObjectPushed((Object) _property.Value))
+            if (TriGuiHelper.IsEditorTargetPushed((Object) _property.Value))
             {
                 GUI.Label(position, "Recursive inline editors not supported");
 

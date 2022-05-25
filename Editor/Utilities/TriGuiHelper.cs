@@ -1,11 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace TriInspector.Utilities
 {
     public static class TriGuiHelper
     {
+        private static readonly Stack<Object> TargetObjects = new Stack<Object>();
+
+        internal static bool IsAnyEditorPushed()
+        {
+            return TargetObjects.Count > 0;
+        }
+
+        internal static bool IsEditorTargetPushed(Object obj)
+        {
+            foreach (var targetObject in TargetObjects)
+            {
+                if (targetObject == obj)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal static EditorScope PushEditorTarget(Object obj)
+        {
+            return new EditorScope(obj);
+        }
+
         public static LabelWidthScope PushLabelWidth(float labelWidth)
         {
             return new LabelWidthScope(labelWidth);
@@ -19,6 +46,19 @@ namespace TriInspector.Utilities
         public static GuiColorScope PushColor(Color color)
         {
             return new GuiColorScope(color);
+        }
+
+        public readonly struct EditorScope : IDisposable
+        {
+            public EditorScope(Object obj)
+            {
+                TargetObjects.Push(obj);
+            }
+
+            public void Dispose()
+            {
+                TargetObjects.Pop();
+            }
         }
 
         public readonly struct LabelWidthScope : IDisposable

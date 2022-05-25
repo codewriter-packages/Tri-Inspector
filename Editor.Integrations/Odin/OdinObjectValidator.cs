@@ -20,15 +20,15 @@ namespace TriInspector.Editor.Integrations.Odin
 
         public override bool CanValidateProperty(InspectorProperty property)
         {
-            var type = property.Info.TypeOfValue;
-
-            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
-                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+            if (!property.IsTreeRoot)
             {
                 return false;
             }
 
-            if (!property.IsTreeRoot)
+            var type = property.ValueEntry.TypeOfValue;
+
+            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
+                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
             {
                 return false;
             }
@@ -40,7 +40,7 @@ namespace TriInspector.Editor.Integrations.Odin
         {
             _serializedObject = new SerializedObject(ValueEntry.SmartValue);
             _propertyTree = new TriPropertyTreeForSerializedObject(_serializedObject);
-            _propertyTree.Initialize(TriEditorMode.None);
+            _propertyTree.Initialize();
         }
 
         public void Dispose()
