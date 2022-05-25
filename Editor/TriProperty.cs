@@ -575,7 +575,8 @@ namespace TriInspector
             }
 
             if (property._definition.FieldType.IsPrimitive ||
-                property._definition.FieldType == typeof(string))
+                property._definition.FieldType == typeof(string) ||
+                typeof(UnityEngine.Object).IsAssignableFrom(property._definition.FieldType))
             {
                 return TriPropertyType.Primitive;
             }
