@@ -33,7 +33,6 @@ namespace TriInspector
                 }
 
                 _inspector = new TriPropertyTreeForSerializedObject(serializedObject);
-                _inspector.Initialize();
             }
 
             serializedObject.UpdateIfRequiredOrScript();

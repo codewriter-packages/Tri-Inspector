@@ -53,7 +53,6 @@ namespace TriInspector.Editor.Integrations.Odin
             base.Initialize();
 
             _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
-            _propertyTree.Initialize();
         }
 
         public void Dispose()

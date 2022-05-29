@@ -17,14 +17,8 @@ namespace TriInspector
         public int TargetsCount { get; protected set; }
         public bool TargetIsPersistent { get; protected set; }
 
-        public bool ValidationRequired { get; private set; }
-        public bool RepaintRequired { get; private set; }
-
-        public void Initialize()
-        {
-            Update();
-            RunValidation();
-        }
+        public bool ValidationRequired { get; private set; } = true;
+        public bool RepaintRequired { get; private set; } = true;
 
         public virtual void Dispose()
         {

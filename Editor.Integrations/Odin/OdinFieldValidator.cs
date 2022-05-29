@@ -51,7 +51,6 @@ namespace TriInspector.Editor.Integrations.Odin
         protected override void Initialize()
         {
             _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
-            _propertyTree.Initialize();
         }
 
         public void Dispose()

@@ -44,7 +44,6 @@ namespace TriInspector.Editor.Integrations.Odin
 
             var serializedObject = Property.Tree.UnitySerializedObject;
             _propertyTree = new TriPropertyTreeForSerializedObject(serializedObject);
-            _propertyTree.Initialize();
         }
 
         public void Dispose()

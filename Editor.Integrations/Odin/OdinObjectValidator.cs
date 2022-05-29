@@ -40,7 +40,6 @@ namespace TriInspector.Editor.Integrations.Odin
         {
             _serializedObject = new SerializedObject(ValueEntry.SmartValue);
             _propertyTree = new TriPropertyTreeForSerializedObject(_serializedObject);
-            _propertyTree.Initialize();
         }
 
         public void Dispose()
