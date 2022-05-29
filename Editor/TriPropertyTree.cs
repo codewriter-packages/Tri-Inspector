@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
@@ -8,7 +9,7 @@ namespace TriInspector
 {
     public abstract class TriPropertyTree : ITriPropertyParent
     {
-        private TriInspectorElement _inspectorElement;
+        [CanBeNull] private TriInspectorElement _inspectorElement;
 
         public IReadOnlyList<TriProperty> Properties { get; protected set; }
 
@@ -21,21 +22,16 @@ namespace TriInspector
 
         public void Initialize()
         {
-            _inspectorElement = new TriInspectorElement(TargetObjectType, Properties);
-            _inspectorElement.AttachInternal();
-
             Update();
             RunValidation();
         }
 
         public virtual void Dispose()
         {
-            if (!_inspectorElement.IsAttached)
+            if (_inspectorElement != null && _inspectorElement.IsAttached)
             {
-                return;
+                _inspectorElement.DetachInternal();
             }
-
-            _inspectorElement.DetachInternal();
         }
 
         public virtual void Update()
@@ -61,6 +57,12 @@ namespace TriInspector
         public void Draw()
         {
             RepaintRequired = false;
+
+            if (_inspectorElement == null)
+            {
+                _inspectorElement = new TriInspectorElement(TargetObjectType, Properties);
+                _inspectorElement.AttachInternal();
+            }
 
             _inspectorElement.Update();
             var width = EditorGUIUtility.currentViewWidth;
