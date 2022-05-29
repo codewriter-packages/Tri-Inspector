@@ -417,6 +417,26 @@ private void DoButton()
 }
 ```
 
+#### EnumToggleButtons
+
+![EnumToggleButtons](https://user-images.githubusercontent.com/26966368/170864400-fe76d356-2a80-479a-90de-bac9619bd7d1.png)
+
+```csharp
+[EnumToggleButtons] public SomeEnum someEnum;
+[EnumToggleButtons] public SomeFlags someFlags;
+
+public enum SomeEnum { One, Two, Three }
+
+[Flags] public enum SomeFlags
+{
+    A = 1 << 0,
+    B = 1 << 1,
+    C = 1 << 2,
+    AB = A | B,
+    BC = B | C,
+}
+```
+
 ### Debug
 
 #### ShowDrawerChain
