@@ -54,7 +54,9 @@ namespace TriInspector.Drawers
 
             public override void OnGUI(Rect position)
             {
-                var value = (Enum) _property.Value;
+                var value = _property.TryGetSerializedProperty(out var serializedProperty)
+                    ? (Enum) Enum.ToObject(_property.FieldType, serializedProperty.intValue)
+                    : (Enum) _property.Value;
 
                 var controlId = GUIUtility.GetControlID(FocusType.Passive);
                 position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);

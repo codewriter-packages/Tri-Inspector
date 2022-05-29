@@ -208,6 +208,11 @@ namespace TriInspector
         {
             get
             {
+                if (PropertyType != TriPropertyType.Reference)
+                {
+                    return _definition.FieldType;
+                }
+
                 UpdateIfRequired();
                 return _valueType;
             }
@@ -217,6 +222,11 @@ namespace TriInspector
         {
             get
             {
+                if (PropertyTree.TargetsCount == 1)
+                {
+                    return false;
+                }
+
                 UpdateIfRequired();
                 return _isValueMixed;
             }
@@ -239,6 +249,11 @@ namespace TriInspector
         {
             get
             {
+                if (_childrenProperties != null && PropertyType == TriPropertyType.Generic)
+                {
+                    return _childrenProperties;
+                }
+
                 UpdateIfRequired();
 
                 return PropertyType == TriPropertyType.Generic || PropertyType == TriPropertyType.Reference
