@@ -10,6 +10,9 @@ namespace TriInspector.Elements
 {
     internal class TriListElement : TriElement
     {
+        private const float ListExtraWidth = 7f;
+        private const float DraggableAreaExtraWidth = 14f;
+        
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
@@ -109,7 +112,7 @@ namespace TriInspector.Elements
                 return;
             }
 
-            var labelWidthExtra = 6f + (_reorderableListGui.draggable ? 15f : 0f);
+            var labelWidthExtra = ListExtraWidth + DraggableAreaExtraWidth;
 
             using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - labelWidthExtra))
             {
@@ -295,6 +298,11 @@ namespace TriInspector.Elements
             if (index >= ChildrenCount)
             {
                 return;
+            }
+
+            if (!_reorderableListGui.draggable)
+            {
+                rect.xMin += DraggableAreaExtraWidth;
             }
 
             GetChild(index).OnGUI(rect);

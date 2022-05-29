@@ -73,13 +73,9 @@ namespace TriInspector
 
                 if (_displayNameBackingField == null)
                 {
-                    if (TryGetAttribute(out HideLabelAttribute _))
+                    if (TryGetAttribute(out HideLabelAttribute _) || IsArrayElement)
                     {
                         _displayNameBackingField = new GUIContent("");
-                    }
-                    else if (IsArrayElement)
-                    {
-                        _displayNameBackingField = new GUIContent($"{_definition.Name} {IndexInArray}");
                     }
                     else
                     {
@@ -87,10 +83,7 @@ namespace TriInspector
                     }
                 }
 
-                if (IsArrayElement)
-                {
-                }
-                else
+                if (!IsArrayElement)
                 {
                     if (_definition.CustomLabel != null)
                     {
