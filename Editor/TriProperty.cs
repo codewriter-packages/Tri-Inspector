@@ -26,6 +26,13 @@ namespace TriInspector
 
         private string _isExpandedPrefsKey;
 
+        private int _lastUpdateFrame;
+        private bool _isUpdating;
+
+        [CanBeNull] private object _value;
+        [CanBeNull] private Type _valueType;
+        private bool _isValueMixed;
+
         internal TriProperty(
             TriPropertyTree propertyTree,
             ITriPropertyParent parent,
@@ -40,9 +47,13 @@ namespace TriInspector
 
             PropertyTree = propertyTree;
             PropertyType = GetPropertyType(this);
-
-            Update();
         }
+
+        [PublicAPI]
+        public TriPropertyType PropertyType { get; }
+
+        [PublicAPI]
+        public TriPropertyTree PropertyTree { get; }
 
         [PublicAPI]
         public string RawName => _definition.Name;
@@ -200,30 +211,61 @@ namespace TriInspector
 
         [PublicAPI]
         [CanBeNull]
-        public Type ValueType { get; private set; }
+        public Type ValueType
+        {
+            get
+            {
+                UpdateIfRequired();
+                return _valueType;
+            }
+        }
 
-        public bool IsValueMixed { get; private set; }
+        public bool IsValueMixed
+        {
+            get
+            {
+                UpdateIfRequired();
+                return _isValueMixed;
+            }
+        }
 
-        [PublicAPI]
-        public TriPropertyType PropertyType { get; }
-
-        [PublicAPI]
-        public IReadOnlyList<TriProperty> ChildrenProperties =>
-            PropertyType == TriPropertyType.Generic || PropertyType == TriPropertyType.Reference
-                ? _childrenProperties
-                : throw new InvalidOperationException("Cannot read ChildrenProperties for " + PropertyType);
-
-        [PublicAPI]
-        public IReadOnlyList<TriProperty> ArrayElementProperties => PropertyType == TriPropertyType.Array
-            ? _childrenProperties
-            : throw new InvalidOperationException("Cannot read ArrayElementProperties for " + PropertyType);
-
-        [PublicAPI]
-        public TriPropertyTree PropertyTree { get; }
 
         [PublicAPI]
         [CanBeNull]
-        public object Value { get; private set; }
+        public object Value
+        {
+            get
+            {
+                UpdateIfRequired();
+                return _value;
+            }
+        }
+
+        [PublicAPI]
+        public IReadOnlyList<TriProperty> ChildrenProperties
+        {
+            get
+            {
+                UpdateIfRequired();
+
+                return PropertyType == TriPropertyType.Generic || PropertyType == TriPropertyType.Reference
+                    ? _childrenProperties
+                    : throw new InvalidOperationException("Cannot read ChildrenProperties for " + PropertyType);
+            }
+        }
+
+        [PublicAPI]
+        public IReadOnlyList<TriProperty> ArrayElementProperties
+        {
+            get
+            {
+                UpdateIfRequired();
+
+                return PropertyType == TriPropertyType.Array
+                    ? _childrenProperties
+                    : throw new InvalidOperationException("Cannot read ArrayElementProperties for " + PropertyType);
+            }
+        }
 
         public object GetValue(int targetIndex)
         {
@@ -262,7 +304,7 @@ namespace TriInspector
 
             // actualize
             PropertyTree.UpdateAfterValueModification();
-            Update();
+            UpdateIfRequired(forceUpdate: true);
 
             NotifyValueChanged();
         }
@@ -287,90 +329,105 @@ namespace TriInspector
             _parent.NotifyValueChanged(property);
         }
 
-        internal void Update()
+        private void UpdateIfRequired(bool forceUpdate = false)
         {
-            ReadValue(this, out var newValue, out var newValueIsMixed);
-
-            var newValueType = FieldType.IsValueType ? FieldType
-                : ReferenceEquals(Value, newValue) ? ValueType
-                : newValue?.GetType();
-            var valueTypeChanged = ValueType != newValueType;
-
-            Value = newValue;
-            ValueType = newValueType;
-            IsValueMixed = newValueIsMixed;
-
-            switch (PropertyType)
+            if (_isUpdating)
             {
-                case TriPropertyType.Generic:
-                case TriPropertyType.Reference:
-                    if (_childrenProperties == null || valueTypeChanged)
-                    {
+                throw new InvalidOperationException("Recursive call detected");
+            }
+
+            if (_lastUpdateFrame == PropertyTree.RepaintFrame && !forceUpdate)
+            {
+                return;
+            }
+
+            _isUpdating = true;
+
+            try
+            {
+                _lastUpdateFrame = PropertyTree.RepaintFrame;
+
+                ReadValue(this, out var newValue, out var newValueIsMixed);
+
+                var newValueType = FieldType.IsValueType ? FieldType
+                    : ReferenceEquals(_value, newValue) ? _valueType
+                    : newValue?.GetType();
+                var valueTypeChanged = _valueType != newValueType;
+
+                _value = newValue;
+                _valueType = newValueType;
+                _isValueMixed = newValueIsMixed;
+
+                switch (PropertyType)
+                {
+                    case TriPropertyType.Generic:
+                    case TriPropertyType.Reference:
+                        if (_childrenProperties == null || valueTypeChanged)
+                        {
+                            if (_childrenProperties == null)
+                            {
+                                _childrenProperties = new List<TriProperty>();
+                            }
+
+                            _childrenProperties.Clear();
+
+                            var selfType = PropertyType == TriPropertyType.Reference ? _valueType : FieldType;
+                            if (selfType != null)
+                            {
+                                var properties = TriTypeDefinition.GetCached(selfType).Properties;
+                                for (var index = 0; index < properties.Count; index++)
+                                {
+                                    var childDefinition = properties[index];
+                                    var childSerializedProperty =
+                                        _serializedProperty?.FindPropertyRelative(childDefinition.Name);
+                                    var childProperty = new TriProperty(PropertyTree, this,
+                                        childDefinition, index, childSerializedProperty);
+
+                                    _childrenProperties.Add(childProperty);
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case TriPropertyType.Array:
                         if (_childrenProperties == null)
                         {
                             _childrenProperties = new List<TriProperty>();
                         }
 
-                        _childrenProperties.Clear();
+                        var listSize = ((IList) newValue)?.Count ?? 0;
 
-                        var selfType = PropertyType == TriPropertyType.Reference ? ValueType : FieldType;
-                        if (selfType != null)
+                        while (_childrenProperties.Count < listSize)
                         {
-                            var properties = TriTypeDefinition.GetCached(selfType).Properties;
-                            for (var index = 0; index < properties.Count; index++)
-                            {
-                                var childDefinition = properties[index];
-                                var childSerializedProperty =
-                                    _serializedProperty?.FindPropertyRelative(childDefinition.Name);
-                                var childProperty = new TriProperty(PropertyTree, this,
-                                    childDefinition, index, childSerializedProperty);
+                            var index = _childrenProperties.Count;
+                            var elementDefinition = _definition.ArrayElementDefinition;
+                            var elementSerializedReference = _serializedProperty?.GetArrayElementAtIndex(index);
 
-                                _childrenProperties.Add(childProperty);
-                            }
+                            var elementProperty = new TriProperty(PropertyTree, this,
+                                elementDefinition, index, elementSerializedReference);
+
+                            _childrenProperties.Add(elementProperty);
                         }
-                    }
 
-                    break;
+                        while (_childrenProperties.Count > listSize)
+                        {
+                            _childrenProperties.RemoveAt(_childrenProperties.Count - 1);
+                        }
 
-                case TriPropertyType.Array:
-                    if (_childrenProperties == null)
-                    {
-                        _childrenProperties = new List<TriProperty>();
-                    }
-
-                    var listSize = ((IList) newValue)?.Count ?? 0;
-
-                    while (_childrenProperties.Count < listSize)
-                    {
-                        var index = _childrenProperties.Count;
-                        var elementDefinition = _definition.ArrayElementDefinition;
-                        var elementSerializedReference = _serializedProperty?.GetArrayElementAtIndex(index);
-
-                        var elementProperty = new TriProperty(PropertyTree, this,
-                            elementDefinition, index, elementSerializedReference);
-
-                        _childrenProperties.Add(elementProperty);
-                    }
-
-                    while (_childrenProperties.Count > listSize)
-                    {
-                        _childrenProperties.RemoveAt(_childrenProperties.Count - 1);
-                    }
-
-                    break;
-            }
-
-            if (_childrenProperties != null)
-            {
-                foreach (var childrenProperty in _childrenProperties)
-                {
-                    childrenProperty.Update();
+                        break;
                 }
+            }
+            finally
+            {
+                _isUpdating = false;
             }
         }
 
         internal void RunValidation()
         {
+            UpdateIfRequired();
+
             if (HasValidators)
             {
                 _validationResults = _definition.Validators
@@ -390,6 +447,8 @@ namespace TriInspector
 
         internal void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)
         {
+            UpdateIfRequired();
+
             if (_validationResults != null)
             {
                 foreach (var result in _validationResults)

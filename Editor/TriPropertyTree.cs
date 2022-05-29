@@ -20,6 +20,8 @@ namespace TriInspector
         public bool ValidationRequired { get; private set; } = true;
         public bool RepaintRequired { get; private set; } = true;
 
+        public int RepaintFrame { get; private set; } = 0;
+
         public virtual void Dispose()
         {
             if (_inspectorElement != null && _inspectorElement.IsAttached)
@@ -30,10 +32,7 @@ namespace TriInspector
 
         public virtual void Update()
         {
-            foreach (var property in Properties)
-            {
-                property.Update();
-            }
+            RepaintFrame++;
         }
 
         public void RunValidation()
