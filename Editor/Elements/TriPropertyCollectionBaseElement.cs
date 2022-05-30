@@ -32,7 +32,13 @@ namespace TriInspector.Elements
         [PublicAPI]
         public void AddProperty(TriProperty property)
         {
-            var propertyElement = new TriPropertyElement(property);
+            AddProperty(property, default, out _);
+        }
+
+        [PublicAPI]
+        public void AddProperty(TriProperty property, TriPropertyElement.Props props, out string group)
+        {
+            var propertyElement = new TriPropertyElement(property, props);
 
             if (property.TryGetAttribute(out GroupAttribute groupAttribute))
             {
@@ -41,15 +47,18 @@ namespace TriInspector.Elements
                 var remaining = path.GetEnumerator();
                 if (remaining.MoveNext())
                 {
+                    group = remaining.Current;
                     AddGroupedChild(propertyElement, property, remaining.Current, remaining.Current, remaining);
                 }
                 else
                 {
+                    group = null;
                     AddPropertyChild(propertyElement, property);
                 }
             }
             else
             {
+                group = null;
                 AddPropertyChild(propertyElement, property);
             }
         }

@@ -8,7 +8,7 @@ namespace TriInspector
         private static TriPropertyOverrideContext Override { get; set; }
         public static TriPropertyOverrideContext Current { get; private set; }
 
-        public abstract GUIContent GetDisplayName(TriProperty property);
+        public abstract bool TryGetDisplayName(TriProperty property, out GUIContent displayName);
 
         public static EnterPropertyScope BeginProperty()
         {

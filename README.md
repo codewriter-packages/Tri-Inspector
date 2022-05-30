@@ -326,6 +326,34 @@ public class MinMax
 public List<Material> list;
 ```
 
+#### TableList
+
+![TableList](https://user-images.githubusercontent.com/26966368/171021981-e0aa5d4b-96b2-40dd-96b3-3cd6b3af01e3.png)
+
+```csharp
+[TableList(Draggable = true,
+           HideAddButton = false,
+           HideRemoveButton = false,
+           AlwaysExpanded = false)]
+public List<TableItem> table;
+
+[Serializable]
+public class TableItem
+{
+    public Texture icon;
+    public string description;
+
+    [Group("Combined"), LabelWidth(16)]
+    public string A, B, C;
+
+    [Button, Group("Actions")]
+    public void Test1() { }
+
+    [Button, Group("Actions")]
+    public void Test2() { }
+}
+```
+
 ### Conditionals
 
 #### ShowIf

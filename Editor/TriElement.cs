@@ -151,6 +151,7 @@ namespace TriInspector
             if (_attached)
             {
                 child.AttachInternal();
+                child.Update();
             }
         }
 
@@ -168,6 +169,7 @@ namespace TriInspector
             foreach (var child in _children)
             {
                 child.AttachInternal();
+                child.Update();
             }
         }
 

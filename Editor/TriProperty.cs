@@ -66,9 +66,10 @@ namespace TriInspector
         {
             get
             {
-                if (TriPropertyOverrideContext.Current != null)
+                if (TriPropertyOverrideContext.Current != null &&
+                    TriPropertyOverrideContext.Current.TryGetDisplayName(this, out var overrideName))
                 {
-                    return TriPropertyOverrideContext.Current.GetDisplayName(this);
+                    return overrideName;
                 }
 
                 if (_displayNameBackingField == null)

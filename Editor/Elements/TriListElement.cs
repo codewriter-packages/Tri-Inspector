@@ -8,16 +8,18 @@ using UnityEngine;
 
 namespace TriInspector.Elements
 {
-    internal class TriListElement : TriElement
+    public class TriListElement : TriElement
     {
         private const float ListExtraWidth = 7f;
         private const float DraggableAreaExtraWidth = 14f;
-        
+
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
 
         private float _lastContentWidth;
+
+        protected ReorderableList ListGui => _reorderableListGui;
 
         public TriListElement(TriProperty property)
         {
@@ -242,10 +244,7 @@ namespace TriInspector.Elements
             while (ChildrenCount < count)
             {
                 var property = _property.ArrayElementProperties[ChildrenCount];
-                AddChild(new TriPropertyElement(property, new TriPropertyElement.Props
-                {
-                    forceInline = true,
-                }));
+                AddChild(CreateItemElement(property));
             }
 
             while (ChildrenCount > count)
@@ -266,6 +265,14 @@ namespace TriInspector.Elements
             RemoveAllChildren();
 
             return true;
+        }
+
+        protected virtual TriElement CreateItemElement(TriProperty property)
+        {
+            return new TriPropertyElement(property, new TriPropertyElement.Props
+            {
+                forceInline = true,
+            });
         }
 
         private void DrawHeaderCallback(Rect rect)

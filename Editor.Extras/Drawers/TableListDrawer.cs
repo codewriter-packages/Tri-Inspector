@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Elements;
 using TriInspector.Utilities;
+using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
+using UnityEditorInternal;
 using UnityEngine;
 
 [assembly: RegisterTriAttributeDrawer(typeof(TableListDrawer), TriDrawerOrder.Drawer)]
@@ -30,23 +31,149 @@ namespace TriInspector.Drawers
             return new TableElement(property);
         }
 
-        private class TableElement : TriElement
+        private class TableElement : TriListElement
         {
-            private readonly TableMultiColumnTreeView _treeView;
+            private const float FooterExtraSpace = 4;
 
-            public TableElement(TriProperty property)
+            private readonly TriProperty _property;
+            private readonly TableMultiColumnTreeView _treeView;
+            private readonly bool _alwaysExpanded;
+
+            private bool _reloadRequired;
+            private bool _heightDirty;
+            private bool _isExpanded;
+            private int _arraySize;
+
+            public TableElement(TriProperty property) : base(property)
             {
-                _treeView = new TableMultiColumnTreeView(property, this);
+                _property = property;
+                _treeView = new TableMultiColumnTreeView(property, this, ListGui)
+                {
+                    SelectionChangedCallback = SelectionChangedCallback,
+                };
+                _reloadRequired = true;
+            }
+
+            public override bool Update()
+            {
+                var dirty = base.Update();
+
+                dirty |= ReloadIfRequired();
+
+                if (dirty)
+                {
+                    _heightDirty = true;
+                    _treeView.multiColumnHeader.ResizeToFit();
+                }
+
+                return dirty;
             }
 
             public override float GetHeight(float width)
             {
-                return _treeView.totalHeight;
+                _treeView.Width = width;
+
+                if (_heightDirty)
+                {
+                    _heightDirty = false;
+                    _treeView.RefreshHeight();
+                }
+
+                var height = 0f;
+                height += ListGui.headerHeight;
+
+                if (_property.IsExpanded)
+                {
+                    height += _treeView.totalHeight;
+                    height += ListGui.footerHeight;
+                    height += FooterExtraSpace;
+                }
+
+                return height;
             }
 
             public override void OnGUI(Rect position)
             {
-                _treeView.OnGUI(position);
+                position = EditorGUI.IndentedRect(position);
+
+                var headerRect = new Rect(position)
+                {
+                    height = ListGui.headerHeight,
+                };
+                var elementsRect = new Rect(position)
+                {
+                    yMin = headerRect.yMax,
+                    height = _treeView.totalHeight + FooterExtraSpace,
+                };
+                var elementsContentRect = new Rect(elementsRect)
+                {
+                    xMin = elementsRect.xMin + 1,
+                    xMax = elementsRect.xMax - 1,
+                    yMax = elementsRect.yMax - FooterExtraSpace,
+                };
+                var footerRect = new Rect(position)
+                {
+                    yMin = elementsRect.yMax,
+                };
+
+                if (Event.current.isMouse && Event.current.type == EventType.MouseDrag)
+                {
+                    _treeView.multiColumnHeader.ResizeToFit();
+                }
+
+                if (Event.current.type == EventType.Repaint)
+                {
+                    ReorderableList.defaultBehaviours.boxBackground.Draw(elementsRect,
+                        false, false, false, false);
+                }
+
+                ReorderableListProxy.DoListHeader(ListGui, headerRect);
+
+                EditorGUI.BeginChangeCheck();
+
+                if (_property.IsExpanded)
+                {
+                    _treeView.OnGUI(elementsContentRect);
+                }
+
+                if (EditorGUI.EndChangeCheck())
+                {
+                    _heightDirty = true;
+                    _property.PropertyTree.RequestRepaint();
+                }
+
+                if (_property.IsExpanded)
+                {
+                    ReorderableList.defaultBehaviours.DrawFooter(footerRect, ListGui);
+                }
+            }
+
+            private bool ReloadIfRequired()
+            {
+                if (!_reloadRequired &&
+                    _property.IsExpanded == _isExpanded &&
+                    _property.ArrayElementProperties.Count == _arraySize)
+                {
+                    return false;
+                }
+
+                _reloadRequired = false;
+                _isExpanded = _property.IsExpanded;
+                _arraySize = _property.ArrayElementProperties.Count;
+
+                _treeView.Reload();
+
+                return true;
+            }
+
+            protected override TriElement CreateItemElement(TriProperty property)
+            {
+                return new TableRowElement(property);
+            }
+
+            private void SelectionChangedCallback(int index)
+            {
+                ListGui.index = index;
             }
         }
 
@@ -55,131 +182,212 @@ namespace TriInspector.Drawers
         {
             private readonly TriProperty _property;
             private readonly TriElement _cellElementContainer;
-            private readonly Dictionary<string, int> _cellIndexByName;
-            private readonly Dictionary<TriProperty, TriElement> _cellElements;
+            private readonly ReorderableList _listGui;
             private readonly TableListPropertyOverrideContext _propertyOverrideContext;
 
-            public TableMultiColumnTreeView(TriProperty property, TriElement container)
-                : base(new TreeViewState(), BuildHeader(property))
+            public Action<int> SelectionChangedCallback;
+
+            public TableMultiColumnTreeView(TriProperty property, TriElement container, ReorderableList listGui)
+                : base(new TreeViewState(), new TableColumnHeader())
             {
                 _property = property;
                 _cellElementContainer = container;
+                _listGui = listGui;
+                _propertyOverrideContext = new TableListPropertyOverrideContext(property);
 
-                _cellIndexByName = new Dictionary<string, int>();
-                _cellElements = new Dictionary<TriProperty, TriElement>();
-
-                _propertyOverrideContext = new TableListPropertyOverrideContext();
-
-                rowHeight = 20;
                 showAlternatingRowBackgrounds = true;
-                showBorder = true;
+                showBorder = false;
                 useScrollView = false;
 
-                Reload();
+                multiColumnHeader.ResizeToFit();
+                multiColumnHeader.visibleColumnsChanged += header => header.ResizeToFit();
+            }
+
+            public float Width { get; set; }
+
+            public void RefreshHeight()
+            {
+                RefreshCustomRowHeights();
+            }
+
+            protected override void SelectionChanged(IList<int> selectedIds)
+            {
+                base.SelectionChanged(selectedIds);
+
+                if (SelectionChangedCallback != null && selectedIds.Count == 1)
+                {
+                    SelectionChangedCallback.Invoke(selectedIds[0]);
+                }
             }
 
             protected override TreeViewItem BuildRoot()
             {
                 var root = new TreeViewItem(0, -1, string.Empty);
-
-                for (var index = 0; index < _property.ArrayElementProperties.Count; index++)
+                var columns = new List<MultiColumnHeaderState.Column>
                 {
-                    var rowChildProperty = _property.ArrayElementProperties[index];
-                    root.AddChild(new TableTreeElement(index, rowChildProperty));
-
-                    foreach (var cellValueProperty in rowChildProperty.ChildrenProperties)
+                    new MultiColumnHeaderState.Column
                     {
-                        if (!_cellIndexByName.ContainsKey(cellValueProperty.RawName))
+                        width = 16, autoResize = false, canSort = false, allowToggleVisibility = false,
+                    },
+                };
+
+                if (_property.IsExpanded)
+                {
+                    for (var index = 0; index < _property.ArrayElementProperties.Count; index++)
+                    {
+                        var rowChildProperty = _property.ArrayElementProperties[index];
+                        root.AddChild(new TableTreeItem(index, rowChildProperty));
+
+                        if (index == 0)
                         {
-                            _cellIndexByName.Add(cellValueProperty.RawName, _cellIndexByName.Count);
+                            foreach (var kvp in ((TableRowElement) (_cellElementContainer.GetChild(0))).Elements)
+                            {
+                                columns.Add(new MultiColumnHeaderState.Column
+                                {
+                                    headerContent = kvp.Value,
+                                    headerTextAlignment = TextAlignment.Center,
+                                    autoResize = true,
+                                    canSort = false,
+                                });
+                            }
                         }
                     }
                 }
 
                 if (root.children == null)
                 {
-                    root.AddChild(new TreeViewItem(0, 0, "Empty"));
+                    root.AddChild(new TableTreeEmptyItem());
+                }
+
+                if (multiColumnHeader.state == null ||
+                    multiColumnHeader.state.columns.Length == 1)
+                {
+                    multiColumnHeader.state = new MultiColumnHeaderState(columns.ToArray());
                 }
 
                 return root;
             }
 
+            protected override float GetCustomRowHeight(int row, TreeViewItem item)
+            {
+                if (item is TableTreeEmptyItem)
+                {
+                    return EditorGUIUtility.singleLineHeight;
+                }
+
+                var height = 0f;
+                var rowElement = (TableRowElement) _cellElementContainer.GetChild(row);
+
+                foreach (var visibleColumnIndex in multiColumnHeader.state.visibleColumns)
+                {
+                    var cellHeight = visibleColumnIndex == 0
+                        ? EditorGUIUtility.singleLineHeight
+                        : rowElement.Elements[visibleColumnIndex - 1].Key.GetHeight(Width);
+
+                    height = Math.Max(height, cellHeight);
+                }
+
+                return height + EditorGUIUtility.standardVerticalSpacing * 2;
+            }
+
             protected override void RowGUI(RowGUIArgs args)
             {
-                var tableItem = args.item as TableTreeElement;
-
-                if (tableItem == null)
+                if (args.item is TableTreeEmptyItem)
                 {
                     base.RowGUI(args);
                     return;
                 }
 
-                foreach (var cellValueProperty in tableItem.Property.ChildrenProperties)
+                var rowElement = (TableRowElement) _cellElementContainer.GetChild(args.row);
+
+                for (var i = 0; i < multiColumnHeader.state.visibleColumns.Length; i++)
                 {
-                    if (!_cellIndexByName.TryGetValue(cellValueProperty.RawName, out var cellIndex))
+                    var visibleColumnIndex = multiColumnHeader.state.visibleColumns[i];
+                    var rowIndex = args.row;
+
+                    var cellRect = args.GetCellRect(i);
+                    cellRect.yMin += EditorGUIUtility.standardVerticalSpacing;
+
+                    if (visibleColumnIndex == 0)
                     {
+                        ReorderableList.defaultBehaviours.DrawElementDraggingHandle(cellRect, rowIndex,
+                            _listGui.index == rowIndex, _listGui.index == rowIndex, _listGui.draggable);
                         continue;
                     }
 
-                    var cellRect = args.GetCellRect(cellIndex);
+                    var cellElement = rowElement.Elements[visibleColumnIndex - 1].Key;
+                    cellRect.height = cellElement.GetHeight(Width);
 
-                    if (!_cellElements.ContainsKey(cellValueProperty))
-                    {
-                        var cellElement = new TriPropertyElement(cellValueProperty, new TriPropertyElement.Props
-                        {
-                            forceInline = true,
-                        });
-                        _cellElements.Add(cellValueProperty, cellElement);
-                        _cellElementContainer.AddChild(cellElement);
-                    }
-
+                    using (TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel))
+                    using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth / rowElement.ChildrenCount))
                     using (TriPropertyOverrideContext.BeginOverride(_propertyOverrideContext))
                     {
-                        _cellElements[cellValueProperty].OnGUI(cellRect);
+                        cellElement.OnGUI(cellRect);
                     }
                 }
             }
+        }
 
-            private static MultiColumnHeader BuildHeader(TriProperty property)
+        public class TableRowElement : TriPropertyCollectionBaseElement
+        {
+            public TableRowElement(TriProperty property)
             {
-                var columns = TriTypeDefinition
-                    .GetCached(property.ArrayElementType)
-                    .Properties
-                    .Select(it => new MultiColumnHeaderState.Column
-                    {
-                        headerContent = new GUIContent(ObjectNames.NicifyVariableName(it.Name)),
-                        autoResize = true,
-                        canSort = false,
-                        allowToggleVisibility = false,
-                    })
-                    .Concat(new[]
-                    {
-                        new MultiColumnHeaderState.Column
-                        {
-                            headerContent = GUIContent.none,
-                            autoResize = false,
-                            canSort = false,
-                            allowToggleVisibility = false,
-                            width = 10,
-                        },
-                    })
-                    .ToArray();
+                DeclareGroups(property.ValueType);
 
-                var header = new MultiColumnHeader(new MultiColumnHeaderState(columns))
+                Elements = new List<KeyValuePair<TriElement, GUIContent>>();
+
+                if (property.PropertyType == TriPropertyType.Generic)
                 {
-                    canSort = false,
-                };
+                    foreach (var childProperty in property.ChildrenProperties)
+                    {
+                        var oldChildrenCount = ChildrenCount;
 
-                header.ResizeToFit();
+                        var props = new TriPropertyElement.Props
+                        {
+                            forceInline = true,
+                        };
+                        AddProperty(childProperty, props, out var group);
 
-                return header;
+                        if (oldChildrenCount != ChildrenCount)
+                        {
+                            var element = GetChild(ChildrenCount - 1);
+                            var headerContent = new GUIContent(group ?? childProperty.DisplayName);
+
+                            Elements.Add(new KeyValuePair<TriElement, GUIContent>(element, headerContent));
+                        }
+                    }
+                }
+                else
+                {
+                    AddChild(new TriLabelElement("[TableList] cannot be used on non generic elements"));
+                }
+            }
+
+            public List<KeyValuePair<TriElement, GUIContent>> Elements { get; }
+        }
+
+        [Serializable]
+        private class TableColumnHeader : MultiColumnHeader
+        {
+            public TableColumnHeader() : base(null)
+            {
+                canSort = false;
+                height = DefaultGUI.minimumHeight;
             }
         }
 
         [Serializable]
-        private class TableTreeElement : TreeViewItem
+        private class TableTreeEmptyItem : TreeViewItem
         {
-            public TableTreeElement(int id, TriProperty property) : base(id, 0)
+            public TableTreeEmptyItem() : base(0, 0, "Table is Empty")
+            {
+            }
+        }
+
+        [Serializable]
+        private class TableTreeItem : TreeViewItem
+        {
+            public TableTreeItem(int id, TriProperty property) : base(id, 0)
             {
                 Property = property;
             }
@@ -189,9 +397,27 @@ namespace TriInspector.Drawers
 
         private class TableListPropertyOverrideContext : TriPropertyOverrideContext
         {
-            public override GUIContent GetDisplayName(TriProperty property)
+            private readonly TriProperty _grandParentProperty;
+            private readonly GUIContent _noneLabel = GUIContent.none;
+
+            public TableListPropertyOverrideContext(TriProperty grandParentProperty)
             {
-                return GUIContent.none;
+                _grandParentProperty = grandParentProperty;
+            }
+
+            public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
+            {
+                if (property.PropertyType == TriPropertyType.Primitive &&
+                    property.Parent is TriProperty parentProperty &&
+                    parentProperty.Parent == _grandParentProperty &&
+                    !property.TryGetAttribute(out GroupAttribute _))
+                {
+                    displayName = _noneLabel;
+                    return true;
+                }
+
+                displayName = default;
+                return false;
             }
         }
     }
