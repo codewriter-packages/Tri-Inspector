@@ -116,8 +116,15 @@ namespace TriInspector.Drawers
                     yMin = elementsRect.yMax,
                 };
 
+                if (!_property.IsExpanded)
+                {
+                    ReorderableListProxy.DoListHeader(ListGui, headerRect);
+                    return;
+                }
+
                 if (Event.current.isMouse && Event.current.type == EventType.MouseDrag)
                 {
+                    _heightDirty = true;
                     _treeView.multiColumnHeader.ResizeToFit();
                 }
 
@@ -131,10 +138,7 @@ namespace TriInspector.Drawers
 
                 EditorGUI.BeginChangeCheck();
 
-                if (_property.IsExpanded)
-                {
-                    _treeView.OnGUI(elementsContentRect);
-                }
+                _treeView.OnGUI(elementsContentRect);
 
                 if (EditorGUI.EndChangeCheck())
                 {
@@ -142,10 +146,7 @@ namespace TriInspector.Drawers
                     _property.PropertyTree.RequestRepaint();
                 }
 
-                if (_property.IsExpanded)
-                {
-                    ReorderableList.defaultBehaviours.DrawFooter(footerRect, ListGui);
-                }
+                ReorderableList.defaultBehaviours.DrawFooter(footerRect, ListGui);
             }
 
             private bool ReloadIfRequired()
@@ -184,6 +185,8 @@ namespace TriInspector.Drawers
             private readonly TriElement _cellElementContainer;
             private readonly ReorderableList _listGui;
             private readonly TableListPropertyOverrideContext _propertyOverrideContext;
+
+            private bool _wasRendered;
 
             public Action<int> SelectionChangedCallback;
 
@@ -280,9 +283,13 @@ namespace TriInspector.Drawers
 
                 foreach (var visibleColumnIndex in multiColumnHeader.state.visibleColumns)
                 {
+                    var cellWidth = _wasRendered
+                        ? multiColumnHeader.GetColumnRect(visibleColumnIndex).width
+                        : Width / Mathf.Max(1, multiColumnHeader.state.visibleColumns.Length);
+
                     var cellHeight = visibleColumnIndex == 0
                         ? EditorGUIUtility.singleLineHeight
-                        : rowElement.Elements[visibleColumnIndex - 1].Key.GetHeight(Width);
+                        : rowElement.Elements[visibleColumnIndex - 1].Key.GetHeight(cellWidth);
 
                     height = Math.Max(height, cellHeight);
                 }
@@ -316,7 +323,7 @@ namespace TriInspector.Drawers
                     }
 
                     var cellElement = rowElement.Elements[visibleColumnIndex - 1].Key;
-                    cellRect.height = cellElement.GetHeight(Width);
+                    cellRect.height = cellElement.GetHeight(cellRect.width);
 
                     using (TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel))
                     using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth / rowElement.ChildrenCount))
@@ -325,6 +332,8 @@ namespace TriInspector.Drawers
                         cellElement.OnGUI(cellRect);
                     }
                 }
+
+                _wasRendered = true;
             }
         }
 

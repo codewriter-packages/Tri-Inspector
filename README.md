@@ -316,7 +316,7 @@ public class MinMax
 
 #### ListDrawerSettings
 
-![ListDrawerSettings](https://user-images.githubusercontent.com/26966368/168235372-1a460037-672c-424f-b2f0-6bf4641c0119.png)
+![ListDrawerSettings](https://user-images.githubusercontent.com/26966368/171126103-4fab58a3-db6c-487b-b616-f7aad528e2ab.png)
 
 ```csharp
 [ListDrawerSettings(Draggable = true,
@@ -324,11 +324,15 @@ public class MinMax
                     HideRemoveButton = false,
                     AlwaysExpanded = false)]
 public List<Material> list;
+
+[ListDrawerSettings(Draggable = false, AlwaysExpanded = true)]
+public Vector3[] vectors;
+
 ```
 
 #### TableList
 
-![TableList](https://user-images.githubusercontent.com/26966368/171021981-e0aa5d4b-96b2-40dd-96b3-3cd6b3af01e3.png)
+![TableList](https://user-images.githubusercontent.com/26966368/171125460-679fe467-cf01-47e0-8674-b565ee3d4d7e.png)
 
 ```csharp
 [TableList(Draggable = true,
@@ -340,6 +344,7 @@ public List<TableItem> table;
 [Serializable]
 public class TableItem
 {
+    [Required]
     public Texture icon;
     public string description;
 
@@ -447,7 +452,7 @@ private void DoButton()
 
 #### EnumToggleButtons
 
-![EnumToggleButtons](https://user-images.githubusercontent.com/26966368/170864400-fe76d356-2a80-479a-90de-bac9619bd7d1.png)
+![EnumToggleButtons](https://user-images.githubusercontent.com/26966368/171126422-79d6ba55-7928-4178-9cc9-a807e3cb8b53.png)
 
 ```csharp
 [EnumToggleButtons] public SomeEnum someEnum;

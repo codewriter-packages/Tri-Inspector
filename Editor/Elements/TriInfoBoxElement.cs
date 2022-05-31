@@ -24,7 +24,7 @@ namespace TriInspector.Elements
         public override void OnGUI(Rect position)
         {
             position = EditorGUI.IndentedRect(position);
-            
+
             using (TriGuiHelper.PushColor(_color))
             {
                 GUI.Label(position, string.Empty, Styles.InfoBoxBg);
@@ -72,7 +72,8 @@ namespace TriInspector.Elements
                 {
                     padding = InfoBoxBg.padding,
                     fontSize = InfoBoxBg.fontSize,
-                    alignment = InfoBoxBg.alignment,
+                    alignment = TextAnchor.MiddleLeft,
+                    wordWrap = true,
                 };
             }
         }

@@ -79,12 +79,17 @@ namespace TriInspector.Drawers
 
             private static GUIStyle GetButtonStyle(int total, int current)
             {
+                if (total <= 1)
+                {
+                    return EditorStyles.miniButton;
+                }
+
                 if (current == 0)
                 {
                     return EditorStyles.miniButtonLeft;
                 }
 
-                if (current == total)
+                if (current == total - 1)
                 {
                     return EditorStyles.miniButtonRight;
                 }
