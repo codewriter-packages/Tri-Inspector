@@ -2,7 +2,7 @@
 
 _Advanced inspector attributes for Unity_
 
-![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/168415510-819b4fc0-d5ea-4795-b67f-7bd20b2f6adb.png)
+![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/171363040-f7a7d6dd-eef4-4a9e-adb0-7d0e033a81ce.png)
 
 - [How to Install](#How-to-Install)
 - [Attributes](#Attributes)
