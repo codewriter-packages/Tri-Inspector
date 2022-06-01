@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Sirenix.OdinInspector.Editor;
+﻿using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using Object = UnityEngine.Object;
@@ -30,14 +29,28 @@ namespace TriInspector.Editor.Integrations.Odin
 
             _odinProperty.Update();
 
-            Properties = TriTypeDefinition.GetCached(odinValueEntry.TypeOfValue)
-                .Properties
-                .Select((propertyDefinition, index) =>
+            RootPropertyDefinition = new TriPropertyDefinition(
+                memberInfo: odinValueEntry.Property.Info.GetMemberInfo(),
+                order: -1,
+                fieldName: odinValueEntry.Property.Name,
+                fieldType: odinValueEntry.TypeOfValue,
+                valueGetter: (self, targetIndex) => _odinValueEntry.Values[targetIndex],
+                valueSetter: (self, targetIndex, value) =>
                 {
-                    var serializedProperty = _serializedProperty.FindPropertyRelative(propertyDefinition.Name);
-                    return new TriProperty(this, this, propertyDefinition, index, serializedProperty);
-                })
-                .ToList();
+                    _odinValueEntry.Values[targetIndex] = (T) value;
+                    return null;
+                },
+                isArrayElement: false
+            );
+            RootProperty = new TriProperty(this, null, RootPropertyDefinition, -1, _serializedProperty);
+            RootProperty.ValueChanged += OnRootPropertyChanged;
+        }
+
+        public override void Dispose()
+        {
+            RootProperty.ValueChanged -= OnRootPropertyChanged;
+
+            base.Dispose();
         }
 
         public override void Update()
@@ -84,12 +97,7 @@ namespace TriInspector.Editor.Integrations.Odin
             GUIHelper.RequestRepaint();
         }
 
-        public override object GetValue(int targetIndex)
-        {
-            return _odinValueEntry.Values[targetIndex];
-        }
-
-        public override void NotifyValueChanged(TriProperty property)
+        private void OnRootPropertyChanged(TriProperty _, TriProperty changedProperty)
         {
             ApplyEmittedScriptableObject();
 

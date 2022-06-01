@@ -10,14 +10,14 @@ using UnityEngine;
 
 namespace TriInspector
 {
-    public sealed class TriProperty : ITriPropertyParent
+    public sealed class TriProperty
     {
         private static readonly IReadOnlyList<TriValidationResult> EmptyValidationResults =
             new List<TriValidationResult>();
 
         private readonly TriPropertyDefinition _definition;
         private readonly int _propertyIndex;
-        private readonly ITriPropertyParent _parent;
+        [CanBeNull] private readonly SerializedObject _serializedObject;
         [CanBeNull] private readonly SerializedProperty _serializedProperty;
         private List<TriProperty> _childrenProperties;
         private List<TriValidationResult> _validationResults;
@@ -33,17 +33,37 @@ namespace TriInspector
         [CanBeNull] private Type _valueType;
         private bool _isValueMixed;
 
+        public event ValueChangedDelegate ValueChanged;
+
         internal TriProperty(
             TriPropertyTree propertyTree,
-            ITriPropertyParent parent,
+            TriProperty parent,
+            TriPropertyDefinition definition,
+            SerializedObject serializedObject
+        )
+        {
+            Parent = parent;
+            _definition = definition;
+            _propertyIndex = -1;
+            _serializedProperty = null;
+            _serializedObject = serializedObject;
+
+            PropertyTree = propertyTree;
+            PropertyType = GetPropertyType(this);
+        }
+
+        internal TriProperty(
+            TriPropertyTree propertyTree,
+            TriProperty parent,
             TriPropertyDefinition definition,
             int propertyIndex,
             [CanBeNull] SerializedProperty serializedProperty)
         {
-            _parent = parent;
+            Parent = parent;
             _definition = definition;
             _propertyIndex = propertyIndex;
             _serializedProperty = serializedProperty?.Copy();
+            _serializedObject = _serializedProperty?.serializedObject;
 
             PropertyTree = propertyTree;
             PropertyType = GetPropertyType(this);
@@ -54,6 +74,12 @@ namespace TriInspector
 
         [PublicAPI]
         public TriPropertyTree PropertyTree { get; }
+
+        [PublicAPI]
+        public TriProperty Parent { get; }
+
+        [PublicAPI]
+        public bool IsRootProperty => Parent == null;
 
         [PublicAPI]
         public string RawName => _definition.Name;
@@ -160,8 +186,6 @@ namespace TriInspector
             : throw new InvalidOperationException("Cannot read IndexInArray for !IsArrayElement");
 
         public IReadOnlyList<TriCustomDrawer> AllDrawers => _definition.Drawers;
-
-        public ITriPropertyParent Parent => _parent;
 
         public bool HasValidators => _definition.Validators.Count != 0;
 
@@ -320,14 +344,14 @@ namespace TriInspector
 
         public void NotifyValueChanged()
         {
-            ((ITriPropertyParent) this).NotifyValueChanged(this);
+            NotifyValueChanged(this);
         }
 
-        void ITriPropertyParent.NotifyValueChanged(TriProperty property)
+        private void NotifyValueChanged(TriProperty property)
         {
             if (_definition.OnValueChanged != null)
             {
-                _serializedProperty?.serializedObject.ApplyModifiedProperties();
+                _serializedObject?.ApplyModifiedProperties();
 
                 for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)
                 {
@@ -335,7 +359,9 @@ namespace TriInspector
                 }
             }
 
-            _parent.NotifyValueChanged(property);
+            ValueChanged?.Invoke(this, property);
+
+            Parent?.NotifyValueChanged(property);
         }
 
         private void UpdateIfRequired(bool forceUpdate = false)
@@ -387,8 +413,9 @@ namespace TriInspector
                                 for (var index = 0; index < properties.Count; index++)
                                 {
                                     var childDefinition = properties[index];
-                                    var childSerializedProperty =
-                                        _serializedProperty?.FindPropertyRelative(childDefinition.Name);
+                                    var childSerializedProperty = _serializedProperty != null
+                                        ? _serializedProperty.FindPropertyRelative(childDefinition.Name)
+                                        : _serializedObject?.FindProperty(childDefinition.Name);
                                     var childProperty = new TriProperty(PropertyTree, this,
                                         childDefinition, index, childSerializedProperty);
 
@@ -532,10 +559,10 @@ namespace TriInspector
             // because we cannot directly modify structs
             // but we can re-set entire parent value
             while (property._definition.SetValue(property, value, targetIndex, out var parentValue) &&
-                   property.Parent is TriProperty parentProperty &&
-                   parentProperty.ValueType != null && parentProperty.ValueType.IsValueType)
+                   property.Parent != null &&
+                   property.Parent.FieldType.IsValueType)
             {
-                property = parentProperty;
+                property = property.Parent;
                 value = parentValue;
             }
         }
@@ -642,6 +669,11 @@ namespace TriInspector
                 return TriPropertyType.Primitive;
             }
 
+            if (property._serializedObject != null)
+            {
+                return TriPropertyType.Generic;
+            }
+
             if (property._definition.FieldType.IsPrimitive ||
                 property._definition.FieldType == typeof(string) ||
                 typeof(UnityEngine.Object).IsAssignableFrom(property._definition.FieldType))
@@ -661,13 +693,8 @@ namespace TriInspector
 
             return TriPropertyType.Reference;
         }
-    }
 
-    public interface ITriPropertyParent
-    {
-        object GetValue(int targetIndex);
-
-        void NotifyValueChanged(TriProperty property);
+        public delegate void ValueChangedDelegate(TriProperty self, TriProperty changedProperty);
     }
 
     public enum TriPropertyType

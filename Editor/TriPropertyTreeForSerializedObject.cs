@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using JetBrains.Annotations;
 using UnityEditor;
 
@@ -18,19 +17,24 @@ namespace TriInspector
             TargetIsPersistent = _serializedObject.targetObject is var targetObject &&
                                  targetObject != null && !EditorUtility.IsPersistent(targetObject);
 
-            Properties = TriTypeDefinition.GetCached(TargetObjectType)
-                .Properties
-                .Select((propertyDefinition, index) =>
-                {
-                    var serializedProperty = serializedObject.FindProperty(propertyDefinition.Name);
-                    return new TriProperty(this, this, propertyDefinition, index, serializedProperty);
-                })
-                .ToList();
+            RootPropertyDefinition = new TriPropertyDefinition(
+                memberInfo: null,
+                order: -1,
+                fieldName: "ROOT",
+                fieldType: TargetObjectType,
+                valueGetter: (self, targetIndex) => _serializedObject.targetObjects[targetIndex],
+                valueSetter: (self, targetIndex, value) => _serializedObject.targetObjects[targetIndex],
+                isArrayElement: false);
+
+            RootProperty = new TriProperty(this, null, RootPropertyDefinition, serializedObject);
+            RootProperty.ValueChanged += OnRootPropertyChanged;
         }
 
-        public override object GetValue(int targetIndex)
+        public override void Dispose()
         {
-            return _serializedObject.targetObjects[targetIndex];
+            RootProperty.ValueChanged -= OnRootPropertyChanged;
+
+            base.Dispose();
         }
 
         public override void ForceCreateUndoGroup()
@@ -54,7 +58,7 @@ namespace TriInspector
             _serializedObject.Update();
         }
 
-        public override void NotifyValueChanged(TriProperty property)
+        private void OnRootPropertyChanged(TriProperty root, TriProperty changedProperty)
         {
             foreach (var targetObject in _serializedObject.targetObjects)
             {

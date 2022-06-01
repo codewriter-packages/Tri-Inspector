@@ -417,8 +417,7 @@ namespace TriInspector.Drawers
             public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
             {
                 if (property.PropertyType == TriPropertyType.Primitive &&
-                    property.Parent is TriProperty parentProperty &&
-                    parentProperty.Parent == _grandParentProperty &&
+                    property.Parent?.Parent == _grandParentProperty &&
                     !property.TryGetAttribute(out GroupAttribute _))
                 {
                     displayName = _noneLabel;

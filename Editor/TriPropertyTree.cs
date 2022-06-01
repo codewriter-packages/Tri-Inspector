@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
 using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
 
 namespace TriInspector
 {
-    public abstract class TriPropertyTree : ITriPropertyParent
+    public abstract class TriPropertyTree
     {
-        [CanBeNull] private TriInspectorElement _inspectorElement;
+        private TriPropertyElement _rootPropertyElement;
 
-        public IReadOnlyList<TriProperty> Properties { get; protected set; }
+        public TriPropertyDefinition RootPropertyDefinition { get; protected set; }
+        public TriProperty RootProperty { get; protected set; }
 
         public Type TargetObjectType { get; protected set; }
         public int TargetsCount { get; protected set; }
@@ -24,9 +23,9 @@ namespace TriInspector
 
         public virtual void Dispose()
         {
-            if (_inspectorElement != null && _inspectorElement.IsAttached)
+            if (_rootPropertyElement != null && _rootPropertyElement.IsAttached)
             {
-                _inspectorElement.DetachInternal();
+                _rootPropertyElement.DetachInternal();
             }
         }
 
@@ -39,10 +38,7 @@ namespace TriInspector
         {
             ValidationRequired = false;
 
-            foreach (var property in Properties)
-            {
-                property.RunValidation();
-            }
+            RootProperty.RunValidation();
 
             RequestRepaint();
         }
@@ -51,25 +47,26 @@ namespace TriInspector
         {
             RepaintRequired = false;
 
-            if (_inspectorElement == null)
+            if (_rootPropertyElement == null)
             {
-                _inspectorElement = new TriInspectorElement(TargetObjectType, Properties);
-                _inspectorElement.AttachInternal();
+                _rootPropertyElement = new TriPropertyElement(RootProperty, new TriPropertyElement.Props
+                {
+                    forceInline = RootProperty.MemberInfo == null,
+                });
+                _rootPropertyElement.AttachInternal();
             }
 
-            _inspectorElement.Update();
+            _rootPropertyElement.Update();
             var width = EditorGUIUtility.currentViewWidth;
-            var height = _inspectorElement.GetHeight(width);
+            var height = _rootPropertyElement.GetHeight(width);
             var rect = GUILayoutUtility.GetRect(width, height);
-            _inspectorElement.OnGUI(rect);
+            rect.xMin += 3;
+            _rootPropertyElement.OnGUI(rect);
         }
 
         public void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)
         {
-            foreach (var triProperty in Properties)
-            {
-                triProperty.EnumerateValidationResults(call);
-            }
+            RootProperty.EnumerateValidationResults(call);
         }
 
         public virtual void RequestRepaint()
@@ -84,8 +81,6 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        public abstract object GetValue(int targetIndex);
-        public abstract void NotifyValueChanged(TriProperty property);
         public abstract void ForceCreateUndoGroup();
         public abstract void PrepareForValueModification();
         public abstract void UpdateAfterValueModification();

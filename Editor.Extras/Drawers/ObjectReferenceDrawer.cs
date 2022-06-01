@@ -12,6 +12,11 @@ namespace TriInspector.Drawers
     {
         public override TriElement CreateElement(TriValue<T> value, TriElement next)
         {
+            if (value.Property.IsRootProperty)
+            {
+                return next;
+            }
+            
             if (value.Property.TryGetSerializedProperty(out _))
             {
                 return next;

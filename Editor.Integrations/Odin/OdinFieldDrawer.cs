@@ -11,6 +11,7 @@ namespace TriInspector.Editor.Integrations.Odin
     public class OdinFieldDrawer<T> : OdinValueDrawer<T>, IDisposable
     {
         private TriPropertyTree _propertyTree;
+        private LabelOverrideContext _labelOverrideContext;
 
         public override bool CanDrawTypeFilter(Type type)
         {
@@ -53,6 +54,7 @@ namespace TriInspector.Editor.Integrations.Odin
             base.Initialize();
 
             _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
+            _labelOverrideContext = new LabelOverrideContext(_propertyTree);
         }
 
         public void Dispose()
@@ -62,23 +64,42 @@ namespace TriInspector.Editor.Integrations.Odin
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            var propertyState = ValueEntry.Property.State;
+            _propertyTree.Update();
 
-            propertyState.Expanded = SirenixEditorGUI.Foldout(propertyState.Expanded, label);
-
-            if (propertyState.Expanded)
+            if (_propertyTree.ValidationRequired)
             {
-                using (TriGuiHelper.PushIndentLevel())
+                _propertyTree.RunValidation();
+            }
+
+            _labelOverrideContext.Label = label ?? GUIContent.none;
+
+            using (TriPropertyOverrideContext.BeginOverride(_labelOverrideContext))
+            {
+                _propertyTree.Draw();
+            }
+        }
+
+        private class LabelOverrideContext : TriPropertyOverrideContext
+        {
+            private readonly TriPropertyTree _tree;
+
+            public LabelOverrideContext(TriPropertyTree tree)
+            {
+                _tree = tree;
+            }
+
+            public GUIContent Label { get; set; }
+
+            public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
+            {
+                if (property == _tree.RootProperty)
                 {
-                    _propertyTree.Update();
-
-                    if (_propertyTree.ValidationRequired)
-                    {
-                        _propertyTree.RunValidation();
-                    }
-
-                    _propertyTree.Draw();
+                    displayName = Label;
+                    return true;
                 }
+
+                displayName = default;
+                return false;
             }
         }
     }
