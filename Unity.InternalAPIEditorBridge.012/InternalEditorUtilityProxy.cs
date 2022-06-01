@@ -1,6 +1,6 @@
 ﻿using UnityEditorInternal;
 
-namespace TriInspector.Utilities
+namespace TriInspectorUnityInternalBridge
 {
     internal static class InternalEditorUtilityProxy
     {

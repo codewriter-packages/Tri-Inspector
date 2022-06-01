@@ -1,4 +1,4 @@
-﻿using TriInspector.Utilities;
+﻿using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEngine;
 
