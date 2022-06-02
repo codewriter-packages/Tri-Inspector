@@ -348,18 +348,6 @@ namespace TriInspector
 
         private void NotifyValueChanged(TriProperty property)
         {
-            if (_definition.OnValueChanged != null)
-            {
-                PropertyTree.ApplyChanges();
-
-                for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)
-                {
-                    _definition.OnValueChanged.InvokeForTarget(this, targetIndex);
-                }
-
-                PropertyTree.Update(forceUpdate: true);
-            }
-
             if (property == this)
             {
                 ValueChanged?.Invoke(property);

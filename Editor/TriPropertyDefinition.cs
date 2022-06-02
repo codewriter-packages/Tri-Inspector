@@ -64,11 +64,6 @@ namespace TriInspector
                 ArrayElementType = elementType;
             }
 
-            if (Attributes.TryGet(out OnValueChangedAttribute onValueChangedAttribute))
-            {
-                OnValueChanged = ActionResolver.Resolve(this, onValueChangedAttribute.Method);
-            }
-
             if (Attributes.TryGet(out LabelTextAttribute labelTextAttribute))
             {
                 CustomLabel = ValueResolver.ResolveString(this, labelTextAttribute.Text);
@@ -97,7 +92,6 @@ namespace TriInspector
 
         public bool IsArray { get; }
 
-        [CanBeNull] public ActionResolver OnValueChanged { get; }
         [CanBeNull] public ValueResolver<string> CustomLabel { get; }
         [CanBeNull] public ValueResolver<string> CustomTooltip { get; }
 
@@ -319,6 +313,7 @@ namespace TriInspector
         }
 
         public delegate object ValueGetterDelegate(TriProperty self, int targetIndex);
+
         public delegate object ValueSetterDelegate(TriProperty self, int targetIndex, object value);
     }
 }
