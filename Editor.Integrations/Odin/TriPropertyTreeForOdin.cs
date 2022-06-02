@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace TriInspector.Editor.Integrations.Odin
 {
-    public class TriPropertyTreeForOdin<T> : TriPropertyTree
+    public sealed class TriPropertyTreeForOdin<T> : TriPropertyTree
     {
         private readonly IPropertyValueEntry<T> _odinValueEntry;
         private readonly InspectorProperty _odinProperty;
@@ -22,12 +22,8 @@ namespace TriInspector.Editor.Integrations.Odin
             TargetIsPersistent = _odinProperty.Tree.WeakTargets[0] is Object obj &&
                                  obj != null && EditorUtility.IsPersistent(obj);
 
-            UpdateEmittedScriptableObject();
 
-            _serializedProperty.serializedObject.SetIsDifferentCacheDirty();
-            _serializedProperty.serializedObject.Update();
-
-            _odinProperty.Update();
+            Update(forceUpdate: true);
 
             RootPropertyDefinition = new TriPropertyDefinition(
                 memberInfo: odinValueEntry.Property.Info.GetMemberInfo(),
@@ -43,70 +39,20 @@ namespace TriInspector.Editor.Integrations.Odin
                 isArrayElement: false
             );
             RootProperty = new TriProperty(this, null, RootPropertyDefinition, -1, _serializedProperty);
-            RootProperty.ValueChanged += OnRootPropertyChanged;
+
+            RootProperty.ValueChanged += OnPropertyChanged;
+            RootProperty.ChildValueChanged += OnPropertyChanged;
         }
 
         public override void Dispose()
         {
-            RootProperty.ValueChanged -= OnRootPropertyChanged;
+            RootProperty.ChildValueChanged -= OnPropertyChanged;
+            RootProperty.ValueChanged -= OnPropertyChanged;
 
             base.Dispose();
         }
 
-        public override void Update()
-        {
-            UpdateEmittedScriptableObject();
-
-            base.Update();
-        }
-
-        public override void ForceCreateUndoGroup()
-        {
-            _odinProperty.RecordForUndo(forceCompleteObjectUndo: true);
-            Undo.FlushUndoRecordObjects();
-        }
-
-        public override void PrepareForValueModification()
-        {
-            var dirty = false;
-            dirty |= _odinValueEntry.ApplyChanges();
-            dirty |= _serializedProperty.serializedObject.ApplyModifiedProperties();
-            dirty |= ApplyEmittedScriptableObject();
-
-            if (dirty)
-            {
-                RequestValidation();
-                RequestRepaint();
-            }
-        }
-
-        public override void UpdateAfterValueModification()
-        {
-            UpdateEmittedScriptableObject();
-
-            _serializedProperty.serializedObject.SetIsDifferentCacheDirty();
-            _serializedProperty.serializedObject.Update();
-
-            _odinProperty.Update();
-        }
-
-        public override void RequestRepaint()
-        {
-            base.RequestRepaint();
-
-            GUIHelper.RequestRepaint();
-        }
-
-        private void OnRootPropertyChanged(TriProperty _, TriProperty changedProperty)
-        {
-            ApplyEmittedScriptableObject();
-
-            _odinValueEntry.Values.ForceMarkDirty();
-
-            RequestValidation();
-        }
-
-        private void UpdateEmittedScriptableObject()
+        public override void Update(bool forceUpdate = false)
         {
             if (_serializedProperty.serializedObject.targetObject is EmittedScriptableObject<T>)
             {
@@ -118,15 +64,48 @@ namespace TriInspector.Editor.Integrations.Odin
 
                 _serializedProperty.serializedObject.Update();
             }
+
+            _odinProperty.Update(forceUpdate);
+
+            base.Update(forceUpdate);
         }
 
-        private bool ApplyEmittedScriptableObject()
+        public override bool ApplyChanges()
         {
-            var dirty = false;
+            ApplyEmittedScriptableObject();
 
+            var changed = base.ApplyChanges();
+            changed |= _odinValueEntry.ApplyChanges();
+            return changed;
+        }
+
+        public override void ForceCreateUndoGroup()
+        {
+            _odinProperty.RecordForUndo(forceCompleteObjectUndo: true);
+        }
+
+        public override void RequestRepaint()
+        {
+            base.RequestRepaint();
+
+            GUIHelper.RequestRepaint();
+        }
+
+        private void OnPropertyChanged(TriProperty changedProperty)
+        {
+            ApplyEmittedScriptableObject();
+
+            _odinValueEntry.Values.ForceMarkDirty();
+
+            RequestValidation();
+            RequestRepaint();
+        }
+
+        private void ApplyEmittedScriptableObject()
+        {
             if (_serializedProperty.serializedObject.targetObject is EmittedScriptableObject<T>)
             {
-                dirty = _serializedProperty.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                _serializedProperty.serializedObject.ApplyModifiedPropertiesWithoutUndo();
 
                 var targetObjects = _serializedProperty.serializedObject.targetObjects;
                 for (var index = 0; index < targetObjects.Length; ++index)
@@ -134,8 +113,6 @@ namespace TriInspector.Editor.Integrations.Odin
                     _odinValueEntry.Values[index] = ((EmittedScriptableObject<T>) targetObjects[index]).GetValue();
                 }
             }
-
-            return dirty;
         }
     }
 }

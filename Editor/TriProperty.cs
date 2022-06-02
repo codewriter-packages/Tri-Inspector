@@ -33,7 +33,8 @@ namespace TriInspector
         [CanBeNull] private Type _valueType;
         private bool _isValueMixed;
 
-        public event ValueChangedDelegate ValueChanged;
+        public event Action<TriProperty> ValueChanged;
+        public event Action<TriProperty> ChildValueChanged;
 
         internal TriProperty(
             TriPropertyTree propertyTree,
@@ -323,23 +324,21 @@ namespace TriInspector
 
         public void ModifyAndRecordForUndo(Action<int> call)
         {
-            // save any pending changes
-            PropertyTree.PrepareForValueModification();
+            PropertyTree.ApplyChanges();
 
-            // record object state for undp
             PropertyTree.ForceCreateUndoGroup();
 
-            // set value for all targets
             for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)
             {
                 call.Invoke(targetIndex);
             }
 
-            // actualize
-            PropertyTree.UpdateAfterValueModification();
-            UpdateIfRequired(forceUpdate: true);
+            PropertyTree.Update(forceUpdate: true);
 
             NotifyValueChanged();
+
+            PropertyTree.RequestValidation();
+            PropertyTree.RequestRepaint();
         }
 
         public void NotifyValueChanged()
@@ -351,15 +350,24 @@ namespace TriInspector
         {
             if (_definition.OnValueChanged != null)
             {
-                _serializedObject?.ApplyModifiedProperties();
+                PropertyTree.ApplyChanges();
 
                 for (var targetIndex = 0; targetIndex < PropertyTree.TargetsCount; targetIndex++)
                 {
                     _definition.OnValueChanged.InvokeForTarget(this, targetIndex);
                 }
+
+                PropertyTree.Update(forceUpdate: true);
             }
 
-            ValueChanged?.Invoke(this, property);
+            if (property == this)
+            {
+                ValueChanged?.Invoke(property);
+            }
+            else
+            {
+                ChildValueChanged?.Invoke(property);
+            }
 
             Parent?.NotifyValueChanged(property);
         }
@@ -693,8 +701,6 @@ namespace TriInspector
 
             return TriPropertyType.Reference;
         }
-
-        public delegate void ValueChangedDelegate(TriProperty self, TriProperty changedProperty);
     }
 
     public enum TriPropertyType

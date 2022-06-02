@@ -29,9 +29,14 @@ namespace TriInspector
             }
         }
 
-        public virtual void Update()
+        public virtual void Update(bool forceUpdate = false)
         {
             RepaintFrame++;
+        }
+
+        public virtual bool ApplyChanges()
+        {
+            return false;
         }
 
         public void RunValidation()
@@ -82,7 +87,5 @@ namespace TriInspector
         }
 
         public abstract void ForceCreateUndoGroup();
-        public abstract void PrepareForValueModification();
-        public abstract void UpdateAfterValueModification();
     }
 }

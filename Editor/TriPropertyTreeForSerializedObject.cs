@@ -27,14 +27,35 @@ namespace TriInspector
                 isArrayElement: false);
 
             RootProperty = new TriProperty(this, null, RootPropertyDefinition, serializedObject);
-            RootProperty.ValueChanged += OnRootPropertyChanged;
+
+            RootProperty.ValueChanged += OnPropertyChanged;
+            RootProperty.ChildValueChanged += OnPropertyChanged;
         }
 
         public override void Dispose()
         {
-            RootProperty.ValueChanged -= OnRootPropertyChanged;
+            RootProperty.ChildValueChanged -= OnPropertyChanged;
+            RootProperty.ValueChanged -= OnPropertyChanged;
 
             base.Dispose();
+        }
+
+        public override void Update(bool forceUpdate = false)
+        {
+            if (forceUpdate)
+            {
+                _serializedObject.SetIsDifferentCacheDirty();
+                _serializedObject.Update();
+            }
+
+            base.Update(forceUpdate);
+        }
+
+        public override bool ApplyChanges()
+        {
+            var changed = base.ApplyChanges();
+            changed |= _serializedObject.ApplyModifiedProperties();
+            return changed;
         }
 
         public override void ForceCreateUndoGroup()
@@ -43,22 +64,7 @@ namespace TriInspector
             Undo.FlushUndoRecordObjects();
         }
 
-        public override void PrepareForValueModification()
-        {
-            if (_serializedObject.ApplyModifiedProperties())
-            {
-                RequestValidation();
-                RequestRepaint();
-            }
-        }
-
-        public override void UpdateAfterValueModification()
-        {
-            _serializedObject.SetIsDifferentCacheDirty();
-            _serializedObject.Update();
-        }
-
-        private void OnRootPropertyChanged(TriProperty root, TriProperty changedProperty)
+        private void OnPropertyChanged(TriProperty changedProperty)
         {
             foreach (var targetObject in _serializedObject.targetObjects)
             {
@@ -66,6 +72,7 @@ namespace TriInspector
             }
 
             RequestValidation();
+            RequestRepaint();
         }
     }
 }
