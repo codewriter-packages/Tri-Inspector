@@ -78,43 +78,33 @@ namespace TriInspector.Elements
             }
 
             var lastEditorRect = Rect.zero;
+            var shouldDrawEditor = _property.IsExpanded && !_property.IsValueMixed;
 
-            if (TriGuiHelper.IsEditorTargetPushed((Object) _property.Value))
+            if (_editor == null && shouldDrawEditor && _property.Value is Object obj && obj != null)
             {
-                GUI.Label(position, "Recursive inline editors not supported");
+                _editor = Editor.CreateEditor(obj);
+            }
 
-                lastEditorRect.height = EditorGUIUtility.singleLineHeight;
+            if (_editor != null && shouldDrawEditor)
+            {
+                Rect indentedEditorPosition;
+                using (TriGuiHelper.PushIndentLevel())
+                {
+                    indentedEditorPosition = EditorGUI.IndentedRect(_editorPosition);
+                }
+
+                GUILayout.BeginArea(indentedEditorPosition);
+                GUILayout.BeginVertical();
+                _editor.OnInspectorGUI();
+                GUILayout.EndVertical();
+                lastEditorRect = GUILayoutUtility.GetLastRect();
+                GUILayout.EndArea();
             }
             else
             {
-                var shouldDrawEditor = _property.IsExpanded && !_property.IsValueMixed;
-
-                if (_editor == null && shouldDrawEditor && _property.Value is Object obj && obj != null)
+                if (_editor != null)
                 {
-                    _editor = Editor.CreateEditor(obj);
-                }
-
-                if (_editor != null && shouldDrawEditor)
-                {
-                    Rect indentedEditorPosition;
-                    using (TriGuiHelper.PushIndentLevel())
-                    {
-                        indentedEditorPosition = EditorGUI.IndentedRect(_editorPosition);
-                    }
-
-                    GUILayout.BeginArea(indentedEditorPosition);
-                    GUILayout.BeginVertical();
-                    _editor.OnInspectorGUI();
-                    GUILayout.EndVertical();
-                    lastEditorRect = GUILayoutUtility.GetLastRect();
-                    GUILayout.EndArea();
-                }
-                else
-                {
-                    if (_editor != null)
-                    {
-                        Object.DestroyImmediate(_editor);
-                    }
+                    Object.DestroyImmediate(_editor);
                 }
             }
 

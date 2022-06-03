@@ -18,19 +18,25 @@ namespace TriInspector
 
         public override void OnInspectorGUI()
         {
+            if (serializedObject.targetObjects.Length == 0)
+            {
+                return;
+            }
+
+            if (serializedObject.targetObject == null)
+            {
+                EditorGUILayout.HelpBox("Script is missing", MessageType.Warning);
+                return;
+            }
+
+            if (TriGuiHelper.IsEditorTargetPushed(serializedObject.targetObject))
+            {
+                GUILayout.Label("Recursive inline editors not supported");
+                return;
+            }
+
             if (_inspector == null)
             {
-                if (serializedObject.targetObjects.Length == 0)
-                {
-                    return;
-                }
-
-                if (serializedObject.targetObject == null)
-                {
-                    EditorGUILayout.HelpBox("Script is missing", MessageType.Warning);
-                    return;
-                }
-
                 _inspector = new TriPropertyTreeForSerializedObject(serializedObject);
             }
 
