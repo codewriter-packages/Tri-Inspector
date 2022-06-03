@@ -1,7 +1,6 @@
 ﻿using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Profiling;
 
 namespace TriInspector
 {
@@ -37,40 +36,16 @@ namespace TriInspector
 
             serializedObject.UpdateIfRequiredOrScript();
 
-            Profiler.BeginSample("TriInspector.Update()");
-            try
+            _inspector.Update();
+
+            if (_inspector.ValidationRequired)
             {
-                _inspector.Update();
-            }
-            finally
-            {
-                Profiler.EndSample();
+                _inspector.RunValidation();
             }
 
-            Profiler.BeginSample("TriInspector.RunValidation()");
-            try
+            using (TriGuiHelper.PushEditorTarget(target))
             {
-                if (_inspector.ValidationRequired)
-                {
-                    _inspector.RunValidation();
-                }
-            }
-            finally
-            {
-                Profiler.EndSample();
-            }
-
-            Profiler.BeginSample("TriInspector.DoLayout()");
-            try
-            {
-                using (TriGuiHelper.PushEditorTarget(target))
-                {
-                    _inspector.Draw();
-                }
-            }
-            finally
-            {
-                Profiler.EndSample();
+                _inspector.Draw();
             }
 
             if (serializedObject.ApplyModifiedProperties())
