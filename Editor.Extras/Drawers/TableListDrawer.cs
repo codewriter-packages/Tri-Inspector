@@ -368,7 +368,14 @@ namespace TriInspector.Drawers
                 }
                 else
                 {
-                    AddChild(new TriLabelElement("[TableList] cannot be used on non generic elements"));
+                    var element = new TriPropertyElement(property, new TriPropertyElement.Props
+                    {
+                        forceInline = true,
+                    });
+                    var headerContent = new GUIContent("Element");
+
+                    AddChild(element);
+                    Elements.Add(new KeyValuePair<TriElement, GUIContent>(element, headerContent));
                 }
             }
 
