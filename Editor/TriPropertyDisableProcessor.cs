@@ -3,14 +3,9 @@ using JetBrains.Annotations;
 
 namespace TriInspector
 {
-    public abstract class TriPropertyDisableProcessor
+    public abstract class TriPropertyDisableProcessor : TriPropertyExtension
     {
         internal Attribute RawAttribute { get; set; }
-
-        [PublicAPI]
-        public virtual void Initialize(TriPropertyDefinition propertyDefinition)
-        {
-        }
 
         [PublicAPI]
         public abstract bool IsDisabled(TriProperty property);

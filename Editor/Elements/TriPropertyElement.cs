@@ -1,5 +1,4 @@
 ﻿using System;
-using TriInspector.Utilities;
 using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEngine;
@@ -25,16 +24,7 @@ namespace TriInspector.Elements
             var drawers = property.AllDrawers;
             for (var index = drawers.Count - 1; index >= 0; index--)
             {
-                var drawer = drawers[index];
-
-                var canDrawMessage = drawer.CanDraw(_property);
-                if (!string.IsNullOrEmpty(canDrawMessage))
-                {
-                    AddChild(new TriInfoBoxElement(canDrawMessage, TriMessageType.Error));
-                    continue;
-                }
-
-                element = drawer.CreateElementInternal(property, element);
+                element = drawers[index].CreateElementInternal(property, element);
             }
 
             AddChild(element);

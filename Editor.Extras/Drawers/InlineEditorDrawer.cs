@@ -13,9 +13,9 @@ namespace TriInspector.Drawers
 {
     public class InlineEditorDrawer : TriAttributeDrawer<InlineEditorAttribute>
     {
-        public override string CanDraw(TriProperty property)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
-            if (!typeof(Object).IsAssignableFrom(property.FieldType))
+            if (!typeof(Object).IsAssignableFrom(propertyDefinition.FieldType))
             {
                 return "[InlineEditor] valid only on Object fields";
             }

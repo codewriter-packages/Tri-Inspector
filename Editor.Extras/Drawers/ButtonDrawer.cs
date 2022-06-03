@@ -14,21 +14,15 @@ namespace TriInspector.Drawers
     {
         private ValueResolver<string> _nameResolver;
 
-        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
-            base.Initialize(propertyDefinition);
-
-            _nameResolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Name);
-        }
-
-        public override string CanDraw(TriProperty property)
-        {
-            var isValidMethod = property.MemberInfo is MethodInfo mi && mi.GetParameters().Length == 0;
+            var isValidMethod = propertyDefinition.MemberInfo is MethodInfo mi && mi.GetParameters().Length == 0;
             if (!isValidMethod)
             {
                 return "[Button] valid only on methods without parameters";
             }
 
+            _nameResolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Name);
             if (_nameResolver.TryGetErrorString(out var error))
             {
                 return error;

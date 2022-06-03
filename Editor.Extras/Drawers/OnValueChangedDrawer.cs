@@ -10,21 +10,17 @@ namespace TriInspector.Drawers
     {
         private ActionResolver _actionResolver;
 
-        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
             _actionResolver = ActionResolver.Resolve(propertyDefinition, Attribute.Method);
-        }
-
-        public override string CanDraw(TriProperty property)
-        {
             if (_actionResolver.TryGetErrorString(out var error))
             {
                 return error;
             }
 
-            return base.CanDraw(property);
+            return null;
         }
 
         public override TriElement CreateElement(TriProperty property, TriElement next)

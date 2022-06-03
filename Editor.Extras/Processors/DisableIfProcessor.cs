@@ -19,11 +19,17 @@ namespace TriInspector.Processors
             _inverse = inverse;
         }
 
-        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
             _conditionResolver = ValueResolver.Resolve<object>(propertyDefinition, Attribute.Condition);
+            if (_conditionResolver.TryGetErrorString(out var error))
+            {
+                return error;
+            }
+
+            return null;
         }
 
         public sealed override bool IsDisabled(TriProperty property)

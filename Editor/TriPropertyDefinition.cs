@@ -103,13 +103,8 @@ namespace TriInspector
                 {
                     _hideProcessorsBackingField =
                         TriDrawersUtilities.CreateHideProcessorsFor(Attributes)
-                            .Where(it => CanApplyOn(this, applyOnArrayElement: false))
+                            .Where(CanApplyExtensionOnSelf)
                             .ToList();
-
-                    foreach (var processor in _hideProcessorsBackingField)
-                    {
-                        processor.Initialize(this);
-                    }
                 }
 
                 return _hideProcessorsBackingField;
@@ -124,13 +119,8 @@ namespace TriInspector
                 {
                     _disableProcessorsBackingField =
                         TriDrawersUtilities.CreateDisableProcessorsFor(Attributes)
-                            .Where(it => CanApplyOn(this, applyOnArrayElement: false))
+                            .Where(CanApplyExtensionOnSelf)
                             .ToList();
-
-                    foreach (var processor in _disableProcessorsBackingField)
-                    {
-                        processor.Initialize(this);
-                    }
                 }
 
                 return _disableProcessorsBackingField;
@@ -150,14 +140,9 @@ namespace TriInspector
                         {
                             new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
                         })
-                        .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
+                        .Where(CanApplyExtensionOnSelf)
                         .OrderBy(it => it.Order)
                         .ToList();
-
-                    foreach (var drawer in _drawersBackingField)
-                    {
-                        drawer.Initialize(this);
-                    }
                 }
 
                 return _drawersBackingField;
@@ -173,13 +158,8 @@ namespace TriInspector
                     _validatorsBackingField = Enumerable.Empty<TriValidator>()
                         .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
                         .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
-                        .Where(it => CanApplyOn(this, it.ApplyOnArrayElement))
+                        .Where(CanApplyExtensionOnSelf)
                         .ToList();
-
-                    foreach (var validator in _validatorsBackingField)
-                    {
-                        validator.Initialize(this);
-                    }
                 }
 
                 return _validatorsBackingField;
@@ -296,16 +276,23 @@ namespace TriInspector
             };
         }
 
-        private static bool CanApplyOn(TriPropertyDefinition definition, bool? applyOnArrayElement)
+        private bool CanApplyExtensionOnSelf(TriPropertyExtension propertyExtension)
         {
-            if (!applyOnArrayElement.HasValue)
+            if (propertyExtension.ApplyOnArrayElement.HasValue)
             {
-                return true;
+                if (IsArrayElement && !propertyExtension.ApplyOnArrayElement.Value ||
+                    IsArray && propertyExtension.ApplyOnArrayElement.Value)
+                {
+                    return false;
+                }
             }
 
-            if (definition.IsArrayElement && !applyOnArrayElement.Value ||
-                definition.IsArray && applyOnArrayElement.Value)
+            var error = propertyExtension.Initialize(this);
+            if (error != null)
             {
+                var message = $"Extension {propertyExtension.GetType()} cannot be applied " +
+                              $"on property '{MemberInfo?.DeclaringType}.{Name}': {error}";
+                Debug.LogError(message);
                 return false;
             }
 

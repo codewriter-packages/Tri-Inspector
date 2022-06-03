@@ -16,9 +16,9 @@ namespace TriInspector.Drawers
 {
     public class TableListDrawer : TriAttributeDrawer<TableListAttribute>
     {
-        public override string CanDraw(TriProperty property)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
-            if (property.PropertyType != TriPropertyType.Array)
+            if (!propertyDefinition.IsArray)
             {
                 return "[TableList] valid only on lists";
             }

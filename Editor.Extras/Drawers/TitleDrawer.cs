@@ -17,21 +17,18 @@ namespace TriInspector.Drawers
 
         private ValueResolver<string> _titleResolver;
 
-        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
             _titleResolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Title);
-        }
 
-        public override string CanDraw(TriProperty property)
-        {
             if (_titleResolver.TryGetErrorString(out var error))
             {
                 return error;
             }
 
-            return base.CanDraw(property);
+            return null;
         }
 
         public override float GetHeight(float width, TriProperty property, TriElement next)

@@ -1,18 +1,10 @@
 ﻿using System;
 using JetBrains.Annotations;
-using UnityEditor;
 
 namespace TriInspector
 {
-    public abstract class TriValidator
+    public abstract class TriValidator : TriPropertyExtension
     {
-        internal bool ApplyOnArrayElement { get; set; }
-
-        [PublicAPI]
-        public virtual void Initialize(TriPropertyDefinition propertyDefinition)
-        {
-        }
-
         [PublicAPI]
         public abstract TriValidationResult Validate(TriProperty property);
     }

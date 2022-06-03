@@ -10,11 +10,18 @@ namespace TriInspector.Validators
     {
         private ValueResolver<TriValidationResult> _resolver;
 
-        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
             _resolver = ValueResolver.Resolve<TriValidationResult>(propertyDefinition, Attribute.Method);
+
+            if (_resolver.TryGetErrorString(out var error))
+            {
+                return error;
+            }
+
+            return null;
         }
 
         public override TriValidationResult Validate(TriProperty property)

@@ -11,14 +11,25 @@ namespace TriInspector.Validators
         private ValueResolver<string> _resolver;
         private ValueResolver<bool> _visibleIfResolver;
 
-        public override void Initialize(TriPropertyDefinition propertyDefinition)
+        public override string Initialize(TriPropertyDefinition propertyDefinition)
         {
-            base.Initialize(propertyDefinition);
-
             _resolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Text);
             _visibleIfResolver = Attribute.VisibleIf != null
                 ? ValueResolver.Resolve<bool>(propertyDefinition, Attribute.VisibleIf)
                 : null;
+
+            if (_resolver.TryGetErrorString(out var error))
+            {
+                return error;
+            }
+
+            if (_visibleIfResolver != null &&
+                _visibleIfResolver.TryGetErrorString(out var error2))
+            {
+                return error2;
+            }
+
+            return null;
         }
 
         public override TriValidationResult Validate(TriProperty property)
