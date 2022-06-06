@@ -33,6 +33,11 @@ namespace TriInspector.Drawers
 
         public override float GetHeight(float width, TriProperty property, TriElement next)
         {
+            if (Attribute.ButtonSize != 0)
+            {
+                return Attribute.ButtonSize;
+            }
+
             return EditorGUIUtility.singleLineHeight;
         }
 
