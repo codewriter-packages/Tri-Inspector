@@ -11,6 +11,11 @@ namespace TriInspector
         public float SpaceBefore { get; set; }
         public float SpaceAfter { get; set; }
 
+        public PropertySpaceAttribute()
+        {
+            SpaceBefore = 7;
+        }
+
         public PropertySpaceAttribute(float spaceBefore = 0, float spaceAfter = 0)
         {
             SpaceBefore = spaceBefore;
