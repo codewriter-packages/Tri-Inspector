@@ -39,7 +39,7 @@ namespace TriInspector.Elements
         {
             if (!_property.IsVisible)
             {
-                return 0f;
+                return -EditorGUIUtility.standardVerticalSpacing;
             }
 
             return base.GetHeight(width);
