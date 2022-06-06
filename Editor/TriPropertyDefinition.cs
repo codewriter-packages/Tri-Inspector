@@ -167,21 +167,38 @@ namespace TriInspector
 
         private IReadOnlyList<TriPropertyHideProcessor> PopulateHideProcessor()
         {
-            return _hideProcessorsBackingField ??= TriDrawersUtilities.CreateHideProcessorsFor(Attributes)
+            if (_hideProcessorsBackingField != null)
+            {
+                return _hideProcessorsBackingField;
+            }
+
+            return _hideProcessorsBackingField = TriDrawersUtilities
+                .CreateHideProcessorsFor(Attributes)
                 .Where(CanApplyExtensionOnSelf)
                 .ToList();
         }
 
         private IReadOnlyList<TriPropertyDisableProcessor> PopulateDisableProcessors()
         {
-            return _disableProcessorsBackingField ??= TriDrawersUtilities.CreateDisableProcessorsFor(Attributes)
+            if (_disableProcessorsBackingField != null)
+            {
+                return _disableProcessorsBackingField;
+            }
+
+            return _disableProcessorsBackingField = TriDrawersUtilities
+                .CreateDisableProcessorsFor(Attributes)
                 .Where(CanApplyExtensionOnSelf)
                 .ToList();
         }
 
         private IReadOnlyList<TriValidator> PopulateValidators()
         {
-            return _validatorsBackingField ??= Enumerable.Empty<TriValidator>()
+            if (_validatorsBackingField != null)
+            {
+                return _validatorsBackingField;
+            }
+
+            return _validatorsBackingField = Enumerable.Empty<TriValidator>()
                 .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
                 .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
                 .Where(CanApplyExtensionOnSelf)
@@ -190,7 +207,12 @@ namespace TriInspector
 
         private IReadOnlyList<TriCustomDrawer> PopulateDrawers()
         {
-            return _drawersBackingField ??= Enumerable.Empty<TriCustomDrawer>()
+            if (_drawersBackingField != null)
+            {
+                return _drawersBackingField;
+            }
+
+            return _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
                 .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
                 .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
                 .Concat(new[]
