@@ -1,8 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities;
-using Sirenix.Utilities.Editor;
-using TriInspector.Utilities;
 using UnityEngine;
 
 namespace TriInspector.Editor.Integrations.Odin
@@ -10,11 +8,17 @@ namespace TriInspector.Editor.Integrations.Odin
     [DrawerPriority(0.0, 10000.0, 1.0)]
     public class OdinFieldDrawer<T> : OdinValueDrawer<T>, IDisposable
     {
+        private bool _initialized;
         private TriPropertyTree _propertyTree;
         private LabelOverrideContext _labelOverrideContext;
 
         public override bool CanDrawTypeFilter(Type type)
         {
+            if (type == null)
+            {
+                return false;
+            }
+
             if (typeof(UnityEngine.Object).IsAssignableFrom(type))
             {
                 return false;
@@ -49,14 +53,6 @@ namespace TriInspector.Editor.Integrations.Odin
             return true;
         }
 
-        protected override void Initialize()
-        {
-            base.Initialize();
-
-            _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
-            _labelOverrideContext = new LabelOverrideContext(_propertyTree);
-        }
-
         public void Dispose()
         {
             _propertyTree?.Dispose();
@@ -64,6 +60,13 @@ namespace TriInspector.Editor.Integrations.Odin
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
+            if (!_initialized)
+            {
+                _initialized = true;
+                _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
+                _labelOverrideContext = new LabelOverrideContext(_propertyTree);
+            }
+
             _propertyTree.Update();
 
             if (_propertyTree.ValidationRequired)

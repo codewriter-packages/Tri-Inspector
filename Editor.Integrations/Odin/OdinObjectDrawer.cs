@@ -10,10 +10,16 @@ namespace TriInspector.Editor.Integrations.Odin
     public class OdinObjectDrawer<T> : OdinValueDrawer<T>, IDisposable
         where T : UnityEngine.Object
     {
+        private bool _initialized;
         private TriPropertyTree _propertyTree;
 
         public override bool CanDrawTypeFilter(Type type)
         {
+            if (type == null)
+            {
+                return false;
+            }
+
             if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
                 !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
             {
@@ -38,14 +44,6 @@ namespace TriInspector.Editor.Integrations.Odin
             return true;
         }
 
-        protected override void Initialize()
-        {
-            base.Initialize();
-
-            var serializedObject = Property.Tree.UnitySerializedObject;
-            _propertyTree = new TriPropertyTreeForSerializedObject(serializedObject);
-        }
-
         public void Dispose()
         {
             _propertyTree?.Dispose();
@@ -57,6 +55,13 @@ namespace TriInspector.Editor.Integrations.Odin
             {
                 GUILayout.Label("Recursive inline editors not supported");
                 return;
+            }
+
+            if (!_initialized)
+            {
+                _initialized = true;
+                var serializedObject = Property.Tree.UnitySerializedObject;
+                _propertyTree = new TriPropertyTreeForSerializedObject(serializedObject);
             }
 
             _propertyTree.Update();

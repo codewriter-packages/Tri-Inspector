@@ -10,6 +10,7 @@ namespace TriInspector.Editor.Integrations.Odin
 {
     public class OdinFieldValidator<T> : ValueValidator<T>, IDisposable
     {
+        private bool _initialized;
         private TriPropertyTreeForOdin<T> _propertyTree;
 
         public override RevalidationCriteria RevalidationCriteria { get; }
@@ -22,7 +23,12 @@ namespace TriInspector.Editor.Integrations.Odin
                 return false;
             }
 
-            var type = property.ValueEntry.TypeOfValue;
+            var type = property.Info.TypeOfValue;
+
+            if (type == null)
+            {
+                return false;
+            }
 
             if (typeof(UnityEngine.Object).IsAssignableFrom(type))
             {
@@ -37,7 +43,7 @@ namespace TriInspector.Editor.Integrations.Odin
 
             for (var parent = property.Parent; parent != null; parent = parent.Parent)
             {
-                var parentType = parent.ValueEntry.TypeOfValue;
+                var parentType = parent.Info.TypeOfValue;
                 if (parentType.IsDefined<DrawWithTriInspectorAttribute>() ||
                     parentType.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
                 {
@@ -48,18 +54,19 @@ namespace TriInspector.Editor.Integrations.Odin
             return true;
         }
 
-        protected override void Initialize()
-        {
-            _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
-        }
-
         public void Dispose()
         {
-            _propertyTree.Dispose();
+            _propertyTree?.Dispose();
         }
 
         protected override void Validate(ValidationResult result)
         {
+            if (!_initialized)
+            {
+                _initialized = true;
+                _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
+            }
+
             _propertyTree.Update();
             _propertyTree.RunValidation();
             _propertyTree.CopyValidationResultsTo(result);
