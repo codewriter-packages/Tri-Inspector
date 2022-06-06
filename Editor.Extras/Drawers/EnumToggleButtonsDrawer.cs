@@ -14,14 +14,14 @@ namespace TriInspector.Drawers
 {
     public class EnumToggleButtonsDrawer : TriAttributeDrawer<EnumToggleButtonsAttribute>
     {
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             if (!propertyDefinition.FieldType.IsEnum)
             {
                 return "EnumToggleButtons attribute can be used only on enums";
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public override TriElement CreateElement(TriProperty property, TriElement next)

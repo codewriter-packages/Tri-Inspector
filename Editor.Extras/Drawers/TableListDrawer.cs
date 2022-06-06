@@ -16,14 +16,14 @@ namespace TriInspector.Drawers
 {
     public class TableListDrawer : TriAttributeDrawer<TableListAttribute>
     {
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             if (!propertyDefinition.IsArray)
             {
                 return "[TableList] valid only on lists";
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public override TriElement CreateElement(TriProperty property, TriElement next)

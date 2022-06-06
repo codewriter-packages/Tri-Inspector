@@ -35,6 +35,30 @@ namespace TriInspector.Resolvers
 
             return new ConstantValueResolver<string>(expression);
         }
+
+        public static bool TryGetErrorString<T>([CanBeNull] ValueResolver<T> resolver, out string error)
+        {
+            return TryGetErrorString<T, T>(resolver, null, out error);
+        }
+
+        public static bool TryGetErrorString<T1, T2>(ValueResolver<T1> resolver1, ValueResolver<T2> resolver2,
+            out string error)
+        {
+            if (resolver1 != null && resolver1.TryGetErrorString(out var error1))
+            {
+                error = error1;
+                return true;
+            }
+
+            if (resolver2 != null && resolver2.TryGetErrorString(out var error2))
+            {
+                error = error2;
+                return true;
+            }
+
+            error = null;
+            return false;
+        }
     }
 
     public abstract class ValueResolver<T>

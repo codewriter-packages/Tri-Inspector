@@ -14,7 +14,7 @@ namespace TriInspector.Drawers
     {
         private ValueResolver<string> _nameResolver;
 
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             var isValidMethod = propertyDefinition.MemberInfo is MethodInfo mi && mi.GetParameters().Length == 0;
             if (!isValidMethod)
@@ -28,7 +28,7 @@ namespace TriInspector.Drawers
                 return error;
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public override float GetHeight(float width, TriProperty property, TriElement next)

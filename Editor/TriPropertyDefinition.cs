@@ -15,6 +15,8 @@ namespace TriInspector
         private readonly ValueGetterDelegate _valueGetter;
         [CanBeNull] private readonly ValueSetterDelegate _valueSetter;
 
+        private readonly List<string> _extensionErrors = new List<string>();
+
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
         private IReadOnlyList<TriCustomDrawer> _drawersBackingField;
@@ -95,74 +97,20 @@ namespace TriInspector
         [CanBeNull] public ValueResolver<string> CustomLabel { get; }
         [CanBeNull] public ValueResolver<string> CustomTooltip { get; }
 
-        public IReadOnlyList<TriPropertyHideProcessor> HideProcessors
+        public IReadOnlyList<TriPropertyHideProcessor> HideProcessors => PopulateHideProcessor();
+        public IReadOnlyList<TriPropertyDisableProcessor> DisableProcessors => PopulateDisableProcessors();
+        public IReadOnlyList<TriCustomDrawer> Drawers => PopulateDrawers();
+        public IReadOnlyList<TriValidator> Validators => PopulateValidators();
+
+        internal IReadOnlyList<string> ExtensionErrors
         {
             get
             {
-                if (_hideProcessorsBackingField == null)
-                {
-                    _hideProcessorsBackingField =
-                        TriDrawersUtilities.CreateHideProcessorsFor(Attributes)
-                            .Where(CanApplyExtensionOnSelf)
-                            .ToList();
-                }
-
-                return _hideProcessorsBackingField;
-            }
-        }
-
-        public IReadOnlyList<TriPropertyDisableProcessor> DisableProcessors
-        {
-            get
-            {
-                if (_disableProcessorsBackingField == null)
-                {
-                    _disableProcessorsBackingField =
-                        TriDrawersUtilities.CreateDisableProcessorsFor(Attributes)
-                            .Where(CanApplyExtensionOnSelf)
-                            .ToList();
-                }
-
-                return _disableProcessorsBackingField;
-            }
-        }
-
-        public IReadOnlyList<TriCustomDrawer> Drawers
-        {
-            get
-            {
-                if (_drawersBackingField == null)
-                {
-                    _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
-                        .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
-                        .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
-                        .Concat(new[]
-                        {
-                            new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
-                        })
-                        .Where(CanApplyExtensionOnSelf)
-                        .OrderBy(it => it.Order)
-                        .ToList();
-                }
-
-                return _drawersBackingField;
-            }
-        }
-
-        public IReadOnlyList<TriValidator> Validators
-        {
-            get
-            {
-                if (_validatorsBackingField == null)
-                {
-                    _validatorsBackingField = Enumerable.Empty<TriValidator>()
-                        .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
-                        .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
-                        .Where(CanApplyExtensionOnSelf)
-                        .ToList();
-                }
-
-                return _validatorsBackingField;
+                PopulateHideProcessor();
+                PopulateDisableProcessors();
+                PopulateDrawers();
+                PopulateValidators();
+                return _extensionErrors;
             }
         }
 
@@ -215,6 +163,43 @@ namespace TriInspector
 
                 return _arrayElementDefinitionBackingField;
             }
+        }
+
+        private IReadOnlyList<TriPropertyHideProcessor> PopulateHideProcessor()
+        {
+            return _hideProcessorsBackingField ??= TriDrawersUtilities.CreateHideProcessorsFor(Attributes)
+                .Where(CanApplyExtensionOnSelf)
+                .ToList();
+        }
+
+        private IReadOnlyList<TriPropertyDisableProcessor> PopulateDisableProcessors()
+        {
+            return _disableProcessorsBackingField ??= TriDrawersUtilities.CreateDisableProcessorsFor(Attributes)
+                .Where(CanApplyExtensionOnSelf)
+                .ToList();
+        }
+
+        private IReadOnlyList<TriValidator> PopulateValidators()
+        {
+            return _validatorsBackingField ??= Enumerable.Empty<TriValidator>()
+                .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
+                .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
+                .Where(CanApplyExtensionOnSelf)
+                .ToList();
+        }
+
+        private IReadOnlyList<TriCustomDrawer> PopulateDrawers()
+        {
+            return _drawersBackingField ??= Enumerable.Empty<TriCustomDrawer>()
+                .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
+                .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
+                .Concat(new[]
+                {
+                    new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
+                })
+                .Where(CanApplyExtensionOnSelf)
+                .OrderBy(it => it.Order)
+                .ToList();
         }
 
         private static ValueGetterDelegate MakeGetter(FieldInfo fi)
@@ -287,16 +272,13 @@ namespace TriInspector
                 }
             }
 
-            var error = propertyExtension.Initialize(this);
-            if (error != null)
+            var result = propertyExtension.Initialize(this);
+            if (result.IsError)
             {
-                var message = $"Extension {propertyExtension.GetType()} cannot be applied " +
-                              $"on property '{MemberInfo?.DeclaringType}.{Name}': {error}";
-                Debug.LogError(message);
-                return false;
+                _extensionErrors.Add(result.ErrorMessage);
             }
 
-            return true;
+            return result.ShouldApply;
         }
 
         public delegate object ValueGetterDelegate(TriProperty self, int targetIndex);

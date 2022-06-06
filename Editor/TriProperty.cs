@@ -188,6 +188,8 @@ namespace TriInspector
 
         public IReadOnlyList<TriCustomDrawer> AllDrawers => _definition.Drawers;
 
+        internal IReadOnlyList<string> ExtensionErrors => _definition.ExtensionErrors;
+
         public bool HasValidators => _definition.Validators.Count != 0;
 
         public IReadOnlyList<TriValidationResult> ValidationResults =>

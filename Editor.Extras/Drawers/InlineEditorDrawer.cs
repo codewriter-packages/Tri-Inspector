@@ -13,14 +13,14 @@ namespace TriInspector.Drawers
 {
     public class InlineEditorDrawer : TriAttributeDrawer<InlineEditorAttribute>
     {
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             if (!typeof(Object).IsAssignableFrom(propertyDefinition.FieldType))
             {
                 return "[InlineEditor] valid only on Object fields";
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public override TriElement CreateElement(TriProperty property, TriElement next)

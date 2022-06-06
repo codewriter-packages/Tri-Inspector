@@ -19,7 +19,7 @@ namespace TriInspector.Processors
             _inverse = inverse;
         }
 
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
@@ -29,7 +29,7 @@ namespace TriInspector.Processors
                 return error;
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public sealed override bool IsDisabled(TriProperty property)

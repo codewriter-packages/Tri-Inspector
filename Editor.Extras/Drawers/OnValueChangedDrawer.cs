@@ -10,7 +10,7 @@ namespace TriInspector.Drawers
     {
         private ActionResolver _actionResolver;
 
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
@@ -20,7 +20,7 @@ namespace TriInspector.Drawers
                 return error;
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public override TriElement CreateElement(TriProperty property, TriElement next)

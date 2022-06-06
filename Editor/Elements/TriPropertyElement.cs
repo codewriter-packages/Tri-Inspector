@@ -19,6 +19,11 @@ namespace TriInspector.Elements
         {
             _property = property;
 
+            foreach (var error in _property.ExtensionErrors)
+            {
+                AddChild(new TriInfoBoxElement(error, TriMessageType.Error));
+            }
+
             var element = CreateElement(property, props);
 
             var drawers = property.AllDrawers;

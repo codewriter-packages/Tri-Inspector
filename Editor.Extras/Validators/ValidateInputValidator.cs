@@ -10,7 +10,7 @@ namespace TriInspector.Validators
     {
         private ValueResolver<TriValidationResult> _resolver;
 
-        public override string Initialize(TriPropertyDefinition propertyDefinition)
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
             base.Initialize(propertyDefinition);
 
@@ -21,7 +21,7 @@ namespace TriInspector.Validators
                 return error;
             }
 
-            return null;
+            return TriExtensionInitializationResult.Ok;
         }
 
         public override TriValidationResult Validate(TriProperty property)
