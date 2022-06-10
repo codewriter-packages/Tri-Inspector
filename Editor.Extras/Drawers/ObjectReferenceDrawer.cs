@@ -16,11 +16,6 @@ namespace TriInspector.Drawers
             {
                 return next;
             }
-            
-            if (value.Property.TryGetSerializedProperty(out _))
-            {
-                return next;
-            }
 
             return new ObjectReferenceDrawerElement(value);
         }
@@ -28,10 +23,13 @@ namespace TriInspector.Drawers
         private class ObjectReferenceDrawerElement : TriElement
         {
             private TriValue<T> _propertyValue;
+            private readonly bool _allowSceneObjects;
 
             public ObjectReferenceDrawerElement(TriValue<T> propertyValue)
             {
                 _propertyValue = propertyValue;
+                _allowSceneObjects = propertyValue.Property.PropertyTree.TargetIsPersistent &&
+                                     propertyValue.Property.TryGetAttribute(out AssetsOnlyAttribute _) == false;
             }
 
             public override float GetHeight(float width)
@@ -41,18 +39,27 @@ namespace TriInspector.Drawers
 
             public override void OnGUI(Rect position)
             {
-                var value = _propertyValue.SmartValue;
+                var hasSerializedProperty = _propertyValue.Property
+                    .TryGetSerializedProperty(out var serializedProperty);
+
+                var value = hasSerializedProperty ? serializedProperty.objectReferenceValue : _propertyValue.SmartValue;
 
                 EditorGUI.BeginChangeCheck();
 
-                var allowSceneObjects = _propertyValue.Property.PropertyTree.TargetIsPersistent;
-
-                value = (T) EditorGUI.ObjectField(position, _propertyValue.Property.DisplayNameContent, value,
-                    _propertyValue.Property.FieldType, allowSceneObjects);
+                value = EditorGUI.ObjectField(position, _propertyValue.Property.DisplayNameContent, value,
+                    _propertyValue.Property.FieldType, _allowSceneObjects);
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    _propertyValue.SmartValue = value;
+                    if (hasSerializedProperty)
+                    {
+                        serializedProperty.objectReferenceValue = value;
+                        _propertyValue.Property.NotifyValueChanged();
+                    }
+                    else
+                    {
+                        _propertyValue.SmartValue = (T) value;
+                    }
                 }
             }
         }

@@ -155,6 +155,15 @@ private string DynamicInfo => "Dynamic info box: " + DateTime.Now.ToLongTimeStri
 private bool VisibleInEditMode => !Application.isPlaying;
 ```
 
+#### AssetsOnly
+
+![AssetsOnly](https://user-images.githubusercontent.com/26966368/173064367-3cfb17f7-e050-4fcb-9b0c-f8710f1716e7.png)
+
+```csharp
+[AssetsOnly]
+public GameObject obj;
+```
+
 ### Styling
 
 #### Title
