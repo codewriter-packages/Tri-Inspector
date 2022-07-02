@@ -22,7 +22,9 @@ namespace TriInspectorUnityInternalBridge
 
         public static void ClearCacheRecursive(ReorderableList list)
         {
-#if UNITY_2020_2_OR_NEWER
+#if UNITY_2021_3_OR_NEWER
+            list.InvalidateCacheRecursive();
+#elif UNITY_2020_2_OR_NEWER
             list.ClearCacheRecursive();
 #endif
         }
