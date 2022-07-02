@@ -16,10 +16,21 @@ namespace TriInspector.Validators
                 serializedProperty.objectReferenceValue == null &&
                 serializedProperty.objectReferenceInstanceIDValue != 0)
             {
-                return TriValidationResult.Warning($"{propertyValue.Property.DisplayName} is missing");
+                return TriValidationResult.Warning($"{GetName(propertyValue.Property)} is missing");
             }
 
             return TriValidationResult.Valid;
+        }
+
+        private static string GetName(TriProperty property)
+        {
+            var name = property.DisplayName;
+            if (string.IsNullOrEmpty(name))
+            {
+                name = property.RawName;
+            }
+
+            return name;
         }
     }
 }
