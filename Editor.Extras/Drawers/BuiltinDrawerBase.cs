@@ -21,8 +21,9 @@ namespace TriInspector.Drawers
         public sealed override float GetHeight(float width, TriValue<T> propertyValue, TriElement next)
         {
             var lineHeight = EditorGUIUtility.singleLineHeight;
+            var spacing = EditorGUIUtility.standardVerticalSpacing;
             var lines = EditorGUIUtility.wideMode ? WideModeLines : CompactModeLines;
-            return lineHeight * lines;
+            return lineHeight * lines + spacing * (lines - 1);
         }
 
         public sealed override void OnGUI(Rect position, TriValue<T> propertyValue, TriElement next)
