@@ -47,6 +47,7 @@ namespace TriInspector.Utilities
                 type == typeof(Vector3Int) ||
                 type == typeof(Vector4) ||
                 type == typeof(Color) ||
+                type == typeof(Color32) ||
                 type == typeof(LayerMask) ||
                 type == typeof(Rect) ||
                 type == typeof(RectInt) ||

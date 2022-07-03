@@ -9,6 +9,7 @@ using UnityEngine;
 [assembly: RegisterTriValueDrawer(typeof(FloatDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(StringDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(ColorDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(Color32Drawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(LayerMaskDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(EnumDrawer<>), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(Vector2Drawer), TriDrawerOrder.Fallback)]
@@ -52,6 +53,14 @@ namespace TriInspector.Drawers
     public class ColorDrawer : BuiltinDrawerBase<Color>
     {
         protected override Color OnValueGUI(Rect position, GUIContent label, Color value)
+        {
+            return EditorGUI.ColorField(position, label, value);
+        }
+    }
+
+    public class Color32Drawer : BuiltinDrawerBase<Color32>
+    {
+        protected override Color32 OnValueGUI(Rect position, GUIContent label, Color32 value)
         {
             return EditorGUI.ColorField(position, label, value);
         }
