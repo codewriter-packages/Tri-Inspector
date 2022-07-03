@@ -5,7 +5,17 @@ using UnityEngine;
 namespace TriInspector
 {
     [CanEditMultipleObjects]
-    [CustomEditor(typeof(Object), editorForChildClasses: true, isFallback = true)]
+    [CustomEditor(typeof(MonoBehaviour), editorForChildClasses: true, isFallback = true)]
+    internal sealed class TriMonoBehaviourEditor : TriEditor
+    {
+    }
+
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(ScriptableObject), editorForChildClasses: true, isFallback = true)]
+    internal sealed class TriScriptableObjectEditor : TriEditor
+    {
+    }
+
     public class TriEditor : Editor
     {
         private TriPropertyTreeForSerializedObject _inspector;
