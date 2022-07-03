@@ -48,7 +48,7 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        public void Draw()
+        public void Draw(float? viewWidth = null)
         {
             RepaintRequired = false;
 
@@ -62,7 +62,7 @@ namespace TriInspector
             }
 
             _rootPropertyElement.Update();
-            var width = EditorGUIUtility.currentViewWidth;
+            var width = viewWidth ?? EditorGUIUtility.currentViewWidth;
             var height = _rootPropertyElement.GetHeight(width);
             var rect = GUILayoutUtility.GetRect(width, height);
             rect.xMin += 3;
