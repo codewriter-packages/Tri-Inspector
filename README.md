@@ -6,6 +6,7 @@ _Advanced inspector attributes for Unity_
 
 - [How to Install](#How-to-Install)
 - [Roadmap](#Roadmap)
+- [Samples](#Samples)
 - [Attributes](#Attributes)
     - [Misc](#Misc)
     - [Validation](#Validation)
@@ -34,6 +35,11 @@ After package installation **run the Installer** by double clicking on it.
 
 ## Roadmap ![GitHub Repo stars](https://img.shields.io/github/stars/codewriter-packages/Tri-Inspector?style=social)
 Each star ★ on the project page brings new features closer. See roadmap and more info [here](https://github.com/codewriter-packages/Tri-Inspector/issues/9).
+
+## Samples
+
+TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
+![Samples](https://user-images.githubusercontent.com/26966368/177045336-a3fcf438-3e70-45d0-b753-299e577b2010.png)
 
 ## Attributes
 
