@@ -10,7 +10,7 @@ using UnityEngine;
 [assembly: RegisterTriValueDrawer(typeof(StringDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(ColorDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(LayerMaskDrawer), TriDrawerOrder.Fallback)]
-[assembly: RegisterTriValueDrawer(typeof(EnumDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(EnumDrawer<>), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(Vector2Drawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(Vector3Drawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(Vector4Drawer), TriDrawerOrder.Fallback)]
@@ -65,11 +65,11 @@ namespace TriInspector.Drawers
         }
     }
 
-    public class EnumDrawer : BuiltinDrawerBase<Enum>
+    public class EnumDrawer<T> : BuiltinDrawerBase<T> where T : Enum
     {
-        protected override Enum OnValueGUI(Rect position, GUIContent label, Enum value)
+        protected override T OnValueGUI(Rect position, GUIContent label, T value)
         {
-            return EditorGUI.EnumPopup(position, label, value);
+            return (T) EditorGUI.EnumPopup(position, label, value);
         }
     }
 
