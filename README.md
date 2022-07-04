@@ -10,6 +10,7 @@ _Advanced inspector attributes for Unity_
 - [Attributes](#Attributes)
     - [Misc](#Misc)
     - [Validation](#Validation)
+    - [Decorators](#Decorators)
     - [Styling](#Styling)
     - [Collections](#Collections)
     - [Conditionals](#Conditionals)
@@ -168,6 +169,32 @@ private bool VisibleInEditMode => !Application.isPlaying;
 ```csharp
 [AssetsOnly]
 public GameObject obj;
+```
+
+### Decorators
+
+#### Dropdown
+
+![Dropdown](https://user-images.githubusercontent.com/26966368/177182904-8bb40579-3dc5-441b-8f6b-3ff3d274f71f.png)
+
+```csharp
+[Dropdown(nameof(intValues))]
+public int intValue = 1;
+
+[Dropdown(nameof(GetVectorValues))]
+public Vector3 vectorValue;
+
+private int[] intValues = {1, 2, 3, 4, 5};
+
+private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
+{
+    return new TriDropdownList<Vector3>
+    {
+        {"Zero", Vector3.zero},
+        {"One/Forward", Vector3.forward},
+        {"One/Backward", Vector3.back},
+    };
+}
 ```
 
 ### Styling
