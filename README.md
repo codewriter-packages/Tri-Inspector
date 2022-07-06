@@ -534,35 +534,66 @@ public Vector3 vec;
 
 ### Groups
 
-![Groups](https://user-images.githubusercontent.com/26966368/168236396-b28eba4a-7fe7-4a5c-b185-55fabf1aabf5.png)
+#### Box Group
+
+![BoxGroup](https://user-images.githubusercontent.com/26966368/177552426-8124b445-e235-43a2-9143-dd5d954dd9f8.png)
 
 ```csharp
-[DeclareHorizontalGroup("header")]
-[DeclareBoxGroup("header/left", Title = "My Left Box")]
-[DeclareVerticalGroup("header/right")]
-[DeclareBoxGroup("header/right/top", Title = "My Right Box")]
-[DeclareTabGroup("header/right/tabs")]
-[DeclareBoxGroup("body")]
-public class GroupDemo : MonoBehaviour
+[DeclareBoxGroup("box", Title = "My Box")]
+public class BoxGroupSample : ScriptableObject
 {
-    [Group("header/left")] public bool prop1;
-    [Group("header/left")] public int prop2;
-    [Group("header/left")] public string prop3;
-    [Group("header/left")] public Vector3 prop4;
+    [Group("box")] public int a;
+    [Group("box")] public bool b;
+}
+```
 
-    [Group("header/right/top")] public string rightProp;
+#### Tab Group
 
-    [Group("body")] public string body1;
-    [Group("body")] public string body2;
+![TabGroup](https://user-images.githubusercontent.com/26966368/177552003-528a4e52-e340-460b-93e6-f56c07ac063b.png)
 
-    [Group("header/right/tabs"), Tab("One")] public float tabOne;
-    [Group("header/right/tabs"), Tab("Two")] public float tabTwo;
-    [Group("header/right/tabs"), Tab("Three")] public float tabThree;
+```csharp
+[DeclareTabGroup("tabs")]
+public class TabGroupSample : ScriptableObject
+{
+    [Group("tabs"), Tab("One")] public int a;
+    [Group("tabs"), Tab("Two")] public float b;
+    [Group("tabs"), Tab("Three")] public bool c;
+}
+```
 
-    [Group("header/right"), Button("Click me!")]
-    public void MyButton()
-    {
-    }
+#### Horizontal Group
+
+![HorizontalGroup](https://user-images.githubusercontent.com/26966368/177551227-9df32c44-9482-4580-8144-5745af806f24.png)
+
+```csharp
+[DeclareHorizontalGroup("vars")]
+public class HorizontalGroupSample : ScriptableObject
+{
+    [Group("vars")] public int a;
+    [Group("vars")] public int b;
+    [Group("vars")] public int c;
+}
+```
+
+#### Vertical Group
+
+![VerticalGroup](https://user-images.githubusercontent.com/26966368/177550644-9d0dc2b7-ed18-4d8f-997d-c4fff2c6d6cb.png)
+
+```csharp
+
+[DeclareHorizontalGroup("horizontal")]
+[DeclareVerticalGroup("horizontal/vars")]
+[DeclareVerticalGroup("horizontal/buttons")]
+public class VerticalGroupSample : ScriptableObject
+{
+    [Group("horizontal/vars")] public float a;
+    [Group("horizontal/vars")] public float b;
+
+    [Button, Group("horizontal/buttons")]
+    public void ButtonA() { }
+
+    [Button, Group("horizontal/buttons")]
+    public void ButtonB() { }
 }
 ```
 
