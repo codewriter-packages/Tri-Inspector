@@ -88,6 +88,8 @@ namespace TriInspector
         [PublicAPI]
         public string DisplayName => DisplayNameContent.text;
 
+        public IEqualityComparer Comparer => TriEqualityComparer.Of(ValueType);
+
         [PublicAPI]
         public GUIContent DisplayNameContent
         {
@@ -536,21 +538,6 @@ namespace TriInspector
             return false;
         }
 
-        public static bool AreValuesEqual(Type type, object a, object b)
-        {
-            if (type == typeof(string))
-            {
-                return string.Equals((string) a, (string) b);
-            }
-
-            if (type.IsValueType || type == typeof(string))
-            {
-                return a.Equals(b);
-            }
-
-            return ReferenceEquals(a, b);
-        }
-
         private static void SetValueRecursive(TriProperty property, object value, int targetIndex)
         {
             // for value types we must recursively set all parent objects
@@ -624,7 +611,7 @@ namespace TriInspector
                     for (var i = 1; i < property.PropertyTree.TargetsCount; i++)
                     {
                         var otherValue = property.GetValue(i);
-                        if (!AreValuesEqual(property.FieldType, otherValue, newValue))
+                        if (!property.Comparer.Equals(otherValue, newValue))
                         {
                             isMixed = true;
                             return;

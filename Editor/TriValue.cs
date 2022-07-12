@@ -25,7 +25,7 @@ namespace TriInspector
             get => (T) Property.Value;
             set
             {
-                if (TriProperty.AreValuesEqual(Property.FieldType, Property.Value, value))
+                if (Property.Comparer.Equals(Property.Value, value))
                 {
                     return;
                 }
