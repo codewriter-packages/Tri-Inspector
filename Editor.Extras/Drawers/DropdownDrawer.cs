@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TriInspector;
@@ -94,7 +93,7 @@ namespace TriInspector.Drawers
                 var items = _resolver.GetDropdownItems(_property);
 
                 _currentText = items
-                    .FirstOrDefault(it => _resolver.EqualityComparer.Equals(it.Value, _property.Value))
+                    .FirstOrDefault(it => _property.Comparer.Equals(it.Value, _property.Value))
                     ?.Text ?? "";
             }
 
@@ -105,7 +104,7 @@ namespace TriInspector.Drawers
 
                 foreach (var item in items)
                 {
-                    var isOn = _resolver.EqualityComparer.Equals(item.Value, _property.Value);
+                    var isOn = _property.Comparer.Equals(item.Value, _property.Value);
                     menu.AddItem(new GUIContent(item.Text), isOn, _property.SetValue, item.Value);
                 }
 
@@ -115,8 +114,6 @@ namespace TriInspector.Drawers
 
         private abstract class DropdownResolver
         {
-            public abstract IEqualityComparer EqualityComparer { get; }
-
             public abstract void Initialize(TriPropertyDefinition propertyDefinition, string expression);
 
             public abstract bool TryGetErrorString(out string error);
@@ -136,8 +133,6 @@ namespace TriInspector.Drawers
         private class DropdownItemResolver<T> : DropdownResolver
         {
             private ValueResolver<IEnumerable<TriDropdownItem<T>>> _resolver;
-
-            public override IEqualityComparer EqualityComparer { get; } = EqualityComparer<T>.Default;
 
             public override void Initialize(TriPropertyDefinition propertyDefinition, string expression)
             {
@@ -163,8 +158,6 @@ namespace TriInspector.Drawers
         private class DropdownValueResolver<T> : DropdownResolver
         {
             private ValueResolver<IEnumerable<T>> _resolver;
-
-            public override IEqualityComparer EqualityComparer { get; } = EqualityComparer<T>.Default;
 
             public override void Initialize(TriPropertyDefinition propertyDefinition, string expression)
             {
