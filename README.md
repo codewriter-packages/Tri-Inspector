@@ -171,6 +171,15 @@ private bool VisibleInEditMode => !Application.isPlaying;
 public GameObject obj;
 ```
 
+#### SceneObjectsOnly
+
+![SceneObjectsOnly](https://user-images.githubusercontent.com/26966368/178470605-618c9796-054f-40bb-9c09-2d9c6f342faf.png)
+
+```csharp
+[SceneObjectsOnly]
+public GameObject obj;
+```
+
 ### Decorators
 
 #### Dropdown
