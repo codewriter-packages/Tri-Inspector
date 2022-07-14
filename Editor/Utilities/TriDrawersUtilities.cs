@@ -9,6 +9,14 @@ namespace TriInspector.Utilities
 {
     internal class TriDrawersUtilities
     {
+        private static readonly GenericTypeMatcher GroupDrawerMatcher = typeof(TriGroupDrawer<>);
+        private static readonly GenericTypeMatcher ValueDrawerMatcher = typeof(TriValueDrawer<>);
+        private static readonly GenericTypeMatcher AttributeDrawerMatcher = typeof(TriAttributeDrawer<>);
+        private static readonly GenericTypeMatcher ValueValidatorMatcher = typeof(TriValueValidator<>);
+        private static readonly GenericTypeMatcher AttributeValidatorMatcher = typeof(TriAttributeValidator<>);
+        private static readonly GenericTypeMatcher HideProcessorMatcher = typeof(TriPropertyHideProcessor<>);
+        private static readonly GenericTypeMatcher DisableProcessorMatcher = typeof(TriPropertyDisableProcessor<>);
+
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
         private static IReadOnlyList<RegisterTriAttributeDrawerAttribute> _allAttributeDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriValueDrawerAttribute> _allValueDrawerTypesBackingField;
@@ -26,7 +34,7 @@ namespace TriInspector.Utilities
                     _allGroupDrawersCacheBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriGroupDrawerAttribute>()
-                        let groupAttributeType = IsGroupDrawerType(attr.DrawerType, out var t) ? t : null
+                        let groupAttributeType = GroupDrawerMatcher.MatchOut(attr.DrawerType, out var t) ? t : null
                         where groupAttributeType != null
                         select new KeyValuePair<Type, RegisterTriGroupDrawerAttribute>(groupAttributeType, attr)
                     ).ToDictionary(
@@ -47,7 +55,7 @@ namespace TriInspector.Utilities
                     _allValueDrawerTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriValueDrawerAttribute>()
-                        where IsValueDrawerType(attr.DrawerType, out _)
+                        where ValueDrawerMatcher.Match(attr.DrawerType)
                         select attr
                     ).ToList();
                 }
@@ -65,7 +73,7 @@ namespace TriInspector.Utilities
                     _allAttributeDrawerTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriAttributeDrawerAttribute>()
-                        where IsAttributeDrawerType(attr.DrawerType, out _)
+                        where AttributeDrawerMatcher.Match(attr.DrawerType)
                         select attr
                     ).ToList();
                 }
@@ -83,7 +91,7 @@ namespace TriInspector.Utilities
                     _allValueValidatorTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriValueValidatorAttribute>()
-                        where IsValueValidatorType(attr.ValidatorType, out _)
+                        where ValueValidatorMatcher.Match(attr.ValidatorType)
                         select attr
                     ).ToList();
                 }
@@ -101,7 +109,7 @@ namespace TriInspector.Utilities
                     _allAttributeValidatorTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriAttributeValidatorAttribute>()
-                        where IsAttributeValidatorType(attr.ValidatorType, out _)
+                        where AttributeValidatorMatcher.Match(attr.ValidatorType)
                         select attr
                     ).ToList();
                 }
@@ -119,7 +127,7 @@ namespace TriInspector.Utilities
                     _allHideProcessorTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriPropertyHideProcessor>()
-                        where IsHideProcessorType(attr.ProcessorType, out _)
+                        where HideProcessorMatcher.Match(attr.ProcessorType)
                         select attr
                     ).ToList();
                 }
@@ -137,7 +145,7 @@ namespace TriInspector.Utilities
                     _allDisableProcessorTypesBackingField = (
                         from asm in TriReflectionUtilities.Assemblies
                         from attr in asm.GetCustomAttributes<RegisterTriPropertyDisableProcessor>()
-                        where IsDisableProcessorType(attr.ProcessorType, out _)
+                        where DisableProcessorMatcher.Match(attr.ProcessorType)
                         select attr
                     ).ToList();
                 }
@@ -156,47 +164,11 @@ namespace TriInspector.Utilities
             return attr.CreateElementInternal(attribute);
         }
 
-        private static bool IsGroupDrawerType(Type type, out Type groupAttributeType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriGroupDrawer<>), out groupAttributeType);
-        }
-
-        private static bool IsValueDrawerType(Type type, out Type valueType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriValueDrawer<>), out valueType);
-        }
-
-        private static bool IsAttributeDrawerType(Type type, out Type attributeType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriAttributeDrawer<>), out attributeType);
-        }
-
-        private static bool IsValueValidatorType(Type type, out Type valueType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriValueValidator<>), out valueType);
-        }
-
-        private static bool IsAttributeValidatorType(Type type, out Type attributeType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriAttributeValidator<>), out attributeType);
-        }
-
-        private static bool IsHideProcessorType(Type type, out Type attributeType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriPropertyHideProcessor<>), out attributeType);
-        }
-
-        private static bool IsDisableProcessorType(Type type, out Type attributeType)
-        {
-            return TryGetBaseGenericTargetType(type, typeof(TriPropertyDisableProcessor<>), out attributeType);
-        }
-
         public static IEnumerable<TriValueDrawer> CreateValueDrawersFor(Type valueType)
         {
             return
                 from drawer in AllValueDrawerTypes
-                where IsValueDrawerType(drawer.DrawerType, out var vt) &&
-                      IsValidTargetType(vt, valueType)
+                where ValueDrawerMatcher.Match(drawer.DrawerType, valueType)
                 select CreateInstance<TriValueDrawer>(drawer.DrawerType, valueType, it =>
                 {
                     it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
@@ -204,14 +176,14 @@ namespace TriInspector.Utilities
                 });
         }
 
-        public static IEnumerable<TriAttributeDrawer> CreateAttributeDrawersFor(IReadOnlyList<Attribute> attributes)
+        public static IEnumerable<TriAttributeDrawer> CreateAttributeDrawersFor(
+            Type valueType, IReadOnlyList<Attribute> attributes)
         {
             return
                 from attribute in attributes
                 from drawer in AllAttributeDrawerTypes
-                where IsAttributeDrawerType(drawer.DrawerType, out var vt) &&
-                      IsValidTargetType(vt, attribute.GetType())
-                select CreateInstance<TriAttributeDrawer>(drawer.DrawerType, attribute.GetType(), it =>
+                where AttributeDrawerMatcher.Match(drawer.DrawerType, attribute.GetType())
+                select CreateInstance<TriAttributeDrawer>(drawer.DrawerType, valueType, it =>
                 {
                     it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
                     it.Order = drawer.Order;
@@ -223,36 +195,37 @@ namespace TriInspector.Utilities
         {
             return
                 from validator in AllValueValidatorTypes
-                where IsValueValidatorType(validator.ValidatorType, out var vt) &&
-                      IsValidTargetType(vt, valueType)
-                select CreateInstance<TriValueValidator>(validator.ValidatorType, valueType,
-                    it => { it.ApplyOnArrayElement = validator.ApplyOnArrayElement; });
+                where ValueValidatorMatcher.Match(validator.ValidatorType, valueType)
+                select CreateInstance<TriValueValidator>(validator.ValidatorType, valueType, it =>
+                {
+                    //
+                    it.ApplyOnArrayElement = validator.ApplyOnArrayElement;
+                });
         }
 
         public static IEnumerable<TriAttributeValidator> CreateAttributeValidatorsFor(
-            IReadOnlyList<Attribute> attributes)
+            Type valueType, IReadOnlyList<Attribute> attributes)
         {
             return
                 from attribute in attributes
                 from validator in AllAttributeValidatorTypes
-                where IsAttributeValidatorType(validator.ValidatorType, out var vt) &&
-                      IsValidTargetType(vt, attribute.GetType())
-                select CreateInstance<TriAttributeValidator>(validator.ValidatorType, attribute.GetType(), it =>
+                where AttributeValidatorMatcher.Match(validator.ValidatorType, attribute.GetType())
+                select CreateInstance<TriAttributeValidator>(validator.ValidatorType, valueType, it =>
                 {
                     it.ApplyOnArrayElement = validator.ApplyOnArrayElement;
                     it.RawAttribute = attribute;
                 });
         }
 
-        public static IEnumerable<TriPropertyHideProcessor> CreateHideProcessorsFor(IReadOnlyList<Attribute> attributes)
+        public static IEnumerable<TriPropertyHideProcessor> CreateHideProcessorsFor(
+            Type valueType, IReadOnlyList<Attribute> attributes)
         {
             return
                 from attribute in attributes
                 from processor in AllHideProcessors
-                where IsHideProcessorType(processor.ProcessorType, out var vt) &&
-                      IsValidTargetType(vt, attribute.GetType())
+                where HideProcessorMatcher.Match(processor.ProcessorType, attribute.GetType())
                 select CreateInstance<TriPropertyHideProcessor>(
-                    processor.ProcessorType, attributes.GetType(), it =>
+                    processor.ProcessorType, valueType, it =>
                     {
                         //
                         it.RawAttribute = attribute;
@@ -260,35 +233,18 @@ namespace TriInspector.Utilities
         }
 
         public static IEnumerable<TriPropertyDisableProcessor> CreateDisableProcessorsFor(
-            IReadOnlyList<Attribute> attributes)
+            Type valueType, IReadOnlyList<Attribute> attributes)
         {
             return
                 from attribute in attributes
                 from processor in AllDisableProcessors
-                where IsDisableProcessorType(processor.ProcessorType, out var vt) &&
-                      IsValidTargetType(vt, attribute.GetType())
+                where DisableProcessorMatcher.Match(processor.ProcessorType, attribute.GetType())
                 select CreateInstance<TriPropertyDisableProcessor>(
-                    processor.ProcessorType, attributes.GetType(), it =>
+                    processor.ProcessorType, valueType, it =>
                     {
                         //
                         it.RawAttribute = attribute;
                     });
-        }
-
-        private static bool IsValidTargetType(Type constraint, Type actual)
-        {
-            if (constraint == actual)
-            {
-                return true;
-            }
-
-            if (constraint.IsGenericParameter &&
-                constraint.GetGenericParameterConstraints().Single().IsAssignableFrom(actual))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private static T CreateInstance<T>(Type type, Type argType, Action<T> setup)
@@ -303,68 +259,107 @@ namespace TriInspector.Utilities
             return instance;
         }
 
-        private static bool TryGetBaseGenericTargetType(Type type, Type expectedGenericType, out Type attributeType)
+        private class GenericTypeMatcher
         {
-            attributeType = null;
+            private readonly Dictionary<Type, (bool, Type)> _cache = new Dictionary<Type, (bool, Type)>();
+            private readonly Type _expectedGenericType;
 
-            if (type.IsAbstract)
+            private GenericTypeMatcher(Type expectedGenericType)
             {
-                Debug.LogError($"{type.Name} must be non abstract");
-                return false;
+                _expectedGenericType = expectedGenericType;
             }
 
-            if (type.GetConstructor(Type.EmptyTypes) == null)
+            public static implicit operator GenericTypeMatcher(Type expectedGenericType)
             {
-                Debug.LogError($"{type.Name} must have a parameterless constructor");
-                return false;
+                return new GenericTypeMatcher(expectedGenericType);
             }
 
-            Type genericArg = null;
-            if (type.IsGenericType)
+            public bool Match(Type type, Type targetType)
             {
-                genericArg = type.GetGenericArguments().SingleOrDefault();
+                return MatchOut(type, out var constraint) &&
+                       constraint.IsAssignableFrom(targetType);
+            }
 
-                if (genericArg == null ||
-                    genericArg.GenericParameterAttributes != GenericParameterAttributes.None)
+            public bool Match(Type type)
+            {
+                return MatchOut(type, out _);
+            }
+
+            public bool MatchOut(Type type, out Type targetType)
+            {
+                if (_cache.TryGetValue(type, out var cachedResult))
                 {
-                    Debug.LogError(
-                        $"{type.Name} must contains only one generic arg with simple constant e.g. <where T : bool>");
+                    targetType = cachedResult.Item2;
+                    return cachedResult.Item1;
+                }
+
+                var succeed = MatchInternal(type, out targetType);
+                _cache[type] = (succeed, targetType);
+                return succeed;
+            }
+
+            private bool MatchInternal(Type type, out Type targetType)
+            {
+                targetType = null;
+
+                if (type.IsAbstract)
+                {
+                    Debug.LogError($"{type.Name} must be non abstract");
                     return false;
                 }
 
-                var argConstraints = genericArg.GetGenericParameterConstraints().SingleOrDefault();
-                if (argConstraints == null)
+                if (type.GetConstructor(Type.EmptyTypes) == null)
                 {
-                    Debug.LogError(
-                        $"{type.Name} must contains only one generic arg with simple constant e.g. <where T : bool>");
+                    Debug.LogError($"{type.Name} must have a parameterless constructor");
                     return false;
                 }
-            }
 
-            var drawerType = type.BaseType;
-
-            while (drawerType != null)
-            {
-                if (drawerType.IsGenericType &&
-                    drawerType.GetGenericTypeDefinition() == expectedGenericType)
+                Type genericArgConstraints = null;
+                if (type.IsGenericType)
                 {
-                    attributeType = drawerType.GetGenericArguments()[0];
+                    var genericArg = type.GetGenericArguments().SingleOrDefault();
 
-                    if (genericArg != null && !attributeType.IsGenericParameter)
+                    if (genericArg == null ||
+                        genericArg.GenericParameterAttributes != GenericParameterAttributes.None)
                     {
                         Debug.LogError(
-                            $"{type.Name} must pass generic arg {genericArg} to {expectedGenericType} base type");
+                            $"{type.Name} must contains only one generic arg with simple constant e.g. <where T : bool>");
                         return false;
                     }
 
-                    return true;
+                    genericArgConstraints = genericArg.GetGenericParameterConstraints().SingleOrDefault();
                 }
 
-                drawerType = drawerType.BaseType;
-            }
+                var drawerType = type.BaseType;
 
-            Debug.LogError($"{type.Name} must implement {expectedGenericType}");
-            return false;
+                while (drawerType != null)
+                {
+                    if (drawerType.IsGenericType &&
+                        drawerType.GetGenericTypeDefinition() == _expectedGenericType)
+                    {
+                        targetType = drawerType.GetGenericArguments()[0];
+
+                        if (targetType.IsGenericParameter)
+                        {
+                            if (genericArgConstraints == null)
+                            {
+                                Debug.LogError(
+                                    $"{type.Name} must contains only one generic arg with simple constant e.g. <where T : bool>");
+                                return false;
+                            }
+
+                            targetType = genericArgConstraints;
+                        }
+
+                        return true;
+                    }
+
+                    drawerType = drawerType.BaseType;
+                }
+
+                Debug.LogError($"{type.Name} must implement {_expectedGenericType}");
+                return false;
+            }
         }
     }
 }

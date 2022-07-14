@@ -2,14 +2,13 @@
 using TriInspector.Validators;
 using UnityEditor;
 
-[assembly: RegisterTriValueValidator(typeof(MissingReferenceValidator<>))]
+[assembly: RegisterTriValueValidator(typeof(MissingReferenceValidator))]
 
 namespace TriInspector.Validators
 {
-    public class MissingReferenceValidator<T> : TriValueValidator<T>
-        where T : UnityEngine.Object
+    public class MissingReferenceValidator : TriValueValidator<UnityEngine.Object>
     {
-        public override TriValidationResult Validate(TriValue<T> propertyValue)
+        public override TriValidationResult Validate(TriValue<UnityEngine.Object> propertyValue)
         {
             if (propertyValue.Property.TryGetSerializedProperty(out var serializedProperty) &&
                 serializedProperty.propertyType == SerializedPropertyType.ObjectReference &&

@@ -173,7 +173,7 @@ namespace TriInspector
             }
 
             return _hideProcessorsBackingField = TriDrawersUtilities
-                .CreateHideProcessorsFor(Attributes)
+                .CreateHideProcessorsFor(FieldType, Attributes)
                 .Where(CanApplyExtensionOnSelf)
                 .ToList();
         }
@@ -186,7 +186,7 @@ namespace TriInspector
             }
 
             return _disableProcessorsBackingField = TriDrawersUtilities
-                .CreateDisableProcessorsFor(Attributes)
+                .CreateDisableProcessorsFor(FieldType, Attributes)
                 .Where(CanApplyExtensionOnSelf)
                 .ToList();
         }
@@ -200,7 +200,7 @@ namespace TriInspector
 
             return _validatorsBackingField = Enumerable.Empty<TriValidator>()
                 .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
-                .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(Attributes))
+                .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(FieldType, Attributes))
                 .Where(CanApplyExtensionOnSelf)
                 .ToList();
         }
@@ -214,7 +214,7 @@ namespace TriInspector
 
             return _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
                 .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
-                .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(Attributes))
+                .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(FieldType, Attributes))
                 .Concat(new[]
                 {
                     new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
