@@ -7,26 +7,27 @@ using TriInspector.Resolvers;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer), TriDrawerOrder.Decorator)]
+[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Decorator)]
 
 namespace TriInspector.Drawers
 {
-    public class DropdownDrawer : TriAttributeDrawer<DropdownAttribute>
+    public class DropdownDrawer<T> : TriAttributeDrawer<DropdownAttribute>
     {
-        private DropdownResolver _resolver;
+        private ValueResolver<IEnumerable<TriDropdownItem<T>>> _itemsResolver;
+        private ValueResolver<IEnumerable<T>> _valuesResolver;
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
-            _resolver = DropdownResolver.Create(typeof(DropdownValueResolver<>), propertyDefinition, Attribute.Values);
+            _valuesResolver = ValueResolver.Resolve<IEnumerable<T>>(propertyDefinition, Attribute.Values);
 
-            if (_resolver.TryGetErrorString(out var error))
+            if (_valuesResolver.TryGetErrorString(out _))
             {
-                _resolver = DropdownResolver.Create(typeof(DropdownItemResolver<>), propertyDefinition,
-                    Attribute.Values);
+                _itemsResolver =
+                    ValueResolver.Resolve<IEnumerable<TriDropdownItem<T>>>(propertyDefinition, Attribute.Values);
 
-                if (_resolver.TryGetErrorString(out error))
+                if (_itemsResolver.TryGetErrorString(out var itemResolverError))
                 {
-                    return error;
+                    return itemResolverError;
                 }
             }
 
@@ -35,20 +36,43 @@ namespace TriInspector.Drawers
 
         public override TriElement CreateElement(TriProperty property, TriElement next)
         {
-            return new DropdownElement(property, _resolver);
+            return new DropdownElement(property, GetDropdownItems);
+        }
+
+        private IEnumerable<ITriDropdownItem> GetDropdownItems(TriProperty property)
+        {
+            if (_valuesResolver != null)
+            {
+                var values = _valuesResolver.GetValue(property, Enumerable.Empty<T>());
+
+                foreach (var value in values)
+                {
+                    yield return new TriDropdownItem {Text = $"{value}", Value = value,};
+                }
+            }
+
+            if (_itemsResolver != null)
+            {
+                var values = _itemsResolver.GetValue(property, Enumerable.Empty<TriDropdownItem<T>>());
+
+                foreach (var value in values)
+                {
+                    yield return value;
+                }
+            }
         }
 
         private class DropdownElement : TriElement
         {
             private readonly TriProperty _property;
-            private readonly DropdownResolver _resolver;
+            private readonly Func<TriProperty, IEnumerable<ITriDropdownItem>> _valuesGetter;
 
             private string _currentText;
 
-            public DropdownElement(TriProperty property, DropdownResolver resolver)
+            public DropdownElement(TriProperty property, Func<TriProperty, IEnumerable<ITriDropdownItem>> valuesGetter)
             {
                 _property = property;
-                _resolver = resolver;
+                _valuesGetter = valuesGetter;
             }
 
             protected override void OnAttachToPanel()
@@ -90,7 +114,7 @@ namespace TriInspector.Drawers
 
             private void RefreshCurrentText()
             {
-                var items = _resolver.GetDropdownItems(_property);
+                var items = _valuesGetter.Invoke(_property);
 
                 _currentText = items
                     .FirstOrDefault(it => _property.Comparer.Equals(it.Value, _property.Value))
@@ -99,7 +123,7 @@ namespace TriInspector.Drawers
 
             private void ShowDropdown(Rect position)
             {
-                var items = _resolver.GetDropdownItems(_property);
+                var items = _valuesGetter.Invoke(_property);
                 var menu = new GenericMenu();
 
                 foreach (var item in items)
@@ -109,74 +133,6 @@ namespace TriInspector.Drawers
                 }
 
                 menu.DropDown(position);
-            }
-        }
-
-        private abstract class DropdownResolver
-        {
-            public abstract void Initialize(TriPropertyDefinition propertyDefinition, string expression);
-
-            public abstract bool TryGetErrorString(out string error);
-
-            public abstract IEnumerable<ITriDropdownItem> GetDropdownItems(TriProperty property);
-
-            public static DropdownResolver Create(Type resolverType,
-                TriPropertyDefinition propertyDefinition, string expression)
-            {
-                var elementType = propertyDefinition.FieldType;
-                var resolver = (DropdownResolver) Activator.CreateInstance(resolverType.MakeGenericType(elementType));
-                resolver.Initialize(propertyDefinition, expression);
-                return resolver;
-            }
-        }
-
-        private class DropdownItemResolver<T> : DropdownResolver
-        {
-            private ValueResolver<IEnumerable<TriDropdownItem<T>>> _resolver;
-
-            public override void Initialize(TriPropertyDefinition propertyDefinition, string expression)
-            {
-                _resolver = ValueResolver.Resolve<IEnumerable<TriDropdownItem<T>>>(propertyDefinition, expression);
-            }
-
-            public override bool TryGetErrorString(out string error)
-            {
-                return _resolver.TryGetErrorString(out error);
-            }
-
-            public override IEnumerable<ITriDropdownItem> GetDropdownItems(TriProperty property)
-            {
-                var values = _resolver.GetValue(property, Enumerable.Empty<TriDropdownItem<T>>());
-
-                foreach (var value in values)
-                {
-                    yield return value;
-                }
-            }
-        }
-
-        private class DropdownValueResolver<T> : DropdownResolver
-        {
-            private ValueResolver<IEnumerable<T>> _resolver;
-
-            public override void Initialize(TriPropertyDefinition propertyDefinition, string expression)
-            {
-                _resolver = ValueResolver.Resolve<IEnumerable<T>>(propertyDefinition, expression);
-            }
-
-            public override bool TryGetErrorString(out string error)
-            {
-                return _resolver.TryGetErrorString(out error);
-            }
-
-            public override IEnumerable<ITriDropdownItem> GetDropdownItems(TriProperty property)
-            {
-                var values = _resolver.GetValue(property, Enumerable.Empty<T>());
-
-                foreach (var value in values)
-                {
-                    yield return new TriDropdownItem {Text = $"{value}", Value = value,};
-                }
             }
         }
     }

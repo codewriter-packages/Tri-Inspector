@@ -3,14 +3,13 @@ using TriInspector.Drawers;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriValueDrawer(typeof(ObjectReferenceDrawer<>), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(ObjectReferenceDrawer), TriDrawerOrder.Fallback)]
 
 namespace TriInspector.Drawers
 {
-    public class ObjectReferenceDrawer<T> : TriValueDrawer<T>
-        where T : Object
+    public class ObjectReferenceDrawer : TriValueDrawer<Object>
     {
-        public override TriElement CreateElement(TriValue<T> value, TriElement next)
+        public override TriElement CreateElement(TriValue<Object> value, TriElement next)
         {
             if (value.Property.IsRootProperty)
             {
@@ -22,10 +21,10 @@ namespace TriInspector.Drawers
 
         private class ObjectReferenceDrawerElement : TriElement
         {
-            private TriValue<T> _propertyValue;
+            private TriValue<Object> _propertyValue;
             private readonly bool _allowSceneObjects;
 
-            public ObjectReferenceDrawerElement(TriValue<T> propertyValue)
+            public ObjectReferenceDrawerElement(TriValue<Object> propertyValue)
             {
                 _propertyValue = propertyValue;
                 _allowSceneObjects = propertyValue.Property.PropertyTree.TargetIsPersistent &&
@@ -58,7 +57,7 @@ namespace TriInspector.Drawers
                     }
                     else
                     {
-                        _propertyValue.SmartValue = (T) value;
+                        _propertyValue.SmartValue = value;
                     }
                 }
             }
