@@ -26,6 +26,14 @@ using UnityEngine;
 
 namespace TriInspector.Drawers
 {
+    public class StringDrawer : BuiltinDrawerBase<string>
+    {
+        protected override string OnValueGUI(Rect position, GUIContent label, string value)
+        {
+            return EditorGUI.TextField(position, label, value);
+        }
+    }
+    
     public class BooleanDrawer : BuiltinDrawerBase<bool>
     {
         protected override bool OnValueGUI(Rect position, GUIContent label, bool value)
