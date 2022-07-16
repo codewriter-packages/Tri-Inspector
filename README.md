@@ -202,6 +202,14 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 }
 ```
 
+#### Scene
+
+![Scene](https://user-images.githubusercontent.com/26966368/179394466-a9397212-e3bc-40f1-b721-8f7c43aa3048.png)
+
+```csharp
+[Scene] public string scene;
+```
+
 ### Styling
 
 #### Title
