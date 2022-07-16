@@ -7,6 +7,21 @@ namespace TriInspector.Resolvers
         public static ValueResolver<T> Resolve<T>(TriPropertyDefinition propertyDefinition,
             string expression)
         {
+            if (StaticFieldValueResolver<T>.TryResolve(propertyDefinition, expression, out var sfr))
+            {
+                return sfr;
+            }
+
+            if (StaticPropertyValueResolver<T>.TryResolve(propertyDefinition, expression, out var spr))
+            {
+                return spr;
+            }
+
+            if (StaticMethodValueResolver<T>.TryResolve(propertyDefinition, expression, out var smr))
+            {
+                return smr;
+            }
+
             if (InstanceFieldValueResolver<T>.TryResolve(propertyDefinition, expression, out var ifr))
             {
                 return ifr;

@@ -122,6 +122,26 @@ namespace TriInspector.Utilities
                 .Single(it => it.FullName == name);
         }
 
+        public static bool TryFindTypeByFullName(string name, out Type type)
+        {
+            type = Type.GetType(name);
+            if (type != null)
+            {
+                return true;
+            }
+
+            foreach (var assembly in Assemblies)
+            {
+                type = assembly.GetType(name);
+                if (type != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static IReadOnlyList<T> GetAllMembersInDeclarationOrder<T>(
             Type type, Func<Type, T[]> select)
             where T : MemberInfo
