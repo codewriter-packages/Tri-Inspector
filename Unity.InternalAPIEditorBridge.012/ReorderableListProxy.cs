@@ -5,11 +5,27 @@ namespace TriInspectorUnityInternalBridge
 {
     internal static class ReorderableListProxy
     {
+        private static ReorderableList.Defaults _defaultBehaviours;
+
+        // ReSharper disable once InconsistentNaming
+        public static ReorderableList.Defaults defaultBehaviours
+        {
+            get
+            {
+                if (_defaultBehaviours == null)
+                {
+                    _defaultBehaviours = new ReorderableList.Defaults();
+                }
+
+                return _defaultBehaviours;
+            }
+        }
+
         public static void DoListHeader(ReorderableList list, Rect headerRect)
         {
             if (list.showDefaultBackground && Event.current.type == EventType.Repaint)
             {
-                ReorderableList.defaultBehaviours.DrawHeaderBackground(headerRect);
+                defaultBehaviours.DrawHeaderBackground(headerRect);
             }
 
             headerRect.xMin += 6f;

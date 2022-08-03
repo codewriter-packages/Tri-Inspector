@@ -126,7 +126,7 @@ namespace TriInspector.Elements
         {
             if (_property.TryGetSerializedProperty(out _))
             {
-                ReorderableList.defaultBehaviours.DoAddButton(reorderableList);
+                ReorderableListProxy.defaultBehaviours.DoAddButton(reorderableList);
                 _property.NotifyValueChanged();
                 return;
             }
@@ -162,7 +162,7 @@ namespace TriInspector.Elements
         {
             if (_property.TryGetSerializedProperty(out _))
             {
-                ReorderableList.defaultBehaviours.DoRemoveButton(reorderableList);
+                ReorderableListProxy.defaultBehaviours.DoRemoveButton(reorderableList);
                 _property.NotifyValueChanged();
                 return;
             }

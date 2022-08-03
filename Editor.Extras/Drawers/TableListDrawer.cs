@@ -130,7 +130,7 @@ namespace TriInspector.Drawers
 
                 if (Event.current.type == EventType.Repaint)
                 {
-                    ReorderableList.defaultBehaviours.boxBackground.Draw(elementsRect,
+                    ReorderableListProxy.defaultBehaviours.boxBackground.Draw(elementsRect,
                         false, false, false, false);
                 }
 
@@ -146,7 +146,7 @@ namespace TriInspector.Drawers
                     _property.PropertyTree.RequestRepaint();
                 }
 
-                ReorderableList.defaultBehaviours.DrawFooter(footerRect, ListGui);
+                ReorderableListProxy.defaultBehaviours.DrawFooter(footerRect, ListGui);
             }
 
             private bool ReloadIfRequired()
@@ -317,7 +317,7 @@ namespace TriInspector.Drawers
 
                     if (visibleColumnIndex == 0)
                     {
-                        ReorderableList.defaultBehaviours.DrawElementDraggingHandle(cellRect, rowIndex,
+                        ReorderableListProxy.defaultBehaviours.DrawElementDraggingHandle(cellRect, rowIndex,
                             _listGui.index == rowIndex, _listGui.index == rowIndex, _listGui.draggable);
                         continue;
                     }
