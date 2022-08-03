@@ -5,7 +5,11 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     [Conditional("UNITY_EDITOR")]
-    public class ShowInEditModeAttribute : HideBaseAttribute
+    public class ShowInEditModeAttribute : HideInEditModeAttribute
     {
+        public ShowInEditModeAttribute()
+        {
+            Inverse = true;
+        }
     }
 }

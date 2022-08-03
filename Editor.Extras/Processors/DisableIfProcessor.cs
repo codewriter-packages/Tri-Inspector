@@ -3,21 +3,12 @@ using TriInspector.Processors;
 using TriInspector.Resolvers;
 
 [assembly: RegisterTriPropertyDisableProcessor(typeof(DisableIfProcessor))]
-[assembly: RegisterTriPropertyDisableProcessor(typeof(EnableIfProcessor))]
 
 namespace TriInspector.Processors
 {
-    public abstract class DisableIfProcessorBase<T> : TriPropertyDisableProcessor<T>
-        where T : ConditionalDisableBaseAttribute
+    public class DisableIfProcessor : TriPropertyDisableProcessor<DisableIfAttribute>
     {
-        private readonly bool _inverse;
-
         private ValueResolver<object> _conditionResolver;
-
-        protected DisableIfProcessorBase(bool inverse)
-        {
-            _inverse = inverse;
-        }
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
@@ -36,21 +27,7 @@ namespace TriInspector.Processors
         {
             var val = _conditionResolver.GetValue(property);
             var equal = val?.Equals(Attribute.Value) ?? Attribute.Value == null;
-            return equal != _inverse;
-        }
-    }
-
-    public sealed class DisableIfProcessor : DisableIfProcessorBase<DisableIfAttribute>
-    {
-        public DisableIfProcessor() : base(false)
-        {
-        }
-    }
-
-    public sealed class EnableIfProcessor : DisableIfProcessorBase<EnableIfAttribute>
-    {
-        public EnableIfProcessor() : base(true)
-        {
+            return equal != Attribute.Inverse;
         }
     }
 }
