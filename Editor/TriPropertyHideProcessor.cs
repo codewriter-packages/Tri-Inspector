@@ -12,7 +12,7 @@ namespace TriInspector
     }
 
     public abstract class TriPropertyHideProcessor<TAttribute> : TriPropertyHideProcessor
-        where TAttribute : HideBaseAttribute
+        where TAttribute : Attribute
     {
         [PublicAPI]
         public TAttribute Attribute => (TAttribute) RawAttribute;

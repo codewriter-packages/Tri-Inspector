@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
     [Conditional("UNITY_EDITOR")]
-    public class EnableIfAttribute : ConditionalDisableBaseAttribute
+    public class EnableIfAttribute : DisableIfAttribute
     {
         public EnableIfAttribute(string condition) : this(condition, true)
         {
@@ -13,6 +13,7 @@ namespace TriInspector
 
         public EnableIfAttribute(string condition, object value) : base(condition, value)
         {
+            Inverse = true;
         }
     }
 }
