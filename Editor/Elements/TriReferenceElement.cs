@@ -9,6 +9,8 @@ namespace TriInspector.Elements
     {
         private readonly Props _props;
         private readonly TriProperty _property;
+        private readonly bool _showReferencePicker;
+        private readonly bool _skipReferencePickerExtraLine;
 
         private Type _referenceType;
 
@@ -24,6 +26,8 @@ namespace TriInspector.Elements
         {
             _property = property;
             _props = props;
+            _showReferencePicker = !property.TryGetAttribute(out HideReferencePickerAttribute _);
+            _skipReferencePickerExtraLine = !_showReferencePicker && _props.inline;
 
             DeclareGroups(property.ValueType);
         }
@@ -48,7 +52,7 @@ namespace TriInspector.Elements
 
         public override float GetHeight(float width)
         {
-            var height = EditorGUIUtility.singleLineHeight;
+            var height = _skipReferencePickerExtraLine ? 0f : EditorGUIUtility.singleLineHeight;
 
             if (_props.inline || _property.IsExpanded)
             {
@@ -68,16 +72,16 @@ namespace TriInspector.Elements
 
             var headerRect = new Rect(position)
             {
-                height = EditorGUIUtility.singleLineHeight,
+                height = _skipReferencePickerExtraLine ? 0f : EditorGUIUtility.singleLineHeight,
             };
             var headerLabelRect = new Rect(position)
             {
-                height = EditorGUIUtility.singleLineHeight,
+                height = headerRect.height,
                 width = EditorGUIUtility.labelWidth,
             };
             var headerFieldRect = new Rect(position)
             {
-                height = EditorGUIUtility.singleLineHeight,
+                height = headerRect.height,
                 xMin = headerRect.xMin + EditorGUIUtility.labelWidth,
             };
             var contentRect = new Rect(position)
@@ -87,7 +91,10 @@ namespace TriInspector.Elements
 
             if (_props.inline)
             {
-                TriManagedReferenceGui.DrawTypeSelector(headerRect, _property);
+                if (_showReferencePicker)
+                {
+                    TriManagedReferenceGui.DrawTypeSelector(headerRect, _property);
+                }
 
                 using (TriGuiHelper.PushLabelWidth(_props.labelWidth))
                 {
@@ -97,7 +104,11 @@ namespace TriInspector.Elements
             else
             {
                 TriEditorGUI.Foldout(headerLabelRect, _property);
-                TriManagedReferenceGui.DrawTypeSelector(headerFieldRect, _property);
+
+                if (_showReferencePicker)
+                {
+                    TriManagedReferenceGui.DrawTypeSelector(headerFieldRect, _property);
+                }
 
                 if (_property.IsExpanded)
                 {

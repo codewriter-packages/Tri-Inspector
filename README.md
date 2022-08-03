@@ -62,6 +62,29 @@ public float EditableProperty
 }
 ```
 
+#### HideReferencePicker
+
+Tri Inspector by default shows a polymorphic type picker for `[SerializeReference]` and `[ShowInInspector]`. It can be hidden with a `[HideReferencePicker]` attribute.
+
+![HideReferencePicker](https://user-images.githubusercontent.com/26966368/182633485-a7876052-afd4-40f4-bc6b-be61a04997a4.png)
+
+```csharp
+[SerializeReference]
+public MyReferenceClass clazz1 = new MyReferenceClass();
+
+[SerializeReference, HideReferencePicker]
+public MyReferenceClass clazz2 = new MyReferenceClass();
+
+[ShowInInspector, HideReferencePicker]
+public MyReferenceClass Clazz3 { get; set; } = new MyReferenceClass();
+
+[Serializable]
+public class MyReferenceClass
+{
+    public int inner;
+}
+```
+
 #### PropertyOrder
 
 Changes property order in the inspector.
