@@ -16,7 +16,9 @@ namespace TriInspector.Drawers
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
-            var isValidMethod = propertyDefinition.MemberInfo is MethodInfo mi && mi.GetParameters().Length == 0;
+            var isValidMethod = propertyDefinition.TryGetMemberInfo(out var memberInfo) &&
+                                memberInfo is MethodInfo mi &&
+                                mi.GetParameters().Length == 0;
             if (!isValidMethod)
             {
                 return "[Button] valid only on methods without parameters";
@@ -64,20 +66,21 @@ namespace TriInspector.Drawers
 
         private static void InvokeButton(TriProperty property, object[] parameters)
         {
-            var methodInfo = (MethodInfo) property.MemberInfo;
-
-            property.ModifyAndRecordForUndo(targetIndex =>
+            if (property.TryGetMemberInfo(out var memberInfo) && memberInfo is MethodInfo methodInfo)
             {
-                try
+                property.ModifyAndRecordForUndo(targetIndex =>
                 {
-                    var parentValue = property.Parent.GetValue(targetIndex);
-                    methodInfo.Invoke(parentValue, parameters);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                }
-            });
+                    try
+                    {
+                        var parentValue = property.Parent.GetValue(targetIndex);
+                        methodInfo.Invoke(parentValue, parameters);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogException(e);
+                    }
+                });
+            }
         }
     }
 }

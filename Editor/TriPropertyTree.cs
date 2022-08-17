@@ -56,7 +56,7 @@ namespace TriInspector
             {
                 _rootPropertyElement = new TriPropertyElement(RootProperty, new TriPropertyElement.Props
                 {
-                    forceInline = RootProperty.MemberInfo == null,
+                    forceInline = !RootProperty.TryGetMemberInfo(out _),
                 });
                 _rootPropertyElement.AttachInternal();
             }

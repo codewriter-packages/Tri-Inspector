@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector.Editor;
+﻿using System;
+using System.Collections.Generic;
+using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEditor;
 using Object = UnityEngine.Object;
@@ -27,6 +29,7 @@ namespace TriInspector.Editor.Integrations.Odin
 
             RootPropertyDefinition = new TriPropertyDefinition(
                 memberInfo: odinValueEntry.Property.Info.GetMemberInfo(),
+                ownerType: odinValueEntry.Property.Info.TypeOfOwner,
                 order: -1,
                 fieldName: odinValueEntry.Property.Name,
                 fieldType: odinValueEntry.TypeOfValue,
@@ -36,6 +39,7 @@ namespace TriInspector.Editor.Integrations.Odin
                     _odinValueEntry.Values[targetIndex] = (T) value;
                     return null;
                 },
+                attributes: new List<Attribute>(),
                 isArrayElement: false
             );
             RootProperty = new TriProperty(this, null, RootPropertyDefinition, -1, _serializedProperty);

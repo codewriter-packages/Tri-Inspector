@@ -170,9 +170,6 @@ namespace TriInspector
         }
 
         [PublicAPI]
-        public MemberInfo MemberInfo => _definition.MemberInfo;
-
-        [PublicAPI]
         public Type FieldType => _definition.FieldType;
 
         [PublicAPI]
@@ -209,7 +206,7 @@ namespace TriInspector
 
                 if (_isExpandedPrefsKey == null)
                 {
-                    _isExpandedPrefsKey = $"TriInspector.expanded.{PropertyTree.TargetObjectType}.{MemberInfo}";
+                    _isExpandedPrefsKey = $"TriInspector.expanded.{PropertyTree.TargetObjectType}.{RawName}";
                 }
 
                 return EditorPrefs.GetBool(_isExpandedPrefsKey, false);
@@ -303,6 +300,12 @@ namespace TriInspector
                     ? _childrenProperties
                     : throw new InvalidOperationException("Cannot read ArrayElementProperties for " + PropertyType);
             }
+        }
+
+        [PublicAPI]
+        public bool TryGetMemberInfo(out MemberInfo memberInfo)
+        {
+            return _definition.TryGetMemberInfo(out memberInfo);
         }
 
         public object GetValue(int targetIndex)
