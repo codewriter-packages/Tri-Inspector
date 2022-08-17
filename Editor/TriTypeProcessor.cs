@@ -5,10 +5,6 @@ namespace TriInspector
 {
     public abstract class TriTypeProcessor
     {
-        internal int Order { get; set; }
-
-        public virtual void ProcessType(Type type, List<TriPropertyDefinition> properties)
-        {
-        }
+        public abstract void ProcessType(Type type, List<TriPropertyDefinition> properties);
     }
 }

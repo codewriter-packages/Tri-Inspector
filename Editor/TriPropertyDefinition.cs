@@ -16,6 +16,8 @@ namespace TriInspector
         [CanBeNull] private readonly ValueSetterDelegate _valueSetter;
 
         private readonly List<string> _extensionErrors = new List<string>();
+        private readonly MemberInfo _memberInfo;
+        private readonly List<Attribute> _attributes;
 
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
@@ -24,40 +26,54 @@ namespace TriInspector
         private IReadOnlyList<TriPropertyHideProcessor> _hideProcessorsBackingField;
         private IReadOnlyList<TriPropertyDisableProcessor> _disableProcessorsBackingField;
 
-        internal TriPropertyDefinition(int order, FieldInfo fi)
-            : this(fi, order, fi.Name, fi.FieldType, MakeGetter(fi), MakeSetter(fi), false)
+        public static TriPropertyDefinition CreateForFieldInfo(int order, FieldInfo fi)
         {
+            return CreateForMemberInfo(fi, order, fi.Name, fi.FieldType, MakeGetter(fi), MakeSetter(fi));
         }
 
-        internal TriPropertyDefinition(int order, PropertyInfo pi)
-            : this(pi, order, pi.Name, pi.PropertyType, MakeGetter(pi), MakeSetter(pi), false)
+        public static TriPropertyDefinition CreateForPropertyInfo(int order, PropertyInfo pi)
         {
+            return CreateForMemberInfo(pi, order, pi.Name, pi.PropertyType, MakeGetter(pi), MakeSetter(pi));
         }
 
-        internal TriPropertyDefinition(int order, MethodInfo mi)
-            : this(mi, order, mi.Name, typeof(MethodInfo), MakeGetter(mi), MakeSetter(mi), false)
+        public static TriPropertyDefinition CreateForMethodInfo(int order, MethodInfo mi)
         {
+            return CreateForMemberInfo(mi, order, mi.Name, typeof(MethodInfo), MakeGetter(mi), MakeSetter(mi));
+        }
+
+        private static TriPropertyDefinition CreateForMemberInfo(
+            MemberInfo memberInfo, int order, string propertyName, Type propertyType,
+            ValueGetterDelegate valueGetter, ValueSetterDelegate valueSetter)
+        {
+            var attributes = memberInfo?.GetCustomAttributes().ToList();
+            var ownerType = memberInfo?.DeclaringType ?? typeof(object);
+
+            return new TriPropertyDefinition(
+                memberInfo, ownerType, order, propertyName, propertyType, valueGetter, valueSetter, attributes, false);
         }
 
         internal TriPropertyDefinition(
             MemberInfo memberInfo,
+            Type ownerType,
             int order,
             string fieldName,
             Type fieldType,
             ValueGetterDelegate valueGetter,
             ValueSetterDelegate valueSetter,
+            List<Attribute> attributes,
             bool isArrayElement)
         {
-            MemberInfo = memberInfo;
+            OwnerType = ownerType;
             Name = fieldName;
             FieldType = fieldType;
             IsArrayElement = isArrayElement;
 
+            _attributes = attributes ?? new List<Attribute>();
+            _memberInfo = memberInfo;
             _valueGetter = valueGetter;
             _valueSetter = valueSetter;
 
-            Attributes = memberInfo?.GetCustomAttributes().ToList() ?? new List<Attribute>();
-            Order = Attributes.TryGet(out PropertyOrderAttribute orderAttribute) ? orderAttribute.Order : order;
+            Order = order;
             IsReadOnly = _valueSetter == null || Attributes.TryGet(out ReadOnlyAttribute _);
 
             if (TriReflectionUtilities.IsArrayOrList(FieldType, out var elementType))
@@ -77,15 +93,15 @@ namespace TriInspector
             }
         }
 
-        public MemberInfo MemberInfo { get; }
+        public Type OwnerType { get; }
 
         public Type FieldType { get; }
 
         public string Name { get; }
 
-        public int Order { get; }
+        public int Order { get; internal set; }
 
-        public IReadOnlyList<Attribute> Attributes { get; }
+        public IReadOnlyList<Attribute> Attributes => _attributes;
 
         public bool IsReadOnly { get; }
 
@@ -112,6 +128,17 @@ namespace TriInspector
                 PopulateValidators();
                 return _extensionErrors;
             }
+        }
+
+        public List<Attribute> GetEditableAttributes()
+        {
+            return _attributes;
+        }
+
+        public bool TryGetMemberInfo(out MemberInfo memberInfo)
+        {
+            memberInfo = _memberInfo;
+            return memberInfo != null;
         }
 
         public object GetValue(TriProperty property, int targetIndex)
@@ -144,7 +171,6 @@ namespace TriInspector
                             $"Cannot get array element definition for non array property: {FieldType}");
                     }
 
-                    var elementMember = MemberInfo;
                     var elementGetter = new ValueGetterDelegate((self, targetIndex) =>
                     {
                         var parentValue = (IList) self.Parent.GetValue(targetIndex);
@@ -157,8 +183,8 @@ namespace TriInspector
                         return parentValue;
                     });
 
-                    _arrayElementDefinitionBackingField = new TriPropertyDefinition(elementMember, 0, "Element",
-                        ArrayElementType, elementGetter, elementSetter, true);
+                    _arrayElementDefinitionBackingField = new TriPropertyDefinition(_memberInfo, OwnerType, 0,
+                        "Element", ArrayElementType, elementGetter, elementSetter, _attributes, true);
                 }
 
                 return _arrayElementDefinitionBackingField;

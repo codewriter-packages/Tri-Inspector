@@ -11,7 +11,7 @@ namespace TriInspector.Resolvers
         public static bool TryResolve(TriPropertyDefinition propertyDefinition, string expression,
             out ValueResolver<T> resolver)
         {
-            var parentType = propertyDefinition.MemberInfo.DeclaringType;
+            var parentType = propertyDefinition.OwnerType;
             if (parentType == null)
             {
                 resolver = null;
