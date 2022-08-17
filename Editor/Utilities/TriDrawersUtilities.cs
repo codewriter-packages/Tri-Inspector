@@ -25,6 +25,8 @@ namespace TriInspector.Utilities
         private static IReadOnlyList<RegisterTriPropertyHideProcessor> _allHideProcessorTypesBackingField;
         private static IReadOnlyList<RegisterTriPropertyDisableProcessor> _allDisableProcessorTypesBackingField;
 
+        private static IReadOnlyList<TriTypeProcessor> _allTypeProcessorBackingField;
+
         private static IDictionary<Type, TriGroupDrawer> AllGroupDrawersCache
         {
             get
@@ -43,6 +45,24 @@ namespace TriInspector.Utilities
                 }
 
                 return _allGroupDrawersCacheBackingField;
+            }
+        }
+
+        public static IReadOnlyList<TriTypeProcessor> AllTypeProcessors
+        {
+            get
+            {
+                if (_allTypeProcessorBackingField == null)
+                {
+                    _allTypeProcessorBackingField = (
+                        from asm in TriReflectionUtilities.Assemblies
+                        from attr in asm.GetCustomAttributes<RegisterTriTypeProcessorAttribute>()
+                        orderby attr.Order
+                        select (TriTypeProcessor) Activator.CreateInstance(attr.ProcessorType)
+                    ).ToList();
+                }
+
+                return _allTypeProcessorBackingField;
             }
         }
 
