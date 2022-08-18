@@ -570,6 +570,33 @@ public Vector3 vec;
 
 ### Groups
 
+Properties can be grouped in the inspector using the `Group` attribute.
+
+```csharp
+[Group("one")] public float a;
+[Group("one")] public float b;
+
+[Group("two")] public float c;
+[Group("two")] public float d;
+
+public float e;
+```
+
+If you have a lot of properties and group attributes take up too much space, then you can combine multiple properties at once using the `GroupNext` attribute.
+
+```csharp
+[GroupNext("one")]
+public float a;
+public float b;
+
+[GroupNext("two")]
+public float c;
+public float d;
+
+[UnGroupNext]
+public float e;
+```
+
 #### Box Group
 
 ![BoxGroup](https://user-images.githubusercontent.com/26966368/177552426-8124b445-e235-43a2-9143-dd5d954dd9f8.png)
