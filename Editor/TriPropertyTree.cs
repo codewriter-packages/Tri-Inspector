@@ -62,10 +62,15 @@ namespace TriInspector
             }
 
             _rootPropertyElement.Update();
-            var width = viewWidth ?? EditorGUIUtility.currentViewWidth;
+            var width = viewWidth ?? GUILayoutUtility.GetRect(0, 9999, 0, 0).width;
             var height = _rootPropertyElement.GetHeight(width);
             var rect = GUILayoutUtility.GetRect(width, height);
-            rect.xMin += 3;
+
+            if (viewWidth == null)
+            {
+                rect.xMin += 3;
+            }
+
             _rootPropertyElement.OnGUI(rect);
         }
 
