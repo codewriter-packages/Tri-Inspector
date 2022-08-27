@@ -5,7 +5,7 @@ _Advanced inspector attributes for Unity_
 ![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/187032895-8c41295b-dd82-40ad-80c3-1efaad202732.png)
 
 - [How to Install](#How-to-Install)
-- [Roadmap](#Roadmap)
+- [Roadmap](#Roadmap-)
 - [Samples](#Samples)
 - [Attributes](#Attributes)
     - [Misc](#Misc)
@@ -31,7 +31,8 @@ After package installation **run the Installer** by double clicking on it.
 ![TriInspector-Installer](https://user-images.githubusercontent.com/26966368/172212210-3bbcf6ff-cdc3-4c7c-87c6-d27ab83e271c.png)
 
 ## Roadmap ![GitHub Repo stars](https://img.shields.io/github/stars/codewriter-packages/Tri-Inspector?style=social)
-Each star ★ on the project page brings new features closer. See roadmap and more info [here](https://github.com/codewriter-packages/Tri-Inspector/discussions/30).
+Each star ★ on the project page brings new features closer. 
+You can suggest new features in the [Discussions](https://github.com/codewriter-packages/Tri-Inspector/discussions).
 
 ## Samples
 
