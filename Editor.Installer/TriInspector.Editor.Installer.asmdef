@@ -1,21 +1,16 @@
 {
-    "name": "TriInspector.Editor.Samples",
+    "name": "TriInspector.Editor.Installer",
     "rootNamespace": "",
-    "references": [
-        "TriInspector",
-        "TriInspector.Editor"
-    ],
+    "references": [],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": true,
+    "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": false,
-    "defineConstraints": [
-        "TRI_INSPECTOR"
-    ],
+    "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false
 }

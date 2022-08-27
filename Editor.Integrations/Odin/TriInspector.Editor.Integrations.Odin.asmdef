@@ -18,6 +18,7 @@
     ],
     "autoReferenced": false,
     "defineConstraints": [
+        "TRI_INSPECTOR",
         "ODIN_INSPECTOR"
     ],
     "versionDefines": [],

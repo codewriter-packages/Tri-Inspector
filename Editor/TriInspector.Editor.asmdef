@@ -13,7 +13,9 @@
     "overrideReferences": true,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
+    "defineConstraints": [
+        "TRI_INSPECTOR"
+    ],
     "versionDefines": [],
     "noEngineReferences": false
 }
