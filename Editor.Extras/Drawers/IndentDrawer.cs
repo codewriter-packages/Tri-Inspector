@@ -11,9 +11,9 @@ namespace TriInspector.Drawers
     {
         public override void OnGUI(Rect position, TriProperty property, TriElement next)
         {
-            using (TriGuiHelper.PushIndentLevel(Attribute.Indent))
+            using (var indentedRectScope = TriGuiHelper.PushIndentedRect(position, Attribute.Indent))
             {
-                next.OnGUI(position);
+                next.OnGUI(indentedRectScope.IndentedRect);
             }
         }
     }

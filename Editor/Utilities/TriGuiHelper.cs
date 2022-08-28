@@ -38,9 +38,9 @@ namespace TriInspector.Utilities
             return new LabelWidthScope(labelWidth);
         }
 
-        public static IndentLevelScope PushIndentLevel(int indent = 1)
+        public static IndentedRectScope PushIndentedRect(Rect source, int indentLevel)
         {
-            return new IndentLevelScope(indent);
+            return new IndentedRectScope(source, indentLevel);
         }
 
         public static GuiColorScope PushColor(Color color)
@@ -81,20 +81,23 @@ namespace TriInspector.Utilities
             }
         }
 
-        public readonly struct IndentLevelScope : IDisposable
+        public readonly struct IndentedRectScope : IDisposable
         {
-            private readonly int _oldIndentLevel;
+            private readonly float _indent;
 
-            public IndentLevelScope(int indentLevel)
+            public Rect IndentedRect { get; }
+
+            public IndentedRectScope(Rect source, int indentLevel)
             {
-                _oldIndentLevel = EditorGUI.indentLevel;
+                _indent = indentLevel * 15;
 
-                EditorGUI.indentLevel += indentLevel;
+                IndentedRect = new Rect(source.x + _indent, source.y, source.width - _indent, source.height);
+                EditorGUIUtility.labelWidth -= _indent;
             }
 
             public void Dispose()
             {
-                EditorGUI.indentLevel = _oldIndentLevel;
+                EditorGUIUtility.labelWidth += _indent;
             }
         }
 

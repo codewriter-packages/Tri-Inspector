@@ -71,7 +71,13 @@ namespace TriInspector
                 rect.xMin += 3;
             }
 
+            rect = EditorGUI.IndentedRect(rect);
+            var oldIndent = EditorGUI.indentLevel;
+            EditorGUI.indentLevel = 0;
+
             _rootPropertyElement.OnGUI(rect);
+
+            EditorGUI.indentLevel = oldIndent;
         }
 
         public void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)

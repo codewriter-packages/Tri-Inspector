@@ -112,10 +112,10 @@ namespace TriInspector.Elements
 
                 if (_property.IsExpanded)
                 {
-                    using (TriGuiHelper.PushIndentLevel())
+                    using (var indentedRectScope = TriGuiHelper.PushIndentedRect(contentRect, 1))
                     using (TriGuiHelper.PushLabelWidth(_props.labelWidth))
                     {
-                        base.OnGUI(contentRect);
+                        base.OnGUI(indentedRectScope.IndentedRect);
                     }
                 }
             }

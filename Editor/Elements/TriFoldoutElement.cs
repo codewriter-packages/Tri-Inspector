@@ -65,9 +65,9 @@ namespace TriInspector.Elements
                 return;
             }
 
-            using (TriGuiHelper.PushIndentLevel())
+            using (var indentedRectScope = TriGuiHelper.PushIndentedRect(contentRect, 1))
             {
-                base.OnGUI(contentRect);
+                base.OnGUI(indentedRectScope.IndentedRect);
             }
         }
 

@@ -58,10 +58,7 @@ namespace TriInspector.Drawers
                     xMin = prefixRect.xMax,
                 };
 
-                using (TriGuiHelper.PushIndentLevel())
-                {
-                    TriEditorGUI.Foldout(prefixRect, _property);
-                }
+                TriEditorGUI.Foldout(prefixRect, _property);
 
                 EditorGUI.BeginChangeCheck();
 
