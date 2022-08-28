@@ -1,5 +1,4 @@
 ﻿using System;
-using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.Validation;
 using TriInspector.Editor.Integrations.Odin;
@@ -33,8 +32,7 @@ namespace TriInspector.Editor.Integrations.Odin
                 return false;
             }
 
-            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
-                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+            if (!TriOdinUtility.IsDrawnByTri(type))
             {
                 return false;
             }

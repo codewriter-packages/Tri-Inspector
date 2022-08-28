@@ -1,5 +1,4 @@
 ﻿using System;
-using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.Validation;
 using TriInspector.Editor.Integrations.Odin;
@@ -30,13 +29,12 @@ namespace TriInspector.Editor.Integrations.Odin
                 return false;
             }
 
-            if (typeof(UnityEngine.Object).IsAssignableFrom(type))
+            if (!TriOdinUtility.IsDrawnByTri(type))
             {
                 return false;
             }
 
-            if (!type.IsDefined<DrawWithTriInspectorAttribute>() &&
-                !type.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+            if (typeof(UnityEngine.Object).IsAssignableFrom(type))
             {
                 return false;
             }
@@ -44,8 +42,7 @@ namespace TriInspector.Editor.Integrations.Odin
             for (var parent = property.Parent; parent != null; parent = parent.Parent)
             {
                 var parentType = parent.Info.TypeOfValue;
-                if (parentType.IsDefined<DrawWithTriInspectorAttribute>() ||
-                    parentType.Assembly.IsDefined<DrawWithTriInspectorAttribute>())
+                if (TriOdinUtility.IsDrawnByTri(parentType))
                 {
                     return false;
                 }
