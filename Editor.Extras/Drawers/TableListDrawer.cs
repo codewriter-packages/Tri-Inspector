@@ -94,8 +94,6 @@ namespace TriInspector.Drawers
 
             public override void OnGUI(Rect position)
             {
-                position = EditorGUI.IndentedRect(position);
-
                 var headerRect = new Rect(position)
                 {
                     height = ListGui.headerHeight,
@@ -325,7 +323,6 @@ namespace TriInspector.Drawers
                     var cellElement = rowElement.Elements[visibleColumnIndex - 1].Key;
                     cellRect.height = cellElement.GetHeight(cellRect.width);
 
-                    using (TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel))
                     using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth / rowElement.ChildrenCount))
                     using (TriPropertyOverrideContext.BeginOverride(_propertyOverrideContext))
                     {

@@ -103,8 +103,6 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
-            position = EditorGUI.IndentedRect(position);
-
             if (!_property.IsExpanded)
             {
                 ReorderableListProxy.DoListHeader(_reorderableListGui, new Rect(position)
@@ -277,27 +275,24 @@ namespace TriInspector.Elements
 
         private void DrawHeaderCallback(Rect rect)
         {
-            using (TriGuiHelper.PushIndentLevel(-EditorGUI.indentLevel))
+            var labelRect = new Rect(rect);
+            var arraySizeRect = new Rect(rect)
             {
-                var labelRect = new Rect(rect);
-                var arraySizeRect = new Rect(rect)
-                {
-                    xMin = rect.xMax - 100,
-                };
+                xMin = rect.xMax - 100,
+            };
 
-                if (_alwaysExpanded)
-                {
-                    EditorGUI.LabelField(labelRect, _property.DisplayNameContent);
-                }
-                else
-                {
-                    labelRect.x += 10;
-                    TriEditorGUI.Foldout(labelRect, _property);
-                }
-
-                var label = _reorderableListGui.count == 0 ? "Empty" : $"{_reorderableListGui.count} items";
-                GUI.Label(arraySizeRect, label, Styles.ItemsCount);
+            if (_alwaysExpanded)
+            {
+                EditorGUI.LabelField(labelRect, _property.DisplayNameContent);
             }
+            else
+            {
+                labelRect.x += 10;
+                TriEditorGUI.Foldout(labelRect, _property);
+            }
+
+            var label = _reorderableListGui.count == 0 ? "Empty" : $"{_reorderableListGui.count} items";
+            GUI.Label(arraySizeRect, label, Styles.ItemsCount);
         }
 
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)

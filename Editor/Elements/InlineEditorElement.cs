@@ -87,13 +87,7 @@ namespace TriInspector.Elements
 
             if (_editor != null && shouldDrawEditor)
             {
-                Rect indentedEditorPosition;
-                using (TriGuiHelper.PushIndentLevel())
-                {
-                    indentedEditorPosition = EditorGUI.IndentedRect(_editorPosition);
-                }
-
-                GUILayout.BeginArea(indentedEditorPosition);
+                GUILayout.BeginArea(_editorPosition);
                 GUILayout.BeginVertical();
                 _editor.OnInspectorGUI();
                 GUILayout.EndVertical();
