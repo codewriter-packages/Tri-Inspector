@@ -547,8 +547,7 @@ namespace TriInspector
             // because we cannot directly modify structs
             // but we can re-set entire parent value
             while (property._definition.SetValue(property, value, targetIndex, out var parentValue) &&
-                   property.Parent != null &&
-                   property.Parent.FieldType.IsValueType)
+                   property.Parent != null)
             {
                 property = property.Parent;
                 value = parentValue;
