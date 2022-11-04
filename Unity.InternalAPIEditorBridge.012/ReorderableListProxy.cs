@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -5,6 +7,10 @@ namespace TriInspectorUnityInternalBridge
 {
     internal static class ReorderableListProxy
     {
+#if !UNITY_2021_3_OR_NEWER
+        private static readonly MethodInfo ClearCacheMethod;
+#endif
+
         private static ReorderableList.Defaults _defaultBehaviours;
 
         // ReSharper disable once InconsistentNaming
@@ -19,6 +25,15 @@ namespace TriInspectorUnityInternalBridge
 
                 return _defaultBehaviours;
             }
+        }
+
+        static ReorderableListProxy()
+        {
+#if !UNITY_2021_3_OR_NEWER
+            const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            ClearCacheMethod = typeof(ReorderableList).GetMethod("InvalidateCacheRecursive", flags) ??
+                               typeof(ReorderableList).GetMethod("ClearCacheRecursive", flags);
+#endif
         }
 
         public static void DoListHeader(ReorderableList list, Rect headerRect)
@@ -38,10 +53,10 @@ namespace TriInspectorUnityInternalBridge
 
         public static void ClearCacheRecursive(ReorderableList list)
         {
-#if UNITY_2021_3_OR_NEWER || UNITY_2020_3
+#if UNITY_2021_3_OR_NEWER
             list.InvalidateCacheRecursive();
-#elif UNITY_2020_2_OR_NEWER
-            list.ClearCacheRecursive();
+#else
+            ClearCacheMethod?.Invoke(list, Array.Empty<object>());
 #endif
         }
     }
