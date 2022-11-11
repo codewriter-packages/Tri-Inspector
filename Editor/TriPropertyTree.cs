@@ -85,7 +85,7 @@ namespace TriInspector
             RootProperty.EnumerateValidationResults(call);
         }
 
-        public virtual void RequestRepaint()
+        public void RequestRepaint()
         {
             RepaintRequired = true;
         }

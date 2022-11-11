@@ -1,6 +1,7 @@
 ﻿using System;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 using TriInspector.Utilities;
 using UnityEngine;
 
@@ -73,6 +74,11 @@ namespace TriInspector.Editor.Integrations.Odin
             using (TriGuiHelper.PushEditorTarget(ValueEntry.SmartValue))
             {
                 _propertyTree.Draw();
+            }
+
+            if (_propertyTree.RepaintRequired)
+            {
+                GUIHelper.RequestRepaint();
             }
         }
     }

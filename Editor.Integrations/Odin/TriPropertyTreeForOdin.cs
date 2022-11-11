@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Sirenix.OdinInspector.Editor;
-using Sirenix.Utilities.Editor;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
@@ -86,13 +85,6 @@ namespace TriInspector.Editor.Integrations.Odin
         public override void ForceCreateUndoGroup()
         {
             _odinProperty.RecordForUndo(forceCompleteObjectUndo: true);
-        }
-
-        public override void RequestRepaint()
-        {
-            base.RequestRepaint();
-
-            GUIHelper.RequestRepaint();
         }
 
         private void OnPropertyChanged(TriProperty changedProperty)

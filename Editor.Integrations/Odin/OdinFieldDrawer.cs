@@ -1,5 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.Utilities.Editor;
 using UnityEngine;
 
 namespace TriInspector.Editor.Integrations.Odin
@@ -76,6 +77,11 @@ namespace TriInspector.Editor.Integrations.Odin
             using (TriPropertyOverrideContext.BeginOverride(_labelOverrideContext))
             {
                 _propertyTree.Draw();
+            }
+
+            if (_propertyTree.RepaintRequired)
+            {
+                GUIHelper.RequestRepaint();
             }
         }
 
