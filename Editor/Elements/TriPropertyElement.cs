@@ -1,4 +1,5 @@
 ﻿using System;
+using TriInspector.Utilities;
 using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEngine;
@@ -75,7 +76,10 @@ namespace TriInspector.Elements
                 ? ScriptAttributeUtilityProxy.GetHandler(serializedProperty)
                 : default(PropertyHandlerProxy?);
 
-            if (!handler.HasValue || !handler.Value.hasPropertyDrawer)
+            var drawWithUnity = handler.HasValue && handler.Value.hasPropertyDrawer ||
+                                handler.HasValue && TriUnityInspectorUtilities.MustDrawWithUnity(property);
+
+            if (!drawWithUnity)
             {
                 var propertyType = property.PropertyType;
 

@@ -113,7 +113,14 @@ namespace TriInspector
                     }
                 }
 
-                if (!IsArrayElement)
+                if (IsArrayElement)
+                {
+                    if (TriUnityInspectorUtilities.TryGetSpecialArrayElementName(this, out var specialName))
+                    {
+                        _displayNameBackingField.text = specialName;
+                    }
+                }
+                else
                 {
                     if (_definition.CustomLabel != null)
                     {

@@ -29,6 +29,13 @@ namespace TriInspector.Elements
         {
             EditorGUI.BeginChangeCheck();
 
+            if (_property.IsArrayElement &&
+                _serializedProperty.propertyType == SerializedPropertyType.Generic &&
+                _serializedProperty.hasVisibleChildren)
+            {
+                position.xMin += 12;
+            }
+
             _propertyHandler.OnGUI(position, _serializedProperty, _property.DisplayNameContent, true);
 
             if (EditorGUI.EndChangeCheck())
