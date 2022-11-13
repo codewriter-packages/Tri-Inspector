@@ -611,6 +611,19 @@ public class BoxGroupSample : ScriptableObject
 }
 ```
 
+#### Foldout Group
+
+![FoldoutGroup](https://user-images.githubusercontent.com/26966368/201517886-4138ee55-33c2-4a1a-93bc-a3cda7745a4c.png)
+
+```csharp
+[DeclareFoldoutGroup("foldout", Title = "My Foldout")]
+public class FoldoutGroupSample : ScriptableObject
+{
+    [Group("foldout")] public int a;
+    [Group("foldout")] public bool b;
+}
+```
+
 #### Tab Group
 
 ![TabGroup](https://user-images.githubusercontent.com/26966368/177552003-528a4e52-e340-460b-93e6-f56c07ac063b.png)

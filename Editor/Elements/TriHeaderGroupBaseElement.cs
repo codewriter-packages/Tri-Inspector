@@ -16,18 +16,29 @@ namespace TriInspector.Elements
             return 22;
         }
 
+        protected virtual float GetContentHeight(float width)
+        {
+            return base.GetHeight(width) + InsetTop + InsetBottom;
+        }
+
         protected virtual void DrawHeader(Rect position)
         {
         }
 
+        protected virtual void DrawContent(Rect position)
+        {
+            base.OnGUI(position);
+        }
+
         public sealed override float GetHeight(float width)
         {
-            return base.GetHeight(width) + InsetTop + InsetBottom + GetHeaderHeight(width);
+            return GetContentHeight(width) + GetHeaderHeight(width);
         }
 
         public sealed override void OnGUI(Rect position)
         {
             var headerHeight = GetHeaderHeight(position.width);
+            var contentHeight = GetContentHeight(position.width);
 
             var headerBgRect = new Rect(position)
             {
@@ -41,24 +52,24 @@ namespace TriInspector.Elements
             {
                 xMin = contentBgRect.xMin + InsetLeft,
                 xMax = contentBgRect.xMax - InsetRight,
-                yMin = contentBgRect.yMin + InsetTop,
-                yMax = contentBgRect.yMax - InsetBottom,
+                height = contentHeight,
             };
 
             if (headerHeight > 0f)
             {
                 DrawHeader(headerBgRect);
-
-                TriEditorGUI.DrawBox(contentBgRect, TriEditorStyles.ContentBox);
-            }
-            else
-            {
-                TriEditorGUI.DrawBox(contentBgRect, TriEditorStyles.Box);
             }
 
-            using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - InsetLeft))
+            if (contentHeight > 0)
             {
-                base.OnGUI(contentRect);
+                TriEditorGUI.DrawBox(contentBgRect, headerHeight > 0f
+                    ? TriEditorStyles.ContentBox
+                    : TriEditorStyles.Box);
+
+                using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth - InsetLeft))
+                {
+                    DrawContent(contentRect);
+                }
             }
         }
     }
