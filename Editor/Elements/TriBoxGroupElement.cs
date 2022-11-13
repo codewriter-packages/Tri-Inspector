@@ -1,4 +1,5 @@
-﻿using TriInspector.Utilities;
+﻿using System;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,23 +7,42 @@ namespace TriInspector.Elements
 {
     public class TriBoxGroupElement : TriHeaderGroupBaseElement
     {
+        private readonly Props _props;
         private readonly GUIContent _headerLabel;
+        private bool _expanded;
 
-        public TriBoxGroupElement(DeclareBoxGroupAttribute attribute)
+        [Serializable]
+        public struct Props
         {
-            _headerLabel = attribute.Title == null
-                ? GUIContent.none
-                : new GUIContent(attribute.Title);
+            public bool foldout;
+            public bool expandedByDefault;
+        }
+
+        public TriBoxGroupElement(string title, Props props = default)
+        {
+            _props = props;
+            _headerLabel = new GUIContent(title ?? "");
+            _expanded = _props.expandedByDefault;
         }
 
         protected override float GetHeaderHeight(float width)
         {
-            if (string.IsNullOrEmpty(_headerLabel.text))
+            if (!_props.foldout && string.IsNullOrEmpty(_headerLabel.text))
             {
                 return 0f;
             }
 
             return base.GetHeaderHeight(width);
+        }
+
+        protected override float GetContentHeight(float width)
+        {
+            if (_props.foldout && !_expanded)
+            {
+                return 0f;
+            }
+
+            return base.GetContentHeight(width);
         }
 
         protected override void DrawHeader(Rect position)
@@ -37,7 +57,25 @@ namespace TriInspector.Elements
                 yMax = position.yMax - 2,
             };
 
-            EditorGUI.LabelField(headerLabelRect, _headerLabel);
+            if (_props.foldout)
+            {
+                headerLabelRect.x += 10;
+                _expanded = EditorGUI.Foldout(headerLabelRect, _expanded, _headerLabel, true);
+            }
+            else
+            {
+                EditorGUI.LabelField(headerLabelRect, _headerLabel);
+            }
+        }
+
+        protected override void DrawContent(Rect position)
+        {
+            if (_props.foldout && !_expanded)
+            {
+                return;
+            }
+
+            base.DrawContent(position);
         }
     }
 }
