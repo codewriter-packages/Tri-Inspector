@@ -70,6 +70,8 @@ namespace TriInspector
             PropertyType = GetPropertyType(this);
         }
 
+        internal TriPropertyDefinition Definition => _definition;
+
         [PublicAPI]
         public TriPropertyType PropertyType { get; }
 

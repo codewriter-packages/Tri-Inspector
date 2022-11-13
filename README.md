@@ -616,11 +616,13 @@ public class BoxGroupSample : ScriptableObject
 ![FoldoutGroup](https://user-images.githubusercontent.com/26966368/201517886-4138ee55-33c2-4a1a-93bc-a3cda7745a4c.png)
 
 ```csharp
-[DeclareFoldoutGroup("foldout", Title = "My Foldout")]
+[DeclareFoldoutGroup("foldout", Title = "$" + nameof(DynamicTitle))]
 public class FoldoutGroupSample : ScriptableObject
 {
     [Group("foldout")] public int a;
     [Group("foldout")] public bool b;
+    
+    public string DynamicTitle => "My Foldout";
 }
 ```
 
