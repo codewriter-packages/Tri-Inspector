@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 
 [assembly: RegisterTriValueDrawer(typeof(IntegerDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(LongDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(BooleanDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(FloatDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(StringDrawer), TriDrawerOrder.Fallback)]
@@ -49,7 +50,13 @@ namespace TriInspector.Drawers
             return EditorGUI.IntField(position, label, value);
         }
     }
-
+    public class LongDrawer : BuiltinDrawerBase<long>
+    {
+        protected override long OnValueGUI(Rect position, GUIContent label, long value)
+        {
+            return EditorGUI.LongField(position, label, value);
+        }
+    }
     public class FloatDrawer : BuiltinDrawerBase<float>
     {
         protected override float OnValueGUI(Rect position, GUIContent label, float value)
