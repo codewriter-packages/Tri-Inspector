@@ -10,9 +10,10 @@ namespace TriInspector.GroupDrawers
     {
         public override TriPropertyCollectionBaseElement CreateElement(DeclareFoldoutGroupAttribute attribute)
         {
-            return new TriBoxGroupElement(attribute.Title, new TriBoxGroupElement.Props
+            return new TriBoxGroupElement(new TriBoxGroupElement.Props
             {
-                foldout = true,
+                title = attribute.Title,
+                titleMode = TriBoxGroupElement.TitleMode.Foldout,
                 expandedByDefault = attribute.Expanded,
             });
         }

@@ -9,6 +9,7 @@ namespace TriInspector
     {
         public DeclareFoldoutGroupAttribute(string path) : base(path)
         {
+            Title = path;
         }
 
         public string Title { get; set; }
