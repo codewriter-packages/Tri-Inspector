@@ -65,7 +65,7 @@ namespace TriInspector.Drawers
 
                 EditorGUI.BeginChangeCheck();
 
-                var allowSceneObjects = _property.PropertyTree.TargetIsPersistent;
+                var allowSceneObjects = _property.PropertyTree.TargetIsPersistent == false;
 
                 var value = (Object) _property.Value;
                 value = EditorGUI.ObjectField(pickerRect, GUIContent.none, value,

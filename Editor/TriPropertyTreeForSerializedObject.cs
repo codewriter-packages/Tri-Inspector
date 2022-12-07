@@ -16,7 +16,7 @@ namespace TriInspector
             TargetObjectType = _serializedObject.targetObject.GetType();
             TargetsCount = _serializedObject.targetObjects.Length;
             TargetIsPersistent = _serializedObject.targetObject is var targetObject &&
-                                 targetObject != null && !EditorUtility.IsPersistent(targetObject);
+                                  targetObject != null && EditorUtility.IsPersistent(targetObject);
 
             RootPropertyDefinition = new TriPropertyDefinition(
                 memberInfo: null,

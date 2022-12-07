@@ -11,7 +11,7 @@ namespace TriInspector.Drawers
     {
         public override TriElement CreateElement(TriValue<Object> value, TriElement next)
         {
-            if (value.Property.IsRootProperty)
+            if (value.Property.IsRootProperty || value.Property.TryGetSerializedProperty(out _))
             {
                 return next;
             }
@@ -27,8 +27,7 @@ namespace TriInspector.Drawers
             public ObjectReferenceDrawerElement(TriValue<Object> propertyValue)
             {
                 _propertyValue = propertyValue;
-                _allowSceneObjects = propertyValue.Property.PropertyTree.TargetIsPersistent &&
-                                     propertyValue.Property.TryGetAttribute(out AssetsOnlyAttribute _) == false;
+                _allowSceneObjects = propertyValue.Property.PropertyTree.TargetIsPersistent == false;
             }
 
             public override float GetHeight(float width)
@@ -38,10 +37,7 @@ namespace TriInspector.Drawers
 
             public override void OnGUI(Rect position)
             {
-                var hasSerializedProperty = _propertyValue.Property
-                    .TryGetSerializedProperty(out var serializedProperty);
-
-                var value = hasSerializedProperty ? serializedProperty.objectReferenceValue : _propertyValue.SmartValue;
+                var value = _propertyValue.SmartValue;
 
                 EditorGUI.BeginChangeCheck();
 
@@ -50,15 +46,7 @@ namespace TriInspector.Drawers
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    if (hasSerializedProperty)
-                    {
-                        serializedProperty.objectReferenceValue = value;
-                        _propertyValue.Property.NotifyValueChanged();
-                    }
-                    else
-                    {
-                        _propertyValue.SmartValue = value;
-                    }
+                    _propertyValue.SmartValue = value;
                 }
             }
         }
