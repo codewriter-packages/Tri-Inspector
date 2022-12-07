@@ -25,7 +25,10 @@ namespace TriInspector.Drawers
 
         public override TriElement CreateElement(TriProperty property, TriElement next)
         {
-            var element = new TriBoxGroupElement("");
+            var element = new TriBoxGroupElement(new TriBoxGroupElement.Props
+            {
+                titleMode = TriBoxGroupElement.TitleMode.Hidden,
+            });
             element.AddChild(new ObjectReferenceFoldoutDrawerElement(property));
             element.AddChild(new InlineEditorElement(property));
             return element;

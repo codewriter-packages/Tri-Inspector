@@ -10,7 +10,13 @@ namespace TriInspector.GroupDrawers
     {
         public override TriPropertyCollectionBaseElement CreateElement(DeclareBoxGroupAttribute attribute)
         {
-            return new TriBoxGroupElement(attribute.Title);
+            return new TriBoxGroupElement(new TriBoxGroupElement.Props
+            {
+                title = attribute.Title,
+                titleMode = attribute.HideTitle
+                    ? TriBoxGroupElement.TitleMode.Hidden
+                    : TriBoxGroupElement.TitleMode.Normal,
+            });
         }
     }
 }

@@ -9,8 +9,10 @@ namespace TriInspector
     {
         public DeclareBoxGroupAttribute(string path) : base(path)
         {
+            Title = path;
         }
 
         public string Title { get; set; }
+        public bool HideTitle { get; set; }
     }
 }
