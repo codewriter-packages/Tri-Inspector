@@ -1,6 +1,4 @@
 ﻿using System;
-using TriInspector.Utilities;
-using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEngine;
 
@@ -70,44 +68,28 @@ namespace TriInspector.Elements
 
         private static TriElement CreateElement(TriProperty property, Props props)
         {
-            var isSerializedProperty = property.TryGetSerializedProperty(out var serializedProperty);
-
-            var handler = isSerializedProperty
-                ? ScriptAttributeUtilityProxy.GetHandler(serializedProperty)
-                : default(PropertyHandlerProxy?);
-
-            var drawWithUnity = handler.HasValue && handler.Value.hasPropertyDrawer ||
-                                handler.HasValue && TriUnityInspectorUtilities.MustDrawWithUnity(property);
-
-            if (!drawWithUnity)
+            switch (property.PropertyType)
             {
-                var propertyType = property.PropertyType;
-
-                switch (propertyType)
+                case TriPropertyType.Array:
                 {
-                    case TriPropertyType.Array:
-                    {
-                        return CreateArrayElement(property);
-                    }
+                    return CreateArrayElement(property);
+                }
 
-                    case TriPropertyType.Reference:
-                    {
-                        return CreateReferenceElement(property, props);
-                    }
+                case TriPropertyType.Reference:
+                {
+                    return CreateReferenceElement(property, props);
+                }
 
-                    case TriPropertyType.Generic:
-                    {
-                        return CreateGenericElement(property, props);
-                    }
+                case TriPropertyType.Generic:
+                {
+                    return CreateGenericElement(property, props);
+                }
+
+                default:
+                {
+                    return new TriNoDrawerElement(property);
                 }
             }
-
-            if (isSerializedProperty)
-            {
-                return new TriBuiltInPropertyElement(property, serializedProperty, handler.Value);
-            }
-
-            return new TriNoDrawerElement(property);
         }
 
         private static TriElement CreateArrayElement(TriProperty property)
