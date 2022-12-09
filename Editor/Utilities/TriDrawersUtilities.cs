@@ -247,7 +247,7 @@ namespace TriInspector.Utilities
                 select CreateInstance<TriPropertyHideProcessor>(
                     processor.ProcessorType, valueType, it =>
                     {
-                        //
+                        it.ApplyOnArrayElement = processor.ApplyOnArrayElement;
                         it.RawAttribute = attribute;
                     });
         }
@@ -262,7 +262,7 @@ namespace TriInspector.Utilities
                 select CreateInstance<TriPropertyDisableProcessor>(
                     processor.ProcessorType, valueType, it =>
                     {
-                        //
+                        it.ApplyOnArrayElement = processor.ApplyOnArrayElement;
                         it.RawAttribute = attribute;
                     });
         }
