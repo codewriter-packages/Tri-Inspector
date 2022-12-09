@@ -50,6 +50,7 @@ namespace TriInspector
         }
 
         public Type ProcessorType { get; }
+        public bool ApplyOnArrayElement { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
@@ -61,6 +62,7 @@ namespace TriInspector
         }
 
         public Type ProcessorType { get; }
+        public bool ApplyOnArrayElement { get; set; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]

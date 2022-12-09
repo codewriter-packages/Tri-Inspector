@@ -1,4 +1,5 @@
-﻿using TriInspector;
+﻿using System.Collections.Generic;
+using TriInspector;
 using UnityEngine;
 
 public class Conditionals_ShowIfSample : ScriptableObject
@@ -11,7 +12,7 @@ public class Conditionals_ShowIfSample : ScriptableObject
     public Vector3 showWhenMaterialIsNull;
 
     [ShowIf(nameof(toggle))]
-    public Vector3 showWhenToggleIsTrue;
+    public List<Vector3> showWhenToggleIsTrue;
 
     [ShowIf(nameof(toggle), false)]
     public Vector3 showWhenToggleIsFalse;
