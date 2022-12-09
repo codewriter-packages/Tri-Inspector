@@ -82,6 +82,9 @@ namespace TriInspector
         public TriProperty Parent { get; }
 
         [PublicAPI]
+        public TriProperty Owner => IsArrayElement ? Parent.Owner : Parent;
+
+        [PublicAPI]
         public bool IsRootProperty => Parent == null;
 
         [PublicAPI]

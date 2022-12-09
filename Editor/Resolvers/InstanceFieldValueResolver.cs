@@ -47,7 +47,7 @@ namespace TriInspector.Resolvers
 
         public override T GetValue(TriProperty property, T defaultValue = default)
         {
-            var parentValue = property.Parent.GetValue(0);
+            var parentValue = property.Owner.GetValue(0);
 
             try
             {
