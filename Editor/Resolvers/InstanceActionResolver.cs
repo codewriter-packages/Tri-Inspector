@@ -49,7 +49,7 @@ namespace TriInspector.Resolvers
 
         public override void InvokeForTarget(TriProperty property, int targetIndex)
         {
-            var parentValue = property.Parent.GetValue(targetIndex);
+            var parentValue = property.Owner.GetValue(targetIndex);
 
             try
             {
