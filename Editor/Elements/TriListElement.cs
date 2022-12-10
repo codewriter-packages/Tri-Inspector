@@ -23,7 +23,7 @@ namespace TriInspector.Elements
 
         public TriListElement(TriProperty property)
         {
-            property.TryGetAttribute(out ListDrawerSettings settings);
+            property.TryGetAttribute(out ListDrawerSettingsAttribute settings);
 
             _property = property;
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
