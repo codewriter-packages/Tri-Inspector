@@ -8,15 +8,17 @@ namespace TriInspector
     public sealed class TriPropertyTreeForSerializedObject : TriPropertyTree
     {
         private readonly SerializedObject _serializedObject;
+        private readonly SerializedProperty _scriptProperty;
 
         public TriPropertyTreeForSerializedObject([NotNull] SerializedObject serializedObject)
         {
             _serializedObject = serializedObject ?? throw new ArgumentNullException(nameof(serializedObject));
+            _scriptProperty = serializedObject.FindProperty("m_Script");
 
             TargetObjectType = _serializedObject.targetObject.GetType();
             TargetsCount = _serializedObject.targetObjects.Length;
             TargetIsPersistent = _serializedObject.targetObject is var targetObject &&
-                                  targetObject != null && EditorUtility.IsPersistent(targetObject);
+                                 targetObject != null && EditorUtility.IsPersistent(targetObject);
 
             RootPropertyDefinition = new TriPropertyDefinition(
                 memberInfo: null,
@@ -54,6 +56,13 @@ namespace TriInspector
             base.Update(forceUpdate);
         }
 
+        public override void Draw(float? viewWidth = null)
+        {
+            DrawMonoScriptProperty();
+
+            base.Draw(viewWidth);
+        }
+
         public override bool ApplyChanges()
         {
             var changed = base.ApplyChanges();
@@ -76,6 +85,20 @@ namespace TriInspector
 
             RequestValidation();
             RequestRepaint();
+        }
+
+        private void DrawMonoScriptProperty()
+        {
+            if (RootProperty.TryGetAttribute(out HideMonoScriptAttribute _))
+            {
+                return;
+            }
+
+            EditorGUI.BeginDisabledGroup(true);
+            var scriptRect = EditorGUILayout.GetControlRect(true);
+            scriptRect.xMin += 3;
+            EditorGUI.PropertyField(scriptRect, _scriptProperty);
+            EditorGUI.EndDisabledGroup();
         }
     }
 }

@@ -48,7 +48,7 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        public void Draw(float? viewWidth = null)
+        public virtual void Draw(float? viewWidth = null)
         {
             RepaintRequired = false;
 
