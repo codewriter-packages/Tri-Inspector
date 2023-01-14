@@ -7,6 +7,11 @@ namespace TriInspector.Resolvers
         public static ValueResolver<T> Resolve<T>(TriPropertyDefinition propertyDefinition,
             string expression)
         {
+            if (expression != null && expression.StartsWith("$"))
+            {
+                expression = expression.Substring(1);
+            }
+
             if (StaticFieldValueResolver<T>.TryResolve(propertyDefinition, expression, out var sfr))
             {
                 return sfr;
