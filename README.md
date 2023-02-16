@@ -127,6 +127,10 @@ private void OnMaterialChanged()
 }
 ```
 
+#### HideMonoScript
+
+Hides the default Script property in the inspector.
+
 ### Validation
 
 Tri Inspector has some builtin validators such as `missing reference` and `type mismatch` error. Additionally you can mark out your code with validation attributes or even write own validators.
