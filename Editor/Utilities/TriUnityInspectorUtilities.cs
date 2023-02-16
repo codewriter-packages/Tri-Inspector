@@ -10,7 +10,8 @@ namespace TriInspector.Utilities
 
         public static bool MustDrawWithUnity(TriProperty property)
         {
-            if (property.FieldType == typeof(GUIStyle))
+            if (property.FieldType == typeof(GUIStyle) ||
+                property.FieldType == typeof(RectOffset))
             {
                 return true;
             }
