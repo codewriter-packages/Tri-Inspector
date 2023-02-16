@@ -55,7 +55,7 @@ namespace TriInspector.Drawers
             public override void OnGUI(Rect position)
             {
                 var value = _property.TryGetSerializedProperty(out var serializedProperty)
-                    ? (Enum) Enum.ToObject(_property.FieldType, serializedProperty.intValue)
+                    ? (Enum) Enum.ToObject(_property.FieldType, serializedProperty.longValue)
                     : (Enum) _property.Value;
 
                 var controlId = GUIUtility.GetControlID(FocusType.Passive);
@@ -68,11 +68,23 @@ namespace TriInspector.Drawers
                     var itemName = _enumValues[i].Key;
                     var itemValue = _enumValues[i].Value;
 
-                    var selected = value != null && (_isFlags ? value.HasFlag(itemValue) : value.Equals(itemValue));
+                    var oldSelected = value != null && (_isFlags ? value.HasFlag(itemValue) : value.Equals(itemValue));
+                    var newSelected = GUI.Toggle(itemRect, oldSelected, itemName, itemStyle);
 
-                    if (selected != GUI.Toggle(itemRect, selected, itemName, itemStyle))
+                    if (oldSelected != newSelected)
                     {
-                        _property.SetValue(itemValue);
+                        if (_isFlags)
+                        {
+                            var newValue = newSelected
+                                ? (Convert.ToInt64(value) | Convert.ToInt64(itemValue))
+                                : (Convert.ToInt64(value) & ~Convert.ToInt64(itemValue));
+
+                            _property.SetValue((Enum) Enum.ToObject(_property.FieldType, newValue));
+                        }
+                        else
+                        {
+                            _property.SetValue(itemValue);
+                        }
                     }
                 }
             }
