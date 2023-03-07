@@ -18,6 +18,7 @@ namespace TriInspector
         private readonly List<string> _extensionErrors = new List<string>();
         private readonly MemberInfo _memberInfo;
         private readonly List<Attribute> _attributes;
+        private readonly bool _isNonPolymorphicSerializedByUnity;
 
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
@@ -72,6 +73,10 @@ namespace TriInspector
             _memberInfo = memberInfo;
             _valueGetter = valueGetter;
             _valueSetter = valueSetter;
+
+            _isNonPolymorphicSerializedByUnity = memberInfo is FieldInfo fi &&
+                                                 TriUnitySerializationUtilities.IsSerializableByUnity(fi) &&
+                                                 fi.GetCustomAttribute<SerializeReference>() == null;
 
             Order = order;
             IsReadOnly = _valueSetter == null || Attributes.TryGet(out ReadOnlyAttribute _);
@@ -143,7 +148,19 @@ namespace TriInspector
 
         public object GetValue(TriProperty property, int targetIndex)
         {
-            return _valueGetter(property, targetIndex);
+            var value = _valueGetter(property, targetIndex);
+
+            if (value == null && _isNonPolymorphicSerializedByUnity)
+            {
+                value = TriUnitySerializationUtilities.PopulateUnityDefaultValueForType(FieldType);
+
+                if (value != null)
+                {
+                    _valueSetter?.Invoke(property, targetIndex, value);
+                }
+            }
+
+            return value;
         }
 
         public bool SetValue(TriProperty property, object value, int targetIndex, out object parentValue)

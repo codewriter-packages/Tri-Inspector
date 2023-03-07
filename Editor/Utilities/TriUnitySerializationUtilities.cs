@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -23,13 +24,13 @@ namespace TriInspector.Utilities
 
             if (fieldInfo.IsPublic || fieldInfo.GetCustomAttribute<SerializeField>() != null)
             {
-                return IsTypeSerializable(fieldInfo.FieldType, allowCollections: true);
+                return IsTypeSerializable(fieldInfo.FieldType);
             }
 
             return false;
         }
 
-        private static bool IsTypeSerializable(Type type, bool allowCollections)
+        public static bool IsTypeSerializable(Type type, bool allowCollections = true)
         {
             if (type == typeof(object))
             {
@@ -97,6 +98,11 @@ namespace TriInspector.Utilities
                 }
             }
 
+            if (typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                return false;
+            }
+
             if (type.GetCustomAttribute<SerializableAttribute>() != null)
             {
                 return true;
@@ -105,6 +111,42 @@ namespace TriInspector.Utilities
             // any other cases?
 
             return false;
+        }
+
+        internal static object PopulateUnityDefaultValueForType(Type type)
+        {
+            if (type == typeof(string))
+            {
+                return string.Empty;
+            }
+
+            if (typeof(Object).IsAssignableFrom(type))
+            {
+                return null;
+            }
+
+            if (type.IsEnum)
+            {
+                var values = Enum.GetValues(type);
+                return values.Length > 0 ? values.GetValue(0) : Enum.ToObject(type, 0);
+            }
+
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            if (type.IsArray && type.GetElementType() is var elementType && elementType != null)
+            {
+                return Array.CreateInstance(elementType, 0);
+            }
+
+            if (type.GetConstructor(Type.EmptyTypes) != null)
+            {
+                return Activator.CreateInstance(type);
+            }
+
+            return null;
         }
     }
 }
