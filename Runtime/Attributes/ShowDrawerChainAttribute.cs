@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class ShowDrawerChainAttribute : Attribute
+    public class ShowDrawerChainAttribute : Attribute
     {
     }
 }

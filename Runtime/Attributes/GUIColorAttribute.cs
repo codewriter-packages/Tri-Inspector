@@ -6,7 +6,7 @@ namespace TriInspector
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method |
                     AttributeTargets.Class | AttributeTargets.Struct)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class GUIColorAttribute : Attribute
+    public class GUIColorAttribute : Attribute
     {
         public float R { get; }
         public float G { get; }

@@ -6,7 +6,7 @@ namespace TriInspector
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method |
                     AttributeTargets.Class | AttributeTargets.Struct)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class PropertySpaceAttribute : Attribute
+    public class PropertySpaceAttribute : Attribute
     {
         public float SpaceBefore { get; set; }
         public float SpaceAfter { get; set; }

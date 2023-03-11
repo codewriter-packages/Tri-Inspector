@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage((AttributeTargets.Field | AttributeTargets.Property))]
     [Conditional("UNITY_EDITOR")]
-    public sealed class AssetsOnlyAttribute : Attribute
+    public class AssetsOnlyAttribute : Attribute
     {
         
     }

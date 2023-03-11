@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class ValidateInputAttribute : Attribute
+    public class ValidateInputAttribute : Attribute
     {
         public string Method { get; }
 

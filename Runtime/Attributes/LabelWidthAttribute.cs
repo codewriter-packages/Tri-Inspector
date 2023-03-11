@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class LabelWidthAttribute : Attribute
+    public class LabelWidthAttribute : Attribute
     {
         public float Width { get; }
 

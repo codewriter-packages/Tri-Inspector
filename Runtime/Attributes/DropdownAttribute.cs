@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class DropdownAttribute : Attribute
+    public class DropdownAttribute : Attribute
     {
         public string Values { get; }
 
