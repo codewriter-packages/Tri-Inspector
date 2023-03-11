@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Method)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class ButtonAttribute : Attribute
+    public class ButtonAttribute : Attribute
     {
         public ButtonAttribute()
         {

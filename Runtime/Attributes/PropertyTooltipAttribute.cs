@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class PropertyTooltipAttribute : Attribute
+    public class PropertyTooltipAttribute : Attribute
     {
         public string Tooltip { get; }
 

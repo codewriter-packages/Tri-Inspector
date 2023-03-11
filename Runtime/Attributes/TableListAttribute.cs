@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class TableListAttribute : ListDrawerSettingsAttribute
+    public class TableListAttribute : ListDrawerSettingsAttribute
     {
     }
 }

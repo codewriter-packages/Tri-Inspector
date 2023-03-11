@@ -6,7 +6,7 @@ namespace TriInspector
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property |
                     AttributeTargets.Class | AttributeTargets.Struct)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class ReadOnlyAttribute : Attribute
+    public class ReadOnlyAttribute : Attribute
     {
     }
 }

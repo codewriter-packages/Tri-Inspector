@@ -5,7 +5,7 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Method)]
     [Conditional("UNITY_EDITOR")]
-    public sealed class IndentAttribute : Attribute
+    public class IndentAttribute : Attribute
     {
         public int Indent { get; }
 
