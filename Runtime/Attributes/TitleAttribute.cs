@@ -8,6 +8,7 @@ namespace TriInspector
     public sealed class TitleAttribute : Attribute
     {
         public string Title { get; }
+        public bool HorizontalLine { get; set; } = true;
 
         public TitleAttribute(string title)
         {

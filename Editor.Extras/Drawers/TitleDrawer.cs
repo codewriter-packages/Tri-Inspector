@@ -63,7 +63,11 @@ namespace TriInspector.Drawers
 
             var title = _titleResolver.GetValue(property, "Error");
             GUI.Label(titleRect, title, EditorStyles.boldLabel);
-            EditorGUI.DrawRect(lineRect, Color.gray);
+
+            if (Attribute.HorizontalLine)
+            {
+                EditorGUI.DrawRect(lineRect, Color.gray);
+            }
 
             next.OnGUI(contentRect);
         }
