@@ -10,5 +10,7 @@ namespace TriInspector
         public DeclareHorizontalGroupAttribute(string path) : base(path)
         {
         }
+
+        public float[] Sizes { get; set; }
     }
 }
