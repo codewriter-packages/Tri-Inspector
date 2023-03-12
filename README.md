@@ -248,6 +248,15 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 [Scene] public string scene;
 ```
 
+#### DisplayAsString
+
+![DisplayAsString](https://user-images.githubusercontent.com/26966368/224530522-8aa24fbe-4bc7-4290-89d1-d88c5c502e2b.png)
+
+```csharp
+[DisplayAsString]
+public string[] collection = {"hello", "world"};
+```
+
 ### Styling
 
 #### Title
