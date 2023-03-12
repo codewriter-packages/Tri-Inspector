@@ -11,7 +11,7 @@ namespace TriInspector.GroupDrawers
     {
         public override TriPropertyCollectionBaseElement CreateElement(DeclareHorizontalGroupAttribute attribute)
         {
-            return new TriHorizontalGroupElement();
+            return new TriHorizontalGroupElement(attribute.Sizes);
         }
     }
 }
