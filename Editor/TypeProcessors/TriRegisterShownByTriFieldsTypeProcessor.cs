@@ -24,7 +24,7 @@ namespace TriInspector.TypeProcessors
 
         private static bool IsSerialized(FieldInfo fieldInfo)
         {
-            return fieldInfo.GetCustomAttribute<ShowInInspectorAttribute>() != null &&
+            return fieldInfo.GetCustomAttribute<ShowInInspectorAttribute>(false) != null &&
                    TriUnitySerializationUtilities.IsSerializableByUnity(fieldInfo) == false;
         }
     }

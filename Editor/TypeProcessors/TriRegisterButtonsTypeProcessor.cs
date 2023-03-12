@@ -24,7 +24,7 @@ namespace TriInspector.TypeProcessors
 
         private static bool IsSerialized(MethodInfo methodInfo)
         {
-            return methodInfo.GetCustomAttribute<ButtonAttribute>() != null;
+            return methodInfo.GetCustomAttribute<ButtonAttribute>(false) != null;
         }
     }
 }
