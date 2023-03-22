@@ -40,6 +40,16 @@ namespace TriInspector
             return false;
         }
 
+        public void RunValidationIfRequired()
+        {
+            if (!ValidationRequired)
+            {
+                return;
+            }
+            
+            RunValidation();
+        }
+
         public void RunValidation()
         {
             ValidationRequired = false;

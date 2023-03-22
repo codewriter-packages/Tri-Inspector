@@ -66,11 +66,7 @@ namespace TriInspector.Editor.Integrations.Odin
             }
 
             _propertyTree.Update();
-
-            if (_propertyTree.ValidationRequired)
-            {
-                _propertyTree.RunValidation();
-            }
+            _propertyTree.RunValidationIfRequired();
 
             _labelOverrideContext.Label = label ?? GUIContent.none;
 
