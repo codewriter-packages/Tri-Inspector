@@ -53,11 +53,7 @@ namespace TriInspector
             serializedObject.UpdateIfRequiredOrScript();
 
             _inspector.Update();
-
-            if (_inspector.ValidationRequired)
-            {
-                _inspector.RunValidation();
-            }
+            _inspector.RunValidationIfRequired();
 
             using (TriGuiHelper.PushEditorTarget(target))
             {

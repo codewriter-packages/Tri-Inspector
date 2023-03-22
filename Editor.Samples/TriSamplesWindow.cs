@@ -94,11 +94,7 @@ namespace TriInspector.Editor.Samples
 
                     _currentSerializedObject.UpdateIfRequiredOrScript();
                     _currentPropertyTree.Update();
-
-                    if (_currentPropertyTree.ValidationRequired)
-                    {
-                        _currentPropertyTree.RunValidation();
-                    }
+                    _currentPropertyTree.RunValidationIfRequired();
 
                     GUILayout.Space(10);
                     GUILayout.Label("Preview", EditorStyles.boldLabel);
