@@ -52,6 +52,8 @@ namespace TriInspector.Elements
             {
                 xMin = contentBgRect.xMin + InsetLeft,
                 xMax = contentBgRect.xMax - InsetRight,
+                yMin = contentBgRect.yMin + InsetTop,
+                yMax = contentBgRect.yMax - InsetBottom,
                 height = contentHeight,
             };
 
