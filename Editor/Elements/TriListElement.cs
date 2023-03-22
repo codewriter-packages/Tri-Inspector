@@ -293,6 +293,137 @@ namespace TriInspector.Elements
 
             var label = _reorderableListGui.count == 0 ? "Empty" : $"{_reorderableListGui.count} items";
             GUI.Label(arraySizeRect, label, Styles.ItemsCount);
+            var previousColor = GUI.color;
+            GUI.color = new Color(1f, 1f, 1f, 0f);
+            GUI.Box(rect, "", new GUIStyle());
+            GUI.color = previousColor;
+            var @event = Event.current;
+            switch (@event.type)
+            {
+                case EventType.DragUpdated:
+                case EventType.DragPerform:
+                    if (rect.Contains(@event.mousePosition))
+                    {
+                        DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                        if (@event.type == EventType.DragPerform)
+                        {
+                            DragAndDrop.AcceptDrag();
+
+                            foreach (var objectDrop in DragAndDrop.objectReferences)
+                            {
+                                var objDropType = objectDrop.GetType();
+                                if (objDropType == _property.ArrayElementType || (objDropType == typeof(GameObject) && (_property.ArrayElementType == typeof(Transform) || _property.ArrayElementType.BaseType == typeof(MonoBehaviour))))
+                                {
+                                    AddElementCallback(_reorderableListGui);
+
+                                    if (_property.TryGetSerializedProperty(out var x))
+                                    {
+                                        var element = x.GetArrayElementAtIndex(x.arraySize - 1);
+                                        element.objectReferenceValue = objectDrop;
+                                        if (element.objectReferenceValue == null)
+                                        {
+                                            Debug.LogWarning($"[Drag and Drop]: Object {objectDrop.name} has a data type that doesn't match with type of List <{_property.ArrayElementType}>");
+                                            RemoveElement(x, x.arraySize - 1);
+                                        }
+                                        _property.NotifyValueChanged();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+            }
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="index"></param>
+        public static void RemoveElement(SerializedProperty list, int index)
+        {
+            if (list == null) throw new ArgumentNullException(nameof(list));
+
+            if (!list.isArray) throw new ArgumentException("Property is not an array");
+
+            if (index < 0 || index >= list.arraySize) throw new ArgumentOutOfRangeException(nameof(list));
+
+            SetPropertyValue(list.GetArrayElementAtIndex(index), null);
+            
+            list.DeleteArrayElementAtIndex(index);
+
+            list.serializedObject.ApplyModifiedProperties();
+        }
+
+        public static void SetPropertyValue(SerializedProperty property, object value)
+        {
+            switch (property.propertyType)
+            {
+                case SerializedPropertyType.AnimationCurve:
+                    property.animationCurveValue = value as AnimationCurve;
+                    break;
+
+                case SerializedPropertyType.ArraySize:
+                    property.intValue = System.Convert.ToInt32(value);
+                    break;
+
+                case SerializedPropertyType.Boolean:
+                    property.boolValue = System.Convert.ToBoolean(value);
+                    break;
+
+                case SerializedPropertyType.Bounds:
+                    property.boundsValue = (Bounds?) value ?? new Bounds();
+                    break;
+
+                case SerializedPropertyType.Character:
+                    property.intValue = System.Convert.ToInt32(value);
+                    break;
+
+                case SerializedPropertyType.Color:
+                    property.colorValue = (Color?) value ?? new Color();
+                    break;
+
+                case SerializedPropertyType.Float:
+                    property.floatValue = System.Convert.ToSingle(value);
+                    break;
+
+                case SerializedPropertyType.Integer:
+                    property.intValue = System.Convert.ToInt32(value);
+                    break;
+
+                case SerializedPropertyType.LayerMask:
+                    property.intValue = (value as LayerMask?)?.value ?? System.Convert.ToInt32(value);
+                    break;
+
+                case SerializedPropertyType.ObjectReference:
+                    property.objectReferenceValue = value as UnityEngine.Object;
+                    break;
+
+                case SerializedPropertyType.Quaternion:
+                    property.quaternionValue = (Quaternion?) value ?? Quaternion.identity;
+                    break;
+
+                case SerializedPropertyType.Rect:
+                    property.rectValue = (Rect?) value ?? new Rect();
+                    break;
+
+                case SerializedPropertyType.String:
+                    property.stringValue = value as string;
+                    break;
+
+                case SerializedPropertyType.Vector2:
+                    property.vector2Value = (Vector2?) value ?? Vector2.zero;
+                    break;
+
+                case SerializedPropertyType.Vector3:
+                    property.vector3Value = (Vector3?) value ?? Vector3.zero;
+                    break;
+
+                case SerializedPropertyType.Vector4:
+                    property.vector4Value = (Vector4?) value ?? Vector4.zero;
+                    break;
+            }
         }
 
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)
