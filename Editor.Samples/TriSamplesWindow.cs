@@ -106,8 +106,7 @@ namespace TriInspector.Editor.Samples
                     using (TriGuiHelper.PushEditorTarget(_current))
                     using (new GUILayout.VerticalScope(SampleWindowStyles.BoxWithPadding))
                     {
-                        var viewWidth = GUILayoutUtility.GetRect(0, 10000, 0, 0).width;
-                        _currentPropertyTree.Draw(viewWidth);
+                        _currentPropertyTree.Draw();
                     }
 
                     if (_currentSerializedObject.ApplyModifiedProperties())

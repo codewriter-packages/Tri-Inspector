@@ -8,6 +8,7 @@ namespace TriInspector
     public abstract class TriPropertyTree
     {
         private TriPropertyElement _rootPropertyElement;
+        private Rect _cachedOuterRect = new Rect(0, 0, 0, 0);
 
         public TriPropertyDefinition RootPropertyDefinition { get; protected set; }
         public TriProperty RootProperty { get; protected set; }
@@ -48,7 +49,7 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        public virtual void Draw(float? viewWidth = null)
+        public virtual void Draw()
         {
             RepaintRequired = false;
 
@@ -62,18 +63,18 @@ namespace TriInspector
             }
 
             _rootPropertyElement.Update();
-            var width = viewWidth ?? GUILayoutUtility.GetRect(0, 9999, 0, 0).width;
-            var height = _rootPropertyElement.GetHeight(width);
-            var rect = GUILayoutUtility.GetRect(width, height);
 
-            if (viewWidth == null)
-            {
-                rect.xMin += 3;
-            }
+            var rectOuter = GUILayoutUtility.GetRect(0, 9999, 0, 0);
+            _cachedOuterRect = Event.current.type == EventType.Layout ? _cachedOuterRect : rectOuter;
 
+            var rect = new Rect(_cachedOuterRect);
             rect = EditorGUI.IndentedRect(rect);
+            rect.height = _rootPropertyElement.GetHeight(rect.width);
+
             var oldIndent = EditorGUI.indentLevel;
             EditorGUI.indentLevel = 0;
+
+            GUILayoutUtility.GetRect(_cachedOuterRect.width, rect.height);
 
             _rootPropertyElement.OnGUI(rect);
 
