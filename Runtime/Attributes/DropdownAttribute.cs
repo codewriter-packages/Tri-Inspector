@@ -9,6 +9,8 @@ namespace TriInspector
     {
         public string Values { get; }
 
+        public TriMessageType ValidationMessageType { get; set; } = TriMessageType.Error;
+
         public DropdownAttribute(string values)
         {
             Values = values;

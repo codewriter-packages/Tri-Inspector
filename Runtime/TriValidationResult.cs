@@ -15,6 +15,11 @@
         public string Message { get; }
         public TriMessageType MessageType { get; }
 
+        public static TriValidationResult Info(string error)
+        {
+            return new TriValidationResult(false, error, TriMessageType.Info);
+        }
+        
         public static TriValidationResult Error(string error)
         {
             return new TriValidationResult(false, error, TriMessageType.Error);
