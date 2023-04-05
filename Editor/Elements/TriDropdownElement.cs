@@ -45,7 +45,7 @@ namespace TriInspector.Elements
                 _currentValue = _property.Value;
                 _currentText = _valuesGetter.Invoke(_property)
                     .FirstOrDefault(it => _property.Comparer.Equals(it.Value, _property.Value))
-                    ?.Text ?? "";
+                    ?.Text ?? (_property.Value?.ToString() ?? string.Empty);
             }
 
             var controlId = GUIUtility.GetControlID(FocusType.Passive);
