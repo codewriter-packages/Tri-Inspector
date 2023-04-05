@@ -11,28 +11,16 @@ namespace TriInspector.Elements
         private readonly TriProperty _property;
         private readonly Func<TriProperty, IEnumerable<ITriDropdownItem>> _valuesGetter;
 
+        private object _currentValue;
         private string _currentText;
+
+        private bool _hasNextValue;
+        private object _nextValue;
 
         public TriDropdownElement(TriProperty property, Func<TriProperty, IEnumerable<ITriDropdownItem>> valuesGetter)
         {
             _property = property;
             _valuesGetter = valuesGetter;
-        }
-
-        protected override void OnAttachToPanel()
-        {
-            base.OnAttachToPanel();
-
-            _property.ValueChanged += OnValueChanged;
-
-            RefreshCurrentText();
-        }
-
-        protected override void OnDetachFromPanel()
-        {
-            _property.ValueChanged -= OnValueChanged;
-
-            base.OnDetachFromPanel();
         }
 
         public override float GetHeight(float width)
@@ -42,6 +30,24 @@ namespace TriInspector.Elements
 
         public override void OnGUI(Rect position)
         {
+            if (_hasNextValue)
+            {
+                var nextValue = _nextValue;
+                _hasNextValue = false;
+                _nextValue = null;
+
+                _property.SetValue(nextValue);
+                GUI.changed = true;
+            }
+
+            if (!_property.Comparer.Equals(_currentValue, _property.Value))
+            {
+                _currentValue = _property.Value;
+                _currentText = _valuesGetter.Invoke(_property)
+                    .FirstOrDefault(it => _property.Comparer.Equals(it.Value, _property.Value))
+                    ?.Text ?? "";
+            }
+
             var controlId = GUIUtility.GetControlID(FocusType.Passive);
             position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);
 
@@ -49,20 +55,6 @@ namespace TriInspector.Elements
             {
                 ShowDropdown(position);
             }
-        }
-
-        private void OnValueChanged(TriProperty property)
-        {
-            RefreshCurrentText();
-        }
-
-        private void RefreshCurrentText()
-        {
-            var items = _valuesGetter.Invoke(_property);
-
-            _currentText = items
-                .FirstOrDefault(it => _property.Comparer.Equals(it.Value, _property.Value))
-                ?.Text ?? "";
         }
 
         private void ShowDropdown(Rect position)
@@ -73,10 +65,17 @@ namespace TriInspector.Elements
             foreach (var item in items)
             {
                 var isOn = _property.Comparer.Equals(item.Value, _property.Value);
-                menu.AddItem(new GUIContent(item.Text), isOn, _property.SetValue, item.Value);
+                menu.AddItem(new GUIContent(item.Text), isOn, ChangeValue, item.Value);
             }
 
             menu.DropDown(position);
+
+            void ChangeValue(object v)
+            {
+                _nextValue = v;
+                _hasNextValue = true;
+                _property.PropertyTree.RequestRepaint();
+            }
         }
     }
 }
