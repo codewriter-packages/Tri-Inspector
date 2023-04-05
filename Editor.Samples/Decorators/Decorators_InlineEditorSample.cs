@@ -1,7 +1,7 @@
 ﻿using TriInspector;
 using UnityEngine;
 
-public class Styling_InlineEditorSample : ScriptableObject
+public class Decorators_InlineEditorSample : ScriptableObject
 {
     [InlineEditor]
     public Material mat;

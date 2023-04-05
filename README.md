@@ -248,6 +248,15 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 [Scene] public string scene;
 ```
 
+#### InlineEditor
+
+![InlineEditor](https://user-images.githubusercontent.com/26966368/168234617-86a7f500-e635-46f8-90f2-5696e5ae7e63.png)
+
+```csharp
+[InlineEditor]
+public Material mat;
+```
+
 #### DisplayAsString
 
 ![DisplayAsString](https://user-images.githubusercontent.com/26966368/224530522-8aa24fbe-4bc7-4290-89d1-d88c5c502e2b.png)
@@ -390,15 +399,6 @@ public Rect rect;
 public Vector3 vec;
 
 public string DynamicTooltip => DateTime.Now.ToShortTimeString();
-```
-
-#### InlineEditor
-
-![InlineEditor](https://user-images.githubusercontent.com/26966368/168234617-86a7f500-e635-46f8-90f2-5696e5ae7e63.png)
-
-```csharp
-[InlineEditor]
-public Material mat;
 ```
 
 #### InlineProperty
