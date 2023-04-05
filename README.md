@@ -218,14 +218,14 @@ public GameObject obj;
 
 #### Dropdown
 
-![Dropdown](https://user-images.githubusercontent.com/26966368/177182904-8bb40579-3dc5-441b-8f6b-3ff3d274f71f.png)
+![Dropdown](https://user-images.githubusercontent.com/26966368/230157088-1fec3c38-7046-4fc8-8da1-aca63744ac37.png)
 
 ```csharp
 [Dropdown(nameof(intValues))]
-public int intValue = 1;
+public int numberDropdown = 123;
 
 [Dropdown(nameof(GetVectorValues))]
-public Vector3 vectorValue;
+public Vector3 vectorDropdown;
 
 private int[] intValues = {1, 2, 3, 4, 5};
 
