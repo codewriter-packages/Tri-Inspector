@@ -237,10 +237,10 @@ namespace TriInspector
 
                 if (_isExpandedPrefsKey == null)
                 {
-                    _isExpandedPrefsKey = $"TriInspector.expanded.{PropertyTree.TargetObjectType}.{RawName}";
+                    _isExpandedPrefsKey = $"TriInspector.expanded.{PropertyPath}";
                 }
 
-                return EditorPrefs.GetBool(_isExpandedPrefsKey, false);
+                return SessionState.GetBool(_isExpandedPrefsKey, false);
             }
             set
             {
@@ -255,7 +255,7 @@ namespace TriInspector
                 }
                 else if (_isExpandedPrefsKey != null)
                 {
-                    EditorPrefs.SetBool(_isExpandedPrefsKey, value);
+                    SessionState.SetBool(_isExpandedPrefsKey, value);
                 }
             }
         }
