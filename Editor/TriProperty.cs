@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using JetBrains.Annotations;
 using TriInspector.Utilities;
 using UnityEditor;
@@ -12,6 +13,8 @@ namespace TriInspector
 {
     public sealed class TriProperty
     {
+        private static readonly StringBuilder SharedPropertyPathStringBuilder = new StringBuilder();
+        
         private static readonly IReadOnlyList<TriValidationResult> EmptyValidationResults =
             new List<TriValidationResult>();
 
@@ -23,7 +26,7 @@ namespace TriInspector
         private List<TriValidationResult> _validationResults;
 
         private GUIContent _displayNameBackingField;
-
+        private string _propertyPath;
         private string _isExpandedPrefsKey;
 
         private int _lastUpdateFrame;
@@ -139,6 +142,22 @@ namespace TriInspector
                 }
 
                 return _displayNameBackingField;
+            }
+        }
+
+        [PublicAPI]
+        public string PropertyPath
+        {
+            get
+            {
+                if (_propertyPath == null)
+                {
+                    SharedPropertyPathStringBuilder.Clear();
+                    BuildPropertyPath(this, SharedPropertyPathStringBuilder);
+                    _propertyPath = SharedPropertyPathStringBuilder.ToString();
+                }
+
+                return _propertyPath;
             }
         }
 
@@ -551,6 +570,29 @@ namespace TriInspector
 
             attribute = null;
             return false;
+        }
+
+        internal static void BuildPropertyPath(TriProperty property, StringBuilder sb)
+        {
+            if (property.IsRootProperty)
+            {
+                return;
+            }
+
+            if (property.Parent != null && !property.Parent.IsRootProperty)
+            {
+                BuildPropertyPath(property.Parent, sb);
+                sb.Append('.');
+            }
+            
+            if (property.IsArrayElement)
+            {
+                sb.Append("Array.data[").Append(property.IndexInArray).Append(']');
+            }
+            else
+            {
+                sb.Append(property.RawName);
+            }
         }
 
         private static void SetValueRecursive(TriProperty property, object value, int targetIndex)
