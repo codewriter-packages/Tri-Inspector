@@ -13,8 +13,8 @@ namespace TriInspector
         public static GUIStyle TabMiddle { get; } = "Tab middle";
         public static GUIStyle TabLast { get; } = "Tab last";
         
-        private static GUIStyle FallbackBox { get; } = "HelpBox";
         private static GUIStyle FallbackContentBox { get; } = "HelpBox";
+        private static GUIStyle FallbackBox { get; } = "HelpBox";
         
         public static GUIStyle ContentBox
         {
@@ -26,22 +26,20 @@ namespace TriInspector
 
                     if (backgroundTexture == null)
                     {
-                        _contentBox = new GUIStyle(FallbackContentBox)
-                        {
-                            border = new RectOffset(2, 2, 2, 2),
-                        };
+                        _contentBox = new GUIStyle(FallbackContentBox);
                     }
                     else
                     {
                         _contentBox = new GUIStyle
                         {
-                            border = new RectOffset(2, 2, 2, 2),
                             normal =
                             {
                                 background = backgroundTexture,
                             },
                         };
                     }
+
+                    _contentBox.border = new RectOffset(2, 2, 2, 2);
                 }
 
                 return _contentBox;
@@ -58,22 +56,20 @@ namespace TriInspector
 
                     if (backgroundTexture == null)
                     {
-                        _box = new GUIStyle(FallbackBox)
-                        {
-                            border = new RectOffset(2, 2, 2, 2),
-                        };
+                        _box = new GUIStyle(FallbackBox);
                     }
                     else
                     {
                         _box = new GUIStyle
                         {
-                            border = new RectOffset(2, 2, 2, 2),
                             normal =
                             {
                                 background = backgroundTexture,
                             },
                         };
                     }
+                    
+                    _box.border = new RectOffset(2, 2, 2, 2);
                 }
 
                 return _box;
@@ -84,8 +80,11 @@ namespace TriInspector
         {
             name = EditorGUIUtility.isProSkin ? $"{name}_Dark" : name;
             
-            var result = AssetDatabase.FindAssets($"{name} t:texture2D")[0];
-            var path = AssetDatabase.GUIDToAssetPath(result);
+            var results = AssetDatabase.FindAssets($"{name} t:texture2D");
+            
+            if (results.Length == 0) return null;
+            
+            var path = AssetDatabase.GUIDToAssetPath(results[0]);
             
             return (Texture2D) EditorGUIUtility.Load(path);
         }
