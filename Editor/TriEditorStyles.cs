@@ -5,30 +5,43 @@ namespace TriInspector
 {
     public static class TriEditorStyles
     {
-        private const string BaseResourcesPath = "Packages/com.codewriter.triinspector/Editor/Resources/";
-
         private static GUIStyle _contentBox;
         private static GUIStyle _box;
-
+        
         public static GUIStyle TabOnlyOne { get; } = "Tab onlyOne";
         public static GUIStyle TabFirst { get; } = "Tab first";
         public static GUIStyle TabMiddle { get; } = "Tab middle";
         public static GUIStyle TabLast { get; } = "Tab last";
-
+        
+        private static GUIStyle FallbackBox { get; } = "HelpBox";
+        private static GUIStyle FallbackContentBox { get; } = "HelpBox";
+        
         public static GUIStyle ContentBox
         {
             get
             {
                 if (_contentBox == null)
                 {
-                    _contentBox = new GUIStyle
+                    var backgroundTexture = LoadTexture("TriInspector_Content_Bg");
+
+                    if (backgroundTexture == null)
                     {
-                        border = new RectOffset(2, 2, 2, 2),
-                        normal =
+                        _contentBox = new GUIStyle(FallbackContentBox)
                         {
-                            background = LoadTexture("TriInspector_Content_Bg"),
-                        },
-                    };
+                            border = new RectOffset(2, 2, 2, 2),
+                        };
+                    }
+                    else
+                    {
+                        _contentBox = new GUIStyle
+                        {
+                            border = new RectOffset(2, 2, 2, 2),
+                            normal =
+                            {
+                                background = backgroundTexture,
+                            },
+                        };
+                    }
                 }
 
                 return _contentBox;
@@ -41,14 +54,26 @@ namespace TriInspector
             {
                 if (_box == null)
                 {
-                    _box = new GUIStyle
+                    var backgroundTexture = LoadTexture("TriInspector_Box_Bg");
+
+                    if (backgroundTexture == null)
                     {
-                        border = new RectOffset(2, 2, 2, 2),
-                        normal =
+                        _box = new GUIStyle(FallbackBox)
                         {
-                            background = LoadTexture("TriInspector_Box_Bg"),
-                        },
-                    };
+                            border = new RectOffset(2, 2, 2, 2),
+                        };
+                    }
+                    else
+                    {
+                        _box = new GUIStyle
+                        {
+                            border = new RectOffset(2, 2, 2, 2),
+                            normal =
+                            {
+                                background = backgroundTexture,
+                            },
+                        };
+                    }
                 }
 
                 return _box;
@@ -57,10 +82,11 @@ namespace TriInspector
 
         private static Texture2D LoadTexture(string name)
         {
-            var path = EditorGUIUtility.isProSkin
-                ? BaseResourcesPath + name + "_Dark.png"
-                : BaseResourcesPath + name + ".png";
-
+            name = EditorGUIUtility.isProSkin ? $"{name}_Dark" : name;
+            
+            var result = AssetDatabase.FindAssets($"{name} t:texture2D")[0];
+            var path = AssetDatabase.GUIDToAssetPath(result);
+            
             return (Texture2D) EditorGUIUtility.Load(path);
         }
     }
