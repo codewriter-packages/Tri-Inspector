@@ -57,11 +57,6 @@ namespace TriInspector.Drawers
                 name = property.RawName;
             }
             
-            if (Attribute.ButtonSize != 0)
-            {
-                position.height -= 8;
-            }
-            
             if (GUI.Button(position, name))
             {
                 InvokeButton(property, Array.Empty<object>());
