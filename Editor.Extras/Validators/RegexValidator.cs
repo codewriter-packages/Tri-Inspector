@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using TriInspector;
 using TriInspector.Resolvers;
 using TriInspector.Validators;
@@ -13,7 +12,24 @@ namespace TriInspector.Validators
         private ValueResolver<string> _resolver;
         
         private Regex _regex;
-        
+
+        public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
+        {
+            base.Initialize(propertyDefinition);
+
+            if (Attribute.DynamicExpression && Attribute.Expression.StartsWith("$"))
+            {
+                _resolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Expression ?? "");
+                
+                if (_resolver.TryGetErrorString(out var error))
+                {
+                    return error;
+                }
+            }
+            
+            return TriExtensionInitializationResult.Ok;
+        }
+
         public override TriValidationResult Validate(TriProperty property)
         {
             if (property.FieldType == typeof(string))
@@ -23,13 +39,11 @@ namespace TriInspector.Validators
                 
                 if (string.IsNullOrEmpty(Attribute.Expression))
                 {
-                    return TriValidationResult.Error("Expression cannot be empty");
+                    return TriValidationResult.Valid;
                 }
                 
                 if (Attribute.DynamicExpression && expression.StartsWith("$"))
                 {
-                    _resolver = ValueResolver.ResolveString(property.Definition, expression ?? "");
-                    
                     if (_resolver.TryGetErrorString(out var error))
                     {
                         return TriValidationResult.Error(error);
@@ -37,7 +51,7 @@ namespace TriInspector.Validators
                     
                     expression = _resolver.GetValue(property);
                 }
-
+                
                 try
                 {
                     _regex = new Regex(expression);
