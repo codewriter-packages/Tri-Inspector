@@ -18,7 +18,7 @@ namespace TriInspector.Elements
 
         protected virtual float GetContentHeight(float width)
         {
-            return base.GetHeight(width) + InsetTop + InsetBottom;
+            return base.GetHeight(width);
         }
 
         protected virtual void DrawHeader(Rect position)
@@ -32,7 +32,7 @@ namespace TriInspector.Elements
 
         public sealed override float GetHeight(float width)
         {
-            return GetContentHeight(width) + GetHeaderHeight(width);
+            return GetContentHeight(width) + GetHeaderHeight(width) + InsetTop + InsetBottom;
         }
 
         public sealed override void OnGUI(Rect position)
