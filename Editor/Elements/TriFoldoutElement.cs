@@ -1,4 +1,5 @@
-﻿using TriInspector.Utilities;
+﻿using System.Linq;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,10 +9,20 @@ namespace TriInspector.Elements
     {
         private readonly TriProperty _property;
 
+        private readonly bool _grouped;
+
         public TriFoldoutElement(TriProperty property)
         {
             _property = property;
+            
+            var prop = _property;
+            while (!_grouped && prop.Parent != null)
+            {
+                _grouped = prop.TryGetAttribute(out GroupAttribute _);
 
+                prop = prop.Parent;
+            }
+            
             DeclareGroups(property.ValueType);
         }
 
@@ -58,6 +69,12 @@ namespace TriInspector.Elements
                 yMin = position.yMin + headerRect.height,
             };
 
+            if (_grouped)
+            {
+                headerRect.x += 12;
+                headerRect.width -= 12;
+            }
+            
             TriEditorGUI.Foldout(headerRect, _property);
 
             if (!_property.IsExpanded)

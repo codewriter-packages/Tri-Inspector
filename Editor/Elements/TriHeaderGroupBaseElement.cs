@@ -8,7 +8,7 @@ namespace TriInspector.Elements
     {
         private const float InsetTop = 4;
         private const float InsetBottom = 4;
-        private const float InsetLeft = 18;
+        private const float InsetLeft = 4;
         private const float InsetRight = 4;
 
         protected virtual float GetHeaderHeight(float width)

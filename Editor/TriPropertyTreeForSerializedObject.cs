@@ -96,7 +96,6 @@ namespace TriInspector
 
             EditorGUI.BeginDisabledGroup(true);
             var scriptRect = EditorGUILayout.GetControlRect(true);
-            scriptRect.xMin += 3;
             EditorGUI.PropertyField(scriptRect, _scriptProperty);
             EditorGUI.EndDisabledGroup();
         }
