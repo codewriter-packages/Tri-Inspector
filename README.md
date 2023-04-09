@@ -666,6 +666,8 @@ public class FoldoutGroupSample : ScriptableObject
 
 #### Toggle Group
 
+![ToggleGroup](https://user-images.githubusercontent.com/26966368/230786234-33e9aa51-c9da-4b50-93ca-05e72b54aa07.png)
+
 ```csharp
 [DeclareToggleGroup("toggle", Title = "$" + nameof(DynamicTitle))]
 public class ToggleGroupSample : ScriptableObject
