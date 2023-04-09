@@ -170,6 +170,21 @@ private TriValidationResult ValidateTexture()
 
 ```
 
+#### Regex
+
+
+
+```csharp
+[PropertySpace(SpaceAfter = 10)]
+public string expression = @"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b";
+
+[Regex("$" + nameof(expression), DynamicExpression = true)]
+public string validEmail = "sample_mail123@email.com";
+
+[Regex("$" + nameof(expression), DynamicExpression = true, PreviewExpression = true)]
+public string invalidEmail = "sample_mail123email.com";
+```
+
 #### InfoBox
 
 ![InfoBox](https://user-images.githubusercontent.com/26966368/169318171-d1a02212-48f1-41d1-b0aa-e2e1b25df262.png)
@@ -650,8 +665,6 @@ public class FoldoutGroupSample : ScriptableObject
 ```
 
 #### Toggle Group
-
-![ToggleGroup](https://user-images.githubusercontent.com/26966368/230786234-33e9aa51-c9da-4b50-93ca-05e72b54aa07.png)
 
 ```csharp
 [DeclareToggleGroup("toggle", Title = "$" + nameof(DynamicTitle))]
