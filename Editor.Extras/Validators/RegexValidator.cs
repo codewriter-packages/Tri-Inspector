@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using TriInspector;
 using TriInspector.Resolvers;
 using TriInspector.Validators;
@@ -12,6 +13,7 @@ namespace TriInspector.Validators
         private ValueResolver<string> _resolver;
         
         private Regex _regex;
+        private readonly StringBuilder _errorStringBuilder = new StringBuilder();
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
@@ -66,12 +68,23 @@ namespace TriInspector.Validators
                     return TriValidationResult.Valid;
                 }
                 
+                _errorStringBuilder.Append("The value does not match the expression");
+                
                 if (Attribute.PreviewExpression)
                 {
-                    return TriValidationResult.Error($"The value does not match the expression:\n@\"{expression}\"");
+                    _errorStringBuilder.Append($"\nExample: {Attribute.Example}");
                 }
                 
-                return TriValidationResult.Error("The value does not match the expression");
+                if (!string.IsNullOrEmpty(Attribute.Example))
+                {
+                    _errorStringBuilder.Append($"\nExpression: @\"{expression}\"");
+                }
+                
+                var errorString = _errorStringBuilder.ToString();
+                
+                _errorStringBuilder.Clear();
+                
+                return TriValidationResult.Error(errorString);
             }
             
             return TriValidationResult.Error("RegexAttribute only valid on String");

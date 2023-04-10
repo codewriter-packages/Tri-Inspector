@@ -10,8 +10,9 @@ namespace TriInspector
             Expression = expression;
         }
         
-        public bool PreviewExpression { get; set; }
         public bool DynamicExpression { get; set; }
+        public bool PreviewExpression { get; set; }
+        public string Example { get; set; }
         public string Expression { get; }
     }
 }
