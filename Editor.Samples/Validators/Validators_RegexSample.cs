@@ -9,7 +9,7 @@ public class Validators_RegexSample : ScriptableObject
     [Regex("$" + nameof(expression), DynamicExpression = true)]
     public string validEmail = "sample_mail123@email.com";
 
-    [Regex("$" + nameof(expression), DynamicExpression = true, 
+    [Regex(nameof(expression), DynamicExpression = true, 
         PreviewExpression = true, Example = "example_88@email.com")]
     public string invalidEmail = "sample_mail123email.com";
 }

@@ -13,6 +13,7 @@ namespace TriInspector.Validators
         private ValueResolver<string> _resolver;
         
         private Regex _regex;
+        private string _expression;
         private readonly StringBuilder _errorStringBuilder = new StringBuilder();
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
@@ -24,14 +25,27 @@ namespace TriInspector.Validators
                 return "Scene attribute can only be used on field of type string";
             }
             
-            if (Attribute.DynamicExpression && Attribute.Expression.StartsWith("$"))
+            if (string.IsNullOrEmpty(Attribute.Expression))
             {
-                _resolver = ValueResolver.ResolveString(propertyDefinition, Attribute.Expression ?? "");
+                return TriExtensionInitializationResult.Skip;
+            }
+            
+            if (Attribute.DynamicExpression)
+            {
+                _expression = Attribute.Expression.StartsWith("$")
+                    ? Attribute.Expression.Substring(1)
+                    : Attribute.Expression;
+                
+                _resolver = ValueResolver.Resolve<string>(propertyDefinition, _expression);
                 
                 if (_resolver.TryGetErrorString(out var error))
                 {
                     return error;
                 }
+            }
+            else
+            {
+                _expression = Attribute.Expression;
             }
             
             return TriExtensionInitializationResult.Ok;
@@ -39,24 +53,19 @@ namespace TriInspector.Validators
 
         public override TriValidationResult Validate(TriProperty property)
         {
-            var value = property.Value.ToString();
-            var expression = Attribute.Expression;
-
-            if (string.IsNullOrEmpty(Attribute.Expression))
+            if (string.IsNullOrEmpty(_expression))
             {
-                return TriValidationResult.Valid;
+                return TriValidationResult.Warning("Expression is null or empty");
             }
 
-            if (Attribute.DynamicExpression && expression.StartsWith("$"))
-            {
-                if (_resolver.TryGetErrorString(out var error))
-                {
-                    return TriValidationResult.Error(error);
-                }
+            var value = property.Value.ToString();
+            var expression = _expression;
 
+            if (Attribute.DynamicExpression)
+            {
                 expression = _resolver.GetValue(property);
             }
-
+            
             try
             {
                 _regex = new Regex(expression);
