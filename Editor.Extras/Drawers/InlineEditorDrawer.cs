@@ -52,6 +52,8 @@ namespace TriInspector.Drawers
             {
                 var prefixRect = new Rect(position)
                 {
+                    x = position.x + 12,
+                    width = position.width - 12,
                     height = EditorGUIUtility.singleLineHeight,
                     xMax = position.xMin + EditorGUIUtility.labelWidth,
                 };
