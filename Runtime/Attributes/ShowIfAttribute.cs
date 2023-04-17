@@ -10,8 +10,15 @@ namespace TriInspector
         public ShowIfAttribute(string condition) : this(condition, true)
         {
         }
-
-        public ShowIfAttribute(string condition, object value) : base(condition, value)
+        
+        public ShowIfAttribute(string condition, object value) 
+            : base(condition, value)
+        {
+            Inverse = true;
+        }
+        
+        public ShowIfAttribute(string condition, ConditionType conditionType, params object[] values) 
+            : base(condition, conditionType, values)
         {
             Inverse = true;
         }

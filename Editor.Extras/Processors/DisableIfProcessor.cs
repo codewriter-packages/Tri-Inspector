@@ -1,4 +1,6 @@
-﻿using TriInspector;
+﻿using System;
+using System.Linq;
+using TriInspector;
 using TriInspector.Processors;
 using TriInspector.Resolvers;
 
@@ -26,7 +28,16 @@ namespace TriInspector.Processors
         public sealed override bool IsDisabled(TriProperty property)
         {
             var val = _conditionResolver.GetValue(property);
-            var equal = val?.Equals(Attribute.Value) ?? Attribute.Value == null;
+
+            var equal = Attribute.ConditionType switch
+            {
+                ConditionType.And => Attribute.Values.All(t => val?.Equals(t) ?? Attribute.Values == null),
+                ConditionType.Or => Attribute.Values.Any(t => val?.Equals(t) ?? Attribute.Values == null),
+                ConditionType.AndNot => !Attribute.Values.All(t => val?.Equals(t) ?? Attribute.Values == null),
+                ConditionType.OrNot => !Attribute.Values.Any(t => val?.Equals(t) ?? Attribute.Values == null),
+                _ => throw new ArgumentOutOfRangeException(),
+            };
+
             return equal != Attribute.Inverse;
         }
     }

@@ -14,11 +14,19 @@ namespace TriInspector
         public HideIfAttribute(string condition, object value)
         {
             Condition = condition;
-            Value = value;
+            Values = new[] { value };
+        }
+
+        public HideIfAttribute(string condition, ConditionType conditionType, params object[] values)
+        {
+            Condition = condition;
+            ConditionType = conditionType;
+            Values = values;
         }
 
         public string Condition { get; }
-        public object Value { get; }
+        public ConditionType ConditionType { get; }
+        public object[] Values { get; }
 
         public bool Inverse { get; protected set; }
     }
