@@ -11,6 +11,7 @@ namespace TriInspector.Elements
         private readonly TriProperty _property;
         private readonly bool _showReferencePicker;
         private readonly bool _skipReferencePickerExtraLine;
+        private readonly bool _grouped;
 
         private Type _referenceType;
 
@@ -28,6 +29,14 @@ namespace TriInspector.Elements
             _props = props;
             _showReferencePicker = !property.TryGetAttribute(out HideReferencePickerAttribute _);
             _skipReferencePickerExtraLine = !_showReferencePicker && _props.inline;
+            
+            var prop = _property;
+            while (!_grouped && prop.Parent != null)
+            {
+                _grouped = prop.TryGetAttribute(out GroupAttribute _);
+
+                prop = prop.Parent;
+            }
 
             DeclareGroups(property.ValueType);
         }
@@ -82,11 +91,11 @@ namespace TriInspector.Elements
             var headerFieldRect = new Rect(position)
             {
                 height = headerRect.height,
-                xMin = headerRect.xMin + EditorGUIUtility.labelWidth,
+                xMin = headerRect.xMin + EditorGUIUtility.labelWidth+2,
             };
             var contentRect = new Rect(position)
             {
-                yMin = position.yMin + headerRect.height,
+                yMin = position.yMin + headerRect.height + 2,
             };
 
             if (_props.inline)
@@ -103,7 +112,20 @@ namespace TriInspector.Elements
             }
             else
             {
-                TriEditorGUI.Foldout(headerLabelRect, _property);
+                if (_property.ChildrenProperties.Count > 0)
+                {
+                    if (_grouped)
+                    {
+                        headerLabelRect.x += 12;
+                        headerLabelRect.width -= 12;
+                    }
+                    
+                    TriEditorGUI.Foldout(headerLabelRect, _property);
+                }
+                else
+                {
+                    EditorGUI.LabelField(headerLabelRect, _property.DisplayName);
+                }
 
                 if (_showReferencePicker)
                 {

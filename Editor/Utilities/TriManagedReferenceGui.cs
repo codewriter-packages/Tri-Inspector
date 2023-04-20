@@ -123,14 +123,21 @@ namespace TriInspector.Utilities
 
                 public void Build()
                 {
+                    var hasChild = false;
+                    
                     foreach (var child in _childGroups.Values.OrderBy(it => it.name))
                     {
                         AddChild(child);
 
                         child.Build();
+
+                        hasChild = true;
                     }
 
-                    AddSeparator();
+                    if (hasChild)
+                    {
+                        AddSeparator();
+                    }
 
                     foreach (var child in _childItems)
                     {
