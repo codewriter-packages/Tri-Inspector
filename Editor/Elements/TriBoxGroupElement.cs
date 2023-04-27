@@ -15,10 +15,12 @@ namespace TriInspector.Elements
 
         private ValueResolver<string> _headerResolver;
         private readonly List<TriProperty> _properties = new List<TriProperty>();
+        private readonly Color _headerColor;
+        private readonly Color _titleColor;
+        private bool _expanded;
+        
         [CanBeNull] private TriProperty _firstProperty;
         [CanBeNull] private TriProperty _toggleProperty;
-
-        private bool _expanded;
         
         private bool HasVisibleProperties => _properties.Any(t => t.IsVisible);
 
@@ -29,12 +31,23 @@ namespace TriInspector.Elements
             public TitleMode titleMode;
             public bool expandedByDefault;
             public bool showIfEmpty;
+            public string headerColorHex;
+            public string titleColorHex;
         }
 
         public TriBoxGroupElement(Props props = default)
         {
             _props = props;
             _expanded = _props.expandedByDefault;
+
+            if (!ColorUtility.TryParseHtmlString(_props.headerColorHex, out _headerColor))
+            {
+                _headerColor = Color.clear;
+            }
+            if (!ColorUtility.TryParseHtmlString(_props.titleColorHex, out _titleColor))
+            {
+                _titleColor = Color.clear;
+            }
         }
 
         protected override void AddPropertyChild(TriElement element, TriProperty property)
@@ -112,6 +125,18 @@ namespace TriInspector.Elements
             {
                 return;
             }
+
+            var oldBackgroundColor = GUI.backgroundColor;
+            var oldContentColor = GUI.contentColor;
+            
+            if (_headerColor != Color.clear)
+            {
+                GUI.backgroundColor = _headerColor;
+            }
+            if (_titleColor != Color.clear)
+            {
+                GUI.contentColor = _titleColor;
+            }
             
             TriEditorGUI.DrawBox(position, TriEditorStyles.TabOnlyOne);
 
@@ -153,6 +178,15 @@ namespace TriInspector.Elements
                 default:
                     EditorGUI.LabelField(headerLabelRect, headerContent);
                     break;
+            }
+            
+            if (_headerColor != Color.clear)
+            {
+                GUI.backgroundColor = oldBackgroundColor;
+            }
+            if (_titleColor != Color.clear)
+            {
+                GUI.contentColor = oldContentColor;
             }
         }
 

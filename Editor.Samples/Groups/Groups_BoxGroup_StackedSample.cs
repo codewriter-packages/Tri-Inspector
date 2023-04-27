@@ -5,7 +5,7 @@ using UnityEngine;
 [DeclareHorizontalGroup("box/horizontal")]
 [DeclareBoxGroup("box/horizontal/one", Title = "One")]
 [DeclareBoxGroup("box/horizontal/two", Title = "Two")]
-[DeclareBoxGroup("box/three", Title = "Three")]
+[DeclareBoxGroup("box/three", Title = "Three", HeaderColor = "#E05353", TitleColor = "#00FFFF")]
 public class Groups_BoxGroup_StackedSample : ScriptableObject
 {
     [Button(ButtonSizes.Large), Group("box/horizontal/one")]
