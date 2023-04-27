@@ -28,6 +28,7 @@ namespace TriInspector.Drawers
             var element = new TriBoxGroupElement(new TriBoxGroupElement.Props
             {
                 titleMode = TriBoxGroupElement.TitleMode.Hidden,
+                showIfEmpty = true,
             });
             element.AddChild(new ObjectReferenceFoldoutDrawerElement(property));
             element.AddChild(new InlineEditorElement(property));

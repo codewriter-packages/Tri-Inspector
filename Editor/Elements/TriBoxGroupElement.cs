@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using TriInspector.Resolvers;
 using TriInspector.Utilities;
@@ -12,10 +14,13 @@ namespace TriInspector.Elements
         private readonly Props _props;
 
         private ValueResolver<string> _headerResolver;
+        private readonly List<TriProperty> _properties = new List<TriProperty>();
         [CanBeNull] private TriProperty _firstProperty;
         [CanBeNull] private TriProperty _toggleProperty;
 
         private bool _expanded;
+        
+        private bool HasVisibleProperties => _properties.Any(t => t.IsVisible);
 
         [Serializable]
         public struct Props
@@ -23,6 +28,7 @@ namespace TriInspector.Elements
             public string title;
             public TitleMode titleMode;
             public bool expandedByDefault;
+            public bool showIfEmpty;
         }
 
         public TriBoxGroupElement(Props props = default)
@@ -33,6 +39,8 @@ namespace TriInspector.Elements
 
         protected override void AddPropertyChild(TriElement element, TriProperty property)
         {
+            _properties.Add(property);
+            
             _firstProperty = property;
             _headerResolver = ValueResolver.ResolveString(property.Definition, _props.title ?? "");
             
@@ -63,12 +71,17 @@ namespace TriInspector.Elements
                     }
                 }
             }
-            
+
             base.AddPropertyChild(element, property);
         }
 
         protected override float GetHeaderHeight(float width)
         {
+            if (!_props.showIfEmpty && !HasVisibleProperties)
+            {
+                return 0f;
+            }
+            
             if (_props.titleMode == TitleMode.Hidden)
             {
                 return 0f;
@@ -79,6 +92,11 @@ namespace TriInspector.Elements
 
         protected override float GetContentHeight(float width)
         {
+            if (!_props.showIfEmpty && !HasVisibleProperties)
+            {
+                return 0f;
+            }
+            
             if (((_props.titleMode == TitleMode.Toggle && _props.expandedByDefault) || 
                  _props.titleMode == TitleMode.Foldout) && !_expanded)
             {
@@ -90,6 +108,11 @@ namespace TriInspector.Elements
 
         protected override void DrawHeader(Rect position)
         {
+            if (!_props.showIfEmpty && !HasVisibleProperties)
+            {
+                return;
+            }
+            
             TriEditorGUI.DrawBox(position, TriEditorStyles.TabOnlyOne);
 
             var headerLabelRect = new Rect(position)
@@ -135,6 +158,11 @@ namespace TriInspector.Elements
 
         protected override void DrawContent(Rect position)
         {
+            if (!_props.showIfEmpty && !HasVisibleProperties)
+            {
+                return;
+            }
+            
             if (_props.titleMode == TitleMode.Foldout && !_expanded)
             {
                 return;
