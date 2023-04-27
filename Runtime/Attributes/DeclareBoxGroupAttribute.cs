@@ -14,5 +14,6 @@ namespace TriInspector
 
         public string Title { get; set; }
         public bool HideTitle { get; set; }
+        public bool ShowIfEmpty { get; set; }
     }
 }

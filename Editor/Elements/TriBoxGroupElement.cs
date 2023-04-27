@@ -26,6 +26,7 @@ namespace TriInspector.Elements
             public string title;
             public TitleMode titleMode;
             public bool expandedByDefault;
+            public bool showIfEmpty;
         }
 
         public TriBoxGroupElement(Props props = default)
@@ -74,7 +75,7 @@ namespace TriInspector.Elements
 
         protected override float GetHeaderHeight(float width)
         {
-            if (!HasVisibleProperties)
+            if (!_props.showIfEmpty && !HasVisibleProperties)
             {
                 return 0f;
             }
@@ -89,7 +90,7 @@ namespace TriInspector.Elements
 
         protected override float GetContentHeight(float width)
         {
-            if (!HasVisibleProperties)
+            if (!_props.showIfEmpty && !HasVisibleProperties)
             {
                 return 0f;
             }
@@ -105,7 +106,7 @@ namespace TriInspector.Elements
 
         protected override void DrawHeader(Rect position)
         {
-            if (!HasVisibleProperties)
+            if (!_props.showIfEmpty && !HasVisibleProperties)
             {
                 return;
             }
@@ -155,7 +156,7 @@ namespace TriInspector.Elements
 
         protected override void DrawContent(Rect position)
         {
-            if (!HasVisibleProperties)
+            if (!_props.showIfEmpty && !HasVisibleProperties)
             {
                 return;
             }
