@@ -13,6 +13,7 @@ namespace TriInspector.Elements
 
         private ValueResolver<string> _headerResolver;
         [CanBeNull] private TriProperty _firstProperty;
+        [CanBeNull] private TriProperty _toggleProperty;
 
         private bool _expanded;
 
@@ -34,12 +35,35 @@ namespace TriInspector.Elements
         {
             _firstProperty = property;
             _headerResolver = ValueResolver.ResolveString(property.Definition, _props.title ?? "");
-
+            
             if (_headerResolver.TryGetErrorString(out var error))
             {
                 AddChild(new TriInfoBoxElement(error, TriMessageType.Error));
             }
+            
+            if (_props.titleMode == TitleMode.Toggle)
+            {
+                if (_toggleProperty == null)
+                {
+                    if (property.ValueType == typeof(bool))
+                    {
+                        _toggleProperty = property;
 
+                        return;
+                    }
+                    
+                    if (property.ChildrenProperties?.Count > 0)
+                    {
+                        var childrenProperty = property.ChildrenProperties[0];
+
+                        if (childrenProperty.ValueType == typeof(bool))
+                        {
+                            _toggleProperty = childrenProperty;
+                        }
+                    }
+                }
+            }
+            
             base.AddPropertyChild(element, property);
         }
 
@@ -55,7 +79,8 @@ namespace TriInspector.Elements
 
         protected override float GetContentHeight(float width)
         {
-            if (_props.titleMode == TitleMode.Foldout && !_expanded)
+            if (((_props.titleMode == TitleMode.Toggle && _props.expandedByDefault) || 
+                 _props.titleMode == TitleMode.Foldout) && !_expanded)
             {
                 return 0f;
             }
@@ -77,14 +102,34 @@ namespace TriInspector.Elements
 
             var headerContent = _headerResolver.GetValue(_firstProperty);
 
-            if (_props.titleMode == TitleMode.Foldout)
+            switch (_props.titleMode)
             {
-                headerLabelRect.x += 10;
-                _expanded = EditorGUI.Foldout(headerLabelRect, _expanded, headerContent, true);
-            }
-            else
-            {
-                EditorGUI.LabelField(headerLabelRect, headerContent);
+                case TitleMode.Foldout:
+                    headerLabelRect.x += 10;
+                    _expanded = EditorGUI.Foldout(headerLabelRect, _expanded, headerContent, true);
+                    break;
+                case TitleMode.Toggle:
+                {
+                    if (_toggleProperty?.Value is bool cachedValue)
+                    {
+                        var newValue = EditorGUI.ToggleLeft(headerLabelRect, headerContent, cachedValue);
+                    
+                        if (newValue != cachedValue)
+                        {
+                            _toggleProperty.SetValue(newValue);
+                        }
+                    
+                        _expanded = newValue;
+                    }
+                    else
+                    {
+                        EditorGUI.LabelField(headerLabelRect, $"The first property in the group must be of bool.");
+                    }
+                    break;
+                }
+                default:
+                    EditorGUI.LabelField(headerLabelRect, headerContent);
+                    break;
             }
         }
 
@@ -95,6 +140,16 @@ namespace TriInspector.Elements
                 return;
             }
 
+            if (_props.titleMode == TitleMode.Toggle && !_props.expandedByDefault && !_expanded)
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                base.DrawContent(position);
+                EditorGUI.EndDisabledGroup();
+
+                return;
+
+            }
+
             base.DrawContent(position);
         }
 
@@ -103,6 +158,7 @@ namespace TriInspector.Elements
             Normal,
             Hidden,
             Foldout,
+            Toggle,
         }
     }
 }

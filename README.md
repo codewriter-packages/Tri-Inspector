@@ -649,6 +649,22 @@ public class FoldoutGroupSample : ScriptableObject
 }
 ```
 
+#### Toggle Group
+
+![ToggleGroup](https://user-images.githubusercontent.com/26966368/230786234-33e9aa51-c9da-4b50-93ca-05e72b54aa07.png)
+
+```csharp
+[DeclareToggleGroup("toggle", Title = "$" + nameof(DynamicTitle))]
+public class ToggleGroupSample : ScriptableObject
+{
+    [Group("toggle")] public bool enabled;
+    [Group("toggle")] public int a;
+    [Group("toggle")] public bool b;
+    
+    public string DynamicTitle => "My Toggle";
+}
+```
+
 #### Tab Group
 
 ![TabGroup](https://user-images.githubusercontent.com/26966368/177552003-528a4e52-e340-460b-93e6-f56c07ac063b.png)
