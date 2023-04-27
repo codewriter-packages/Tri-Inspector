@@ -341,11 +341,6 @@ namespace TriInspector.Elements
                 return;
             }
 
-            if (!_reorderableListGui.draggable)
-            {
-                rect.xMin += DraggableAreaExtraWidth;
-            }
-
             GetChild(index).OnGUI(rect);
         }
 
