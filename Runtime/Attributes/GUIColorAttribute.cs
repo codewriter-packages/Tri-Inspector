@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using UnityEngine;
 
 namespace TriInspector
 {
@@ -8,17 +9,40 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class GUIColorAttribute : Attribute
     {
-        public float R { get; }
-        public float G { get; }
-        public float B { get; }
-        public float A { get; }
-
+        public Color Color { get; }
+        public string GetColor { get; }
+        
         public GUIColorAttribute(float r, float g, float b, float a = 1f)
         {
-            R = r;
-            G = g;
-            B = b;
-            A = a;
+            Color = new Color(r, g, b, a);
+        }
+        
+        public GUIColorAttribute(byte r, byte g, byte b, byte a = byte.MaxValue)
+        {
+            Color = new Color32(r, g, b, a);
+        }
+        
+        public GUIColorAttribute(string value)
+        {
+            if (value.StartsWith("$"))
+            {
+                GetColor = value;
+                
+                return;
+            }
+            
+            if (ColorUtility.TryParseHtmlString(value, out var color))
+            {
+            }
+            else if (ColorUtility.TryParseHtmlString($"#{value}", out color))
+            {
+            }
+            else
+            {
+                color = Color.white;
+            }
+            
+            Color = color;
         }
     }
 }
