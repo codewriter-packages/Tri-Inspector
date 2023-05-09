@@ -15,6 +15,9 @@ namespace TriInspector.GroupDrawers
                 title = attribute.Title,
                 titleMode = TriBoxGroupElement.TitleMode.Toggle,
                 expandedByDefault = attribute.Collapsible,
+                showIfEmpty = attribute.ShowIfEmpty,
+                headerColorHex = attribute.HeaderColor,
+                titleColorHex = attribute.TitleColor,
             });
         }
     }

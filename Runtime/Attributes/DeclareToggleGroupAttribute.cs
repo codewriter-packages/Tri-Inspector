@@ -14,5 +14,8 @@ namespace TriInspector
         
         public string Title { get; set; }
         public bool Collapsible { get; set; } = true;
+        public bool ShowIfEmpty { get; set; }
+        public string HeaderColor { get; set; }
+        public string TitleColor { get; set; }
     }
 }
