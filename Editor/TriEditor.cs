@@ -1,4 +1,4 @@
-﻿using TriInspector.Utilities;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
@@ -17,6 +17,7 @@ namespace TriInspector
     {
     }
 
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(AssetImporter), editorForChildClasses: true)]
     public sealed class TriAssetImporterEditor : AssetImporterEditor
     {
@@ -76,6 +77,7 @@ namespace TriInspector
         }
     }
 
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(ScriptedImporter), editorForChildClasses: true)]
     public sealed class TriScriptedImporterEditor : ScriptedImporterEditor
     {
