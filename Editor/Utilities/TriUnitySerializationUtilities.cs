@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -9,6 +8,10 @@ namespace TriInspector.Utilities
 {
     internal static class TriUnitySerializationUtilities
     {
+        private static readonly Assembly CoreLibAssembly = typeof(List<>).Assembly;
+        private static readonly Assembly SystemCoreAssembly = typeof(HashSet<>).Assembly;
+        private static readonly Assembly SystemAssembly = typeof(LinkedList<>).Assembly;
+
         public static bool IsSerializableByUnity(FieldInfo fieldInfo)
         {
             if (fieldInfo.GetCustomAttribute<NonSerializedAttribute>() != null ||
@@ -32,16 +35,20 @@ namespace TriInspector.Utilities
 
         public static bool IsTypeSerializable(Type type, bool allowCollections = true)
         {
-            if (type == typeof(object))
+            if (type == typeof(object) || type.IsAbstract || type.IsInterface)
             {
                 return false;
             }
 
-            if (type == typeof(string) ||
-                type == typeof(bool) ||
-                type == typeof(char) ||
-                type == typeof(int) ||
-                type == typeof(float) ||
+            if (type.IsEnum)
+            {
+                var underlyingType = Enum.GetUnderlyingType(type);
+
+                return underlyingType != typeof(long) && underlyingType != typeof(ulong);
+            }
+
+            if (type.IsPrimitive ||
+                type == typeof(string) ||
                 type == typeof(Vector2) ||
                 type == typeof(Vector2Int) ||
                 type == typeof(Vector3) ||
@@ -66,20 +73,18 @@ namespace TriInspector.Utilities
                 return true;
             }
 
-            if (type.IsEnum)
+            if (typeof(Delegate).IsAssignableFrom(type))
             {
-                return true;
-            }
-
-            if (type.IsPrimitive)
-            {
-                return true;
+                return false;
             }
 
             if (type.IsArray)
             {
                 var elementType = type.GetElementType();
-                return allowCollections && IsTypeSerializable(elementType, allowCollections: false);
+
+                return type.GetArrayRank() == 1 &&
+                       allowCollections &&
+                       IsTypeSerializable(elementType, allowCollections: false);
             }
 
             if (type.IsGenericType)
@@ -89,7 +94,9 @@ namespace TriInspector.Utilities
                 if (genericTypeDefinition == typeof(List<>))
                 {
                     var elementType = type.GetGenericArguments()[0];
-                    return allowCollections && IsTypeSerializable(elementType, allowCollections: false);
+
+                    return allowCollections &&
+                           IsTypeSerializable(elementType, allowCollections: false);
                 }
 
                 if (genericTypeDefinition == typeof(Dictionary<,>))
@@ -98,7 +105,9 @@ namespace TriInspector.Utilities
                 }
             }
 
-            if (typeof(IEnumerable).IsAssignableFrom(type))
+            if (type.Assembly == CoreLibAssembly ||
+                type.Assembly == SystemAssembly ||
+                type.Assembly == SystemCoreAssembly)
             {
                 return false;
             }
