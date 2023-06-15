@@ -4,7 +4,7 @@
     "references": [
         "TriInspector",
         "TriInspector.Editor",
-        "Unity.InternalAPIEditorBridge.012"
+        "Unity.InternalAPIEditorBridge.013"
     ],
     "includePlatforms": [
         "Editor"

@@ -27,9 +27,6 @@ _Advanced inspector attributes for Unity_
 Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
 <br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
 
-After package installation **run the Installer** by double clicking on it.
-![TriInspector-Installer](https://user-images.githubusercontent.com/26966368/172212210-3bbcf6ff-cdc3-4c7c-87c6-d27ab83e271c.png)
-
 ## Roadmap ![GitHub Repo stars](https://img.shields.io/github/stars/codewriter-packages/Tri-Inspector?style=social)
 Each star ★ on the project page brings new features closer. 
 You can suggest new features in the [Discussions](https://github.com/codewriter-packages/Tri-Inspector/discussions).
