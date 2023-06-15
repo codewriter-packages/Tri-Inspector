@@ -3,6 +3,8 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
+#if !TRIINSPECTOR_DISABLE_ODIN_FIELDS_INJECTOR
+
 namespace TriInspector.Editor.Integrations.Odin
 {
     [DrawerPriority(0.0, 10000.0, 1.0)]
@@ -106,3 +108,5 @@ namespace TriInspector.Editor.Integrations.Odin
         }
     }
 }
+
+#endif

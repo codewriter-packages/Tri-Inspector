@@ -3,6 +3,8 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.Validation;
 using TriInspector.Editor.Integrations.Odin;
 
+#if !TRIINSPECTOR_DISABLE_ODIN_FIELDS_INJECTOR
+
 [assembly: RegisterValidator(typeof(OdinFieldValidator<>))]
 
 namespace TriInspector.Editor.Integrations.Odin
@@ -70,3 +72,5 @@ namespace TriInspector.Editor.Integrations.Odin
         }
     }
 }
+
+#endif
