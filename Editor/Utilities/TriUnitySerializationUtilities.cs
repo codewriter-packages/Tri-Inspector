@@ -35,7 +35,7 @@ namespace TriInspector.Utilities
 
         public static bool IsTypeSerializable(Type type, bool allowCollections = true)
         {
-            if (type == typeof(object) || type.IsAbstract || type.IsInterface)
+            if (type == typeof(object) || type.IsInterface)
             {
                 return false;
             }
