@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using TriInspector.Elements;
 using UnityEditor;
 
@@ -61,10 +62,21 @@ namespace TriInspector
 
                 foreach (var result in _validationResults)
                 {
-                    AddChild(new TriInfoBoxElement(result.Message, result.MessageType));
+                    var infoBox = result.FixAction != null
+                        ? new TriInfoBoxElement(result.Message, result.MessageType,
+                            inlineAction: () => ExecuteFix(result.FixAction),
+                            inlineActionContent: result.FixActionContent)
+                        : new TriInfoBoxElement(result.Message, result.MessageType);
+
+                    AddChild(infoBox);
                 }
 
                 return true;
+            }
+
+            private void ExecuteFix(Action fixAction)
+            {
+                _property.ModifyAndRecordForUndo(targetIndex => fixAction?.Invoke());
             }
         }
     }
