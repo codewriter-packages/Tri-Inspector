@@ -3,7 +3,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
-#if !TRIINSPECTOR_DISABLE_ODIN_FIELDS_INJECTOR
+#if TRIINSPECTOR_ODIN_FIELDS_INJECTOR
 
 namespace TriInspector.Editor.Integrations.Odin
 {
@@ -43,8 +43,13 @@ namespace TriInspector.Editor.Integrations.Odin
 
             for (var parent = property.Parent; parent != null; parent = parent.Parent)
             {
-                var parentType = parent.ValueEntry.TypeOfValue;
-                if (TriOdinUtility.IsDrawnByTri(parentType))
+                var valueEntry = parent.ValueEntry;
+                if (valueEntry == null)
+                {
+                    continue;
+                }
+                
+                if (TriOdinUtility.IsDrawnByTri(valueEntry.TypeOfValue))
                 {
                     return false;
                 }

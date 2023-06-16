@@ -3,7 +3,7 @@ using Sirenix.OdinInspector.Editor;
 using Sirenix.OdinInspector.Editor.Validation;
 using TriInspector.Editor.Integrations.Odin;
 
-#if !TRIINSPECTOR_DISABLE_ODIN_FIELDS_INJECTOR
+#if TRIINSPECTOR_ODIN_FIELDS_INJECTOR
 
 [assembly: RegisterValidator(typeof(OdinFieldValidator<>))]
 
@@ -43,8 +43,13 @@ namespace TriInspector.Editor.Integrations.Odin
 
             for (var parent = property.Parent; parent != null; parent = parent.Parent)
             {
-                var parentType = parent.Info.TypeOfValue;
-                if (TriOdinUtility.IsDrawnByTri(parentType))
+                var valueEntry = parent.ValueEntry;
+                if (valueEntry == null)
+                {
+                    continue;
+                }
+                
+                if (TriOdinUtility.IsDrawnByTri(valueEntry.TypeOfValue))
                 {
                     return false;
                 }
