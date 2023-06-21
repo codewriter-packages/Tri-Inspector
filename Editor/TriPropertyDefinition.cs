@@ -18,7 +18,7 @@ namespace TriInspector
         private readonly List<string> _extensionErrors = new List<string>();
         private readonly MemberInfo _memberInfo;
         private readonly List<Attribute> _attributes;
-        private readonly bool _isNonPolymorphicSerializedByUnity;
+        private readonly bool _skipNullValuesFix;
 
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
@@ -53,6 +53,14 @@ namespace TriInspector
                 memberInfo, ownerType, order, propertyName, propertyType, valueGetter, valueSetter, attributes, false);
         }
 
+        internal static TriPropertyDefinition CreateForGetterSetter(
+            int order, string name, Type fieldType,
+            ValueGetterDelegate valueGetter, ValueSetterDelegate valueSetter)
+        {
+            return new TriPropertyDefinition(
+                null, null, order, name, fieldType, valueGetter, valueSetter, null, false);
+        }
+
         internal TriPropertyDefinition(
             MemberInfo memberInfo,
             Type ownerType,
@@ -74,9 +82,7 @@ namespace TriInspector
             _valueGetter = valueGetter;
             _valueSetter = valueSetter;
 
-            _isNonPolymorphicSerializedByUnity = memberInfo is FieldInfo fi &&
-                                                 TriUnitySerializationUtilities.IsSerializableByUnity(fi) &&
-                                                 fi.GetCustomAttribute<SerializeReference>() == null;
+            _skipNullValuesFix = memberInfo != null && memberInfo.GetCustomAttribute<SerializeReference>() != null;
 
             Order = order;
             IsReadOnly = _valueSetter == null || Attributes.TryGet(out ReadOnlyAttribute _);
@@ -150,7 +156,7 @@ namespace TriInspector
         {
             var value = _valueGetter(property, targetIndex);
 
-            if (value == null && _isNonPolymorphicSerializedByUnity)
+            if (value == null && !_skipNullValuesFix)
             {
                 value = TriUnitySerializationUtilities.PopulateUnityDefaultValueForType(FieldType);
 
