@@ -16,9 +16,10 @@ namespace TriInspector
             Name = name;
         }
 
-        public ButtonAttribute(ButtonSizes buttonSize)
+        public ButtonAttribute(ButtonSizes buttonSize, string name = null)
         {
             ButtonSize = (int) buttonSize;
+            Name = name;
         }
 
         public string Name { get; set; }

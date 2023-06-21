@@ -544,13 +544,16 @@ public float val;
 
 #### Button
 
-![Button](https://user-images.githubusercontent.com/26966368/168235907-2b5ed6d4-d00b-4cd6-999c-432abd0a2230.png)
+![Button](https://github.com/codewriter-packages/Tri-Inspector/assets/26966368/76f4a3a4-4bf9-4f58-8615-17adb986ab81)
 
 ```csharp
 [Button("Click me!")]
-private void DoButton()
+private void Button() => Debug.Log("Button clicked!");
+
+[Button(ButtonSizes.Large)]
+private void ButtonWithParameters(Vector3 vec, string str = "default value")
 {
-    Debug.Log("Button clicked!");
+    Debug.Log($"Button with parameters: {vec} {str}");
 }
 ```
 
