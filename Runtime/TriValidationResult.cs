@@ -25,7 +25,7 @@ namespace TriInspector
 
         public TriValidationResult WithFix(Action action, string name = null)
         {
-            return new TriValidationResult(IsValid, Message, MessageType, action, new GUIContent(name));
+            return new TriValidationResult(IsValid, Message, MessageType, action, new GUIContent(name ?? "Fix"));
         }
 
         public static TriValidationResult Info(string error)

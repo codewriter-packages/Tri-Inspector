@@ -143,11 +143,19 @@ Tri Inspector has some builtin validators such as `missing reference` and `type 
 
 #### Required
 
-![Required](https://user-images.githubusercontent.com/26966368/168233232-596535b4-bab8-462e-b5d8-7a1c090e5143.png)
+![Required](https://github.com/codewriter-packages/Tri-Inspector/assets/26966368/56a8d0ef-c88b-4b4b-8121-388b94d47841)
 
 ```csharp
 [Required]
-public Material mat;
+public Material material;
+
+[Required(FixAction = nameof(FixTarget), FixActionName = "Assign self")]
+public Transform target;
+
+private void FixTarget()
+{
+    target = GetComponent<Transform>();
+}
 ```
 
 #### ValidateInput
