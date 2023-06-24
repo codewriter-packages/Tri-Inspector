@@ -32,7 +32,17 @@ namespace TriInspector.Elements
 
         public sealed override float GetHeight(float width)
         {
-            return GetContentHeight(width) + GetHeaderHeight(width) + InsetTop + InsetBottom;
+            var headerHeight = GetHeaderHeight(width);
+            var contentHeight = GetContentHeight(width);
+
+            var height = headerHeight + contentHeight;
+
+            if (contentHeight > 0)
+            {
+                height += InsetTop + InsetBottom;
+            }
+
+            return height;
         }
 
         public sealed override void OnGUI(Rect position)
