@@ -1,4 +1,7 @@
-﻿using TriInspector.Utilities;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,10 +9,33 @@ namespace TriInspector.Elements
 {
     public abstract class TriHeaderGroupBaseElement : TriPropertyCollectionBaseElement
     {
+        private readonly Props _props;
         private const float InsetTop = 4;
         private const float InsetBottom = 4;
         private const float InsetLeft = 18;
         private const float InsetRight = 4;
+
+        private readonly List<TriProperty> _properties = new List<TriProperty>();
+
+        private bool IsAnyPropertyVisible => _properties.Any(it => it.IsVisible);
+
+        [Serializable]
+        public struct Props
+        {
+            public bool hideIfChildrenInvisible;
+        }
+
+        protected TriHeaderGroupBaseElement(Props props = default)
+        {
+            _props = props;
+        }
+        
+        protected override void AddPropertyChild(TriElement element, TriProperty property)
+        {
+            _properties.Add(property);
+
+            base.AddPropertyChild(element, property);
+        }
 
         protected virtual float GetHeaderHeight(float width)
         {
@@ -32,6 +58,11 @@ namespace TriInspector.Elements
 
         public sealed override float GetHeight(float width)
         {
+            if (_props.hideIfChildrenInvisible && !IsAnyPropertyVisible)
+            {
+                return -EditorGUIUtility.standardVerticalSpacing;
+            }
+
             var headerHeight = GetHeaderHeight(width);
             var contentHeight = GetContentHeight(width);
 
@@ -47,6 +78,11 @@ namespace TriInspector.Elements
 
         public sealed override void OnGUI(Rect position)
         {
+            if (_props.hideIfChildrenInvisible && !IsAnyPropertyVisible)
+            {
+                return;
+            }
+
             var headerHeight = GetHeaderHeight(position.width);
             var contentHeight = GetContentHeight(position.width);
 

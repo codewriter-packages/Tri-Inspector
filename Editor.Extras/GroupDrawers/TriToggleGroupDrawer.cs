@@ -15,6 +15,7 @@ namespace TriInspector.GroupDrawers
                 title = attribute.Title,
                 titleMode = TriBoxGroupElement.TitleMode.Toggle,
                 expandedByDefault = attribute.Collapsible,
+                hideIfChildrenInvisible = true,
             });
         }
     }

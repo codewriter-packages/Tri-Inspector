@@ -23,9 +23,13 @@ namespace TriInspector.Elements
             public string title;
             public TitleMode titleMode;
             public bool expandedByDefault;
+            public bool hideIfChildrenInvisible;
         }
 
-        public TriBoxGroupElement(Props props = default)
+        public TriBoxGroupElement(Props props = default) : base(new TriHeaderGroupBaseElement.Props
+        {
+            hideIfChildrenInvisible = props.hideIfChildrenInvisible,
+        })
         {
             _props = props;
             _expanded = _props.expandedByDefault;

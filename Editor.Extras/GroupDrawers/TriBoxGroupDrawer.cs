@@ -16,6 +16,7 @@ namespace TriInspector.GroupDrawers
                 titleMode = attribute.HideTitle
                     ? TriBoxGroupElement.TitleMode.Hidden
                     : TriBoxGroupElement.TitleMode.Normal,
+                hideIfChildrenInvisible = true,
             });
         }
     }
