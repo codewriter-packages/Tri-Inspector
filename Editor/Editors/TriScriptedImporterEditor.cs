@@ -1,6 +1,7 @@
 ﻿using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEditor.AssetImporters;
+using UnityEngine.UIElements;
 
 namespace TriInspector.Editors
 {
@@ -17,9 +18,19 @@ namespace TriInspector.Editors
             base.OnDisable();
         }
 
+        public override VisualElement CreateInspectorGUI()
+        {
+            return TriEditor.CreateInspector(root => OnInspectorGUI(root));
+        }
+
         public override void OnInspectorGUI()
         {
-            TriEditor.OnInspectorGUI(this, ref _inspector);
+            OnInspectorGUI(null);
+        }
+
+        private void OnInspectorGUI(VisualElement root)
+        {
+            TriEditor.OnInspectorGUI(this, ref _inspector, root);
 
             if (extraDataType != null)
             {
