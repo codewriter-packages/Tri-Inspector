@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspectorUnityInternalBridge
 {
@@ -23,6 +24,11 @@ namespace TriInspectorUnityInternalBridge
 
         // ReSharper disable once InconsistentNaming
         public bool hasPropertyDrawer => _handler.hasPropertyDrawer;
+
+        public VisualElement CreatePropertyGUI(SerializedProperty property)
+        {
+            return _handler.propertyDrawer?.CreatePropertyGUI(property);
+        }
 
         public float GetHeight(SerializedProperty property, GUIContent label, bool includeChildren)
         {

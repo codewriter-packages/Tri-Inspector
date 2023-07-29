@@ -1,5 +1,6 @@
 ﻿using TriInspector;
 using TriInspector.Drawers;
+using TriInspector.Editors;
 using TriInspector.Elements;
 using TriInspector.Utilities;
 using TriInspectorUnityInternalBridge;
@@ -24,6 +25,15 @@ namespace TriInspector.Drawers
 
                 if (drawWithHandler)
                 {
+                    var visualElement = handler.CreatePropertyGUI(serializedProperty);
+
+                    if (visualElement != null &&
+                        TriEditor.UiElementsRoots.TryGetValue(property.PropertyTree, out var rootElement))
+                    {
+                        return new TriUiToolkitPropertyElement(property, serializedProperty,
+                            visualElement, rootElement);
+                    }
+
                     return new TriBuiltInPropertyElement(property, serializedProperty, handler);
                 }
             }
