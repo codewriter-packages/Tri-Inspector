@@ -109,7 +109,6 @@ namespace TriInspector.Elements
             switch (_props.titleMode)
             {
                 case TitleMode.Foldout:
-                    headerLabelRect.x += 10;
                     _expanded = EditorGUI.Foldout(headerLabelRect, _expanded, headerContent, true);
                     break;
                 case TitleMode.Toggle:

@@ -303,7 +303,6 @@ namespace TriInspector.Elements
             }
             else
             {
-                labelRect.x += 10;
                 TriEditorGUI.Foldout(labelRect, _property);
             }
 

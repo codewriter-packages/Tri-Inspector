@@ -12,7 +12,7 @@ namespace TriInspector.Elements
         private readonly Props _props;
         private const float InsetTop = 4;
         private const float InsetBottom = 4;
-        private const float InsetLeft = 18;
+        private const float InsetLeft = 4;
         private const float InsetRight = 4;
 
         private readonly List<TriProperty> _properties = new List<TriProperty>();
