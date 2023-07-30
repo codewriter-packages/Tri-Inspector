@@ -112,6 +112,8 @@ namespace TriInspector.Editors
             inspector.Update();
             inspector.RunValidationIfRequired();
 
+            EditorGUIUtility.hierarchyMode = false;
+
             using (TriGuiHelper.PushEditorTarget(serializedObject.targetObject))
             {
                 inspector.Draw();
