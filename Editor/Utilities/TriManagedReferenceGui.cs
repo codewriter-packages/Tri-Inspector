@@ -13,7 +13,10 @@ namespace TriInspector.Utilities
     {
         public static void DrawTypeSelector(Rect rect, TriProperty property)
         {
-            var typeNameContent = new GUIContent(property.ValueType?.Name ?? "[None]");
+            var typeName = property.ValueType != null
+                ? TriTypeUtilities.GetTypeNiceName(property.ValueType)
+                : "[None]";
+            var typeNameContent = new GUIContent(typeName);
 
             if (EditorGUI.DropdownButton(rect, typeNameContent, FocusType.Passive))
             {
@@ -141,7 +144,8 @@ namespace TriInspector.Utilities
 
             private class ReferenceTypeItem : AdvancedDropdownItem
             {
-                public ReferenceTypeItem(Type type, Texture2D preview = null) : base(type?.Name ?? "[None]")
+                public ReferenceTypeItem(Type type, Texture2D preview = null)
+                    : base(type != null ? TriTypeUtilities.GetTypeNiceName(type) : "[None]")
                 {
                     Type = type;
                     icon = preview;
