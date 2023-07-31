@@ -28,8 +28,6 @@ namespace TriInspector.Elements
             _props = props;
             _showReferencePicker = !property.TryGetAttribute(out HideReferencePickerAttribute _);
             _skipReferencePickerExtraLine = !_showReferencePicker && _props.inline;
-
-            DeclareGroups(property.ValueType);
         }
 
         public override bool Update()
@@ -131,6 +129,9 @@ namespace TriInspector.Elements
             _referenceType = _property.ValueType;
 
             RemoveAllChildren();
+
+            ClearGroups();
+            DeclareGroups(_property.ValueType);
 
             foreach (var childProperty in _property.ChildrenProperties)
             {

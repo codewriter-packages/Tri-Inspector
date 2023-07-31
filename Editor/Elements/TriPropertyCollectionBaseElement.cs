@@ -12,6 +12,11 @@ namespace TriInspector.Elements
 
         private Dictionary<string, TriPropertyCollectionBaseElement> _groups;
 
+        internal void ClearGroups()
+        {
+            _declarations.Clear();
+        }
+
         [PublicAPI]
         public void DeclareGroups([CanBeNull] Type type)
         {
