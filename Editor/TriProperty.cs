@@ -127,6 +127,10 @@ namespace TriInspector
                     {
                         _displayNameBackingField.text = specialName;
                     }
+                    else
+                    {
+                        _displayNameBackingField.text = TriUnityInspectorUtilities.GetStandardArrayElementName(this);
+                    }
                 }
                 else
                 {

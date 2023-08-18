@@ -18,6 +18,7 @@ namespace TriInspector.Elements
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
+        private readonly bool _showElementLabels;
 
         private float _lastContentWidth;
 
@@ -29,6 +30,7 @@ namespace TriInspector.Elements
 
             _property = property;
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
+            _showElementLabels = settings?.ShowElementLabels ?? false;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
                 draggable = settings?.Draggable ?? true,
@@ -285,7 +287,7 @@ namespace TriInspector.Elements
         {
             return new TriPropertyElement(property, new TriPropertyElement.Props
             {
-                forceInline = true,
+                forceInline = !_showElementLabels,
             });
         }
 
@@ -345,7 +347,10 @@ namespace TriInspector.Elements
                 rect.xMin += DraggableAreaExtraWidth;
             }
 
-            GetChild(index).OnGUI(rect);
+            using (TriPropertyOverrideContext.BeginOverride(ListPropertyOverrideContext.Instance))
+            {
+                GetChild(index).OnGUI(rect);
+            }
         }
 
         private float ElementHeightCallback(int index)
@@ -402,6 +407,28 @@ namespace TriInspector.Elements
             return false;
         }
 
+        private class ListPropertyOverrideContext : TriPropertyOverrideContext
+        {
+            public static readonly ListPropertyOverrideContext Instance = new ListPropertyOverrideContext();
+            
+            private readonly GUIContent _noneLabel = GUIContent.none;
+
+            public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
+            {
+                var showLabels = property.TryGetAttribute(out ListDrawerSettingsAttribute settings) &&
+                                 settings.ShowElementLabels;
+
+                if (!showLabels)
+                {
+                    displayName = _noneLabel;
+                    return true;
+                }
+
+                displayName = default;
+                return false;
+            }
+        }
+ 
         private static class Styles
         {
             public static readonly GUIStyle ItemsCount;
