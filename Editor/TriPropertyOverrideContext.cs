@@ -28,6 +28,7 @@ namespace TriInspector
             {
                 _previousContext = Current;
                 Current = Override;
+                Override = null;
                 return this;
             }
 
