@@ -60,6 +60,7 @@ namespace TriInspector.Editors
 
                 var space = container.resolvedStyle.left + container.resolvedStyle.right + labelExtraPadding;
 
+                EditorGUIUtility.wideMode = true;
                 EditorGUIUtility.hierarchyMode = false;
                 EditorGUIUtility.labelWidth = Mathf.Max(labelMinWidth,
                     container.resolvedStyle.width * labelWidthRatio - space);
