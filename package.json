@@ -7,6 +7,6 @@
   "author": "CodeWriter (https://github.com/orgs/codewriter-packages)",
   "homepage": "https://github.com/codewriter-packages/Tri-Inspector#readme",
   "dependencies": {
-      "com.unity.localization": "0.2.0"
+      "com.unity.localization": "1.0.0"
   }
 }
