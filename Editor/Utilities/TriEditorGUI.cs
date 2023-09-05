@@ -8,7 +8,16 @@ namespace TriInspector.Utilities
         public static void Foldout(Rect rect, TriProperty property)
         {
             var content = property.DisplayNameContent;
-            property.IsExpanded = EditorGUI.Foldout(rect, property.IsExpanded, content, true);
+            if (property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                EditorGUI.BeginProperty(rect, content, serializedProperty);
+                property.IsExpanded = EditorGUI.Foldout(rect, property.IsExpanded, content, true);
+                EditorGUI.EndProperty();
+            }
+            else
+            {
+                property.IsExpanded = EditorGUI.Foldout(rect, property.IsExpanded, content, true);
+            }
         }
 
         public static void DrawBox(Rect position, GUIStyle style,
