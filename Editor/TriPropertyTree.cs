@@ -2,6 +2,7 @@
 using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 
 namespace TriInspector
 {
@@ -46,7 +47,7 @@ namespace TriInspector
             {
                 return;
             }
-            
+
             RunValidation();
         }
 
@@ -54,7 +55,9 @@ namespace TriInspector
         {
             ValidationRequired = false;
 
+            Profiler.BeginSample("TriInspector.RunValidation");
             RootProperty.RunValidation();
+            Profiler.EndSample();
 
             RequestRepaint();
         }
@@ -72,7 +75,9 @@ namespace TriInspector
                 _rootPropertyElement.AttachInternal();
             }
 
+            Profiler.BeginSample("TriInspector.UpdateRootPropertyElement");
             _rootPropertyElement.Update();
+            Profiler.EndSample();
 
             var rectOuter = GUILayoutUtility.GetRect(0, 9999, 0, 0);
             _cachedOuterRect = Event.current.type == EventType.Layout ? _cachedOuterRect : rectOuter;
@@ -86,7 +91,9 @@ namespace TriInspector
 
             GUILayoutUtility.GetRect(_cachedOuterRect.width, rect.height);
 
+            Profiler.BeginSample("TriInspector.DrawRootPropertyElement");
             _rootPropertyElement.OnGUI(rect);
+            Profiler.EndSample();
 
             EditorGUI.indentLevel = oldIndent;
         }
