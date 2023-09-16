@@ -28,7 +28,7 @@ namespace TriInspector.Drawers
                     var visualElement = handler.CreatePropertyGUI(serializedProperty);
 
                     if (visualElement != null &&
-                        TriEditor.UiElementsRoots.TryGetValue(property.PropertyTree, out var rootElement))
+                        TriEditorCore.UiElementsRoots.TryGetValue(property.PropertyTree, out var rootElement))
                     {
                         return new TriUiToolkitPropertyElement(property, serializedProperty,
                             visualElement, rootElement);

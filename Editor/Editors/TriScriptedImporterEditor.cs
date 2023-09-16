@@ -9,29 +9,34 @@ namespace TriInspector.Editors
     [CustomEditor(typeof(ScriptedImporter), editorForChildClasses: true)]
     public sealed class TriScriptedImporterEditor : ScriptedImporterEditor
     {
-        private TriPropertyTreeForSerializedObject _inspector;
+        private TriEditorCore _core;
+
+        public override void OnEnable()
+        {
+            base.OnEnable();
+
+            _core = new TriEditorCore(this);
+        }
 
         public override void OnDisable()
         {
-            TriEditor.OnDisable(this, ref _inspector);
+            _core.Dispose();
 
             base.OnDisable();
         }
 
         public override VisualElement CreateInspectorGUI()
         {
-            return TriEditor.CreateInspector(root => OnInspectorGUI(root));
+            var root = new VisualElement();
+
+            root.Add(_core.CreateVisualElement());
+            root.Add(new IMGUIContainer(() => DoImporterDefaultGUI()));
+
+            return root;
         }
 
-        public override void OnInspectorGUI()
+        private void DoImporterDefaultGUI()
         {
-            OnInspectorGUI(null);
-        }
-
-        private void OnInspectorGUI(VisualElement root)
-        {
-            TriEditor.OnInspectorGUI(this, ref _inspector, root);
-
             if (extraDataType != null)
             {
                 EditorProxy.DoDrawDefaultInspector(extraDataSerializedObject);
