@@ -6,7 +6,7 @@ using UnityEngine.Profiling;
 
 namespace TriInspector
 {
-    public abstract class TriPropertyTree
+    public abstract class TriPropertyTree : IDisposable
     {
         private TriPropertyElement _rootPropertyElement;
         private Rect _cachedOuterRect = new Rect(0, 0, 0, 0);
