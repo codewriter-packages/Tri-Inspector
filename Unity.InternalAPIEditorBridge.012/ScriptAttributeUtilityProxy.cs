@@ -25,6 +25,16 @@ namespace TriInspectorUnityInternalBridge
         // ReSharper disable once InconsistentNaming
         public bool hasPropertyDrawer => _handler.hasPropertyDrawer;
 
+        public void SetPreferredLabel(string label)
+        {
+#if UNITY_2022_2_OR_NEWER
+            if (_handler.propertyDrawer != null)
+            {
+                _handler.propertyDrawer.m_PreferredLabel = label;
+            }
+#endif
+        }
+
         public VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             return _handler.propertyDrawer?.CreatePropertyGUI(property);

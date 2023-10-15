@@ -25,6 +25,8 @@ namespace TriInspector.Drawers
 
                 if (drawWithHandler)
                 {
+                    handler.SetPreferredLabel(property.DisplayName);
+
                     var visualElement = handler.CreatePropertyGUI(serializedProperty);
 
                     if (visualElement != null &&
