@@ -113,12 +113,32 @@ namespace TriInspector.Editors
                 EditorGUIUtility.labelWidth = Mathf.Max(labelMinWidth,
                     container.resolvedStyle.width * labelWidthRatio - space);
 
+                GUILayout.BeginVertical(Styles.RootLayout);
                 OnInspectorGUI(root);
-            }));
+                GUILayout.EndVertical();
+            })
+            {
+                style =
+                {
+                    marginLeft = -Styles.RootMarginLeft,
+                    marginRight = -Styles.RootMarginRight,
+                },
+            });
 
             container.Add(root);
 
             return container;
+        }
+
+        private static class Styles
+        {
+            public const int RootMarginLeft = 15;
+            public const int RootMarginRight = 6;
+
+            public static readonly GUIStyle RootLayout = new GUIStyle
+            {
+                padding = new RectOffset(RootMarginLeft, RootMarginRight, 0, 0),
+            };
         }
     }
 }
