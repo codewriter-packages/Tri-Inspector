@@ -27,6 +27,11 @@ _Advanced inspector attributes for Unity_
 Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
 <br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
 
+> **Localization package dependency**<br/>
+> Tri Inspector automatically installs [Localization package](https://docs.unity3d.com/Packages/com.unity.localization@1.0/manual/index.html) as dependency.<br/>
+> If you are not using localization package and do not want to install it, you can install a stub package instead.<br/>
+> Git URL: https://github.com/codewriter-packages/Unity-Localization-Stub-for-Tri-Inspector.git
+
 ## Roadmap ![GitHub Repo stars](https://img.shields.io/github/stars/codewriter-packages/Tri-Inspector?style=social)
 Each star ★ on the project page brings new features closer. 
 You can suggest new features in the [Discussions](https://github.com/codewriter-packages/Tri-Inspector/discussions).
