@@ -25,15 +25,19 @@ namespace TriInspector.Drawers
 
                 if (drawWithHandler)
                 {
-                    handler.SetPreferredLabel(property.DisplayName);
-
-                    var visualElement = handler.CreatePropertyGUI(serializedProperty);
-
-                    if (visualElement != null &&
-                        TriEditorCore.UiElementsRoots.TryGetValue(property.PropertyTree, out var rootElement))
+                    if (property.TryGetAttribute(out DrawWithUnityAttribute withUnityAttribute) &&
+                        withUnityAttribute.WithUiToolkit)
                     {
-                        return new TriUiToolkitPropertyElement(property, serializedProperty,
-                            visualElement, rootElement);
+                        handler.SetPreferredLabel(property.DisplayName);
+
+                        var visualElement = handler.CreatePropertyGUI(serializedProperty);
+
+                        if (visualElement != null &&
+                            TriEditorCore.UiElementsRoots.TryGetValue(property.PropertyTree, out var rootElement))
+                        {
+                            return new TriUiToolkitPropertyElement(property, serializedProperty,
+                                visualElement, rootElement);
+                        }
                     }
 
                     return new TriBuiltInPropertyElement(property, serializedProperty, handler);
