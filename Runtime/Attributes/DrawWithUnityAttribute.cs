@@ -7,5 +7,6 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class DrawWithUnityAttribute : Attribute
     {
+        public bool WithUiToolkit { get; set; }
     }
 }
