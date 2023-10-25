@@ -2,6 +2,7 @@
 using TriInspector;
 using TriInspector.Drawers;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 [assembly: RegisterTriValueDrawer(typeof(IntegerDrawer), TriDrawerOrder.Fallback)]
@@ -34,7 +35,7 @@ namespace TriInspector.Drawers
             return EditorGUI.TextField(position, label, value);
         }
     }
-    
+
     public class BooleanDrawer : BuiltinDrawerBase<bool>
     {
         protected override bool OnValueGUI(Rect position, GUIContent label, bool value)
@@ -50,6 +51,7 @@ namespace TriInspector.Drawers
             return EditorGUI.IntField(position, label, value);
         }
     }
+
     public class LongDrawer : BuiltinDrawerBase<long>
     {
         protected override long OnValueGUI(Rect position, GUIContent label, long value)
@@ -57,6 +59,7 @@ namespace TriInspector.Drawers
             return EditorGUI.LongField(position, label, value);
         }
     }
+
     public class FloatDrawer : BuiltinDrawerBase<float>
     {
         protected override float OnValueGUI(Rect position, GUIContent label, float value)
@@ -85,7 +88,11 @@ namespace TriInspector.Drawers
     {
         protected override LayerMask OnValueGUI(Rect position, GUIContent label, LayerMask value)
         {
-            return EditorGUI.LayerField(position, label, value);
+            var mask = InternalEditorUtility.LayerMaskToConcatenatedLayersMask(value);
+            var layers = InternalEditorUtility.layers;
+
+            position = EditorGUI.PrefixLabel(position, label);
+            return EditorGUI.MaskField(position, mask, layers);
         }
     }
 
@@ -160,7 +167,7 @@ namespace TriInspector.Drawers
     public class GradientDrawer : BuiltinDrawerBase<Gradient>
     {
         private static readonly GUIContent NullLabel = new GUIContent("Gradient is null");
-        
+
         protected override Gradient OnValueGUI(Rect position, GUIContent label, Gradient value)
         {
             if (value == null)
@@ -168,7 +175,7 @@ namespace TriInspector.Drawers
                 EditorGUI.LabelField(position, label, NullLabel);
                 return null;
             }
-            
+
             return EditorGUI.GradientField(position, label, value);
         }
     }
