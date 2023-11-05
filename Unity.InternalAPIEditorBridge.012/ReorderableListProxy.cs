@@ -63,7 +63,11 @@ namespace TriInspectorUnityInternalBridge
 
         public static void DoAddButton(ReorderableList list, Object value)
         {
+#if UNITY_2020_2_OR_NEWER
             defaultBehaviours.DoAddButton(list, value);
+#else
+            defaultBehaviours.DoAddButton(list);
+#endif
         }
     }
 }
