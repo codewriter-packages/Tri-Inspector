@@ -6,9 +6,14 @@ namespace TriInspector.Elements
     {
         private readonly GUIContent _label;
 
-        public TriLabelElement(string label)
+        public TriLabelElement(string label, string tooltip = "")
         {
-            _label = new GUIContent(label);
+            _label = new GUIContent(label, tooltip);
+        }
+
+        public TriLabelElement(GUIContent label)
+        {
+            _label = label;
         }
 
         public override float GetHeight(float width)

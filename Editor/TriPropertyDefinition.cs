@@ -102,6 +102,10 @@ namespace TriInspector
             {
                 CustomTooltip = ValueResolver.ResolveString(this, tooltipAttribute.Tooltip);
             }
+            else if (Attributes.TryGet(out TooltipAttribute unityTooltipAttribute))
+            {
+                CustomTooltip = new ConstantValueResolver<string>(unityTooltipAttribute.tooltip);
+            }
         }
 
         public Type OwnerType { get; }
