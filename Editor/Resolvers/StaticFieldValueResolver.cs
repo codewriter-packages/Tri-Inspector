@@ -12,17 +12,23 @@ namespace TriInspector.Resolvers
         public static bool TryResolve(TriPropertyDefinition propertyDefinition, string expression,
             out ValueResolver<T> resolver)
         {
-            if (expression.IndexOf('.') == -1)
-            {
-                resolver = null;
-                return false;
-            }
+            var type = propertyDefinition.OwnerType;
+            var fieldName = expression;
 
             var separatorIndex = expression.LastIndexOf('.');
-            var className = expression.Substring(0, separatorIndex);
-            var methodName = expression.Substring(separatorIndex + 1);
+            if (separatorIndex >= 0)
+            {
+                var className = expression.Substring(0, separatorIndex);
+                fieldName = expression.Substring(separatorIndex + 1);
 
-            if (!TriReflectionUtilities.TryFindTypeByFullName(className, out var type))
+                if (!TriReflectionUtilities.TryFindTypeByFullName(className, out type))
+                {
+                    resolver = null;
+                    return false;
+                }
+            }
+
+            if (type == null)
             {
                 resolver = null;
                 return false;
@@ -32,7 +38,7 @@ namespace TriInspector.Resolvers
 
             foreach (var fieldInfo in type.GetFields(flags))
             {
-                if (fieldInfo.Name == methodName &&
+                if (fieldInfo.Name == fieldName &&
                     typeof(T).IsAssignableFrom(fieldInfo.FieldType))
                 {
                     resolver = new StaticFieldValueResolver<T>(fieldInfo);
