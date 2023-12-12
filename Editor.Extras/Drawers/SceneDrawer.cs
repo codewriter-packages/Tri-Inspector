@@ -3,7 +3,7 @@ using TriInspector.Drawers;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriAttributeDrawer(typeof(SceneDrawer), TriDrawerOrder.Decorator)]
+[assembly: RegisterTriAttributeDrawer(typeof(SceneDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {
@@ -14,7 +14,7 @@ namespace TriInspector.Drawers
             var type = propertyDefinition.FieldType;
             if (type != typeof(string))
             {
-                return "Scene attribute can only be used on field of type int or string";
+                return "Scene attribute can only be used on field with string type";
             }
 
             return base.Initialize(propertyDefinition);

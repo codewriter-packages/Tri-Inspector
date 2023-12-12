@@ -2,7 +2,7 @@
 using TriInspector.Validators;
 using UnityEditor;
 
-[assembly: RegisterTriAttributeValidator(typeof(SceneValidator))]
+[assembly: RegisterTriAttributeValidator(typeof(SceneValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
@@ -12,7 +12,12 @@ namespace TriInspector.Validators
         {
             if (property.FieldType == typeof(string))
             {
-                var value = property.Value;
+                var value = (string) property.Value;
+
+                if (AssetDatabase.LoadAssetAtPath<SceneAsset>(value) == null)
+                {
+                    return TriValidationResult.Error($"{value} not a valid scene");
+                }
 
                 foreach (var scene in EditorBuildSettings.scenes)
                 {
@@ -23,14 +28,16 @@ namespace TriInspector.Validators
 
                     if (!scene.enabled)
                     {
-                        return TriValidationResult.Error($"{value} not in build settings");
+                        return TriValidationResult.Error($"{value} disabled in build settings");
                     }
 
                     return TriValidationResult.Valid;
                 }
+
+                return TriValidationResult.Error($"{value} not added to build settings");
             }
 
-            return TriValidationResult.Error($"{property.Value} not a valid scene");
+            return TriValidationResult.Valid;
         }
     }
 }
