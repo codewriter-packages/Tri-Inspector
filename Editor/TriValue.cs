@@ -33,5 +33,11 @@ namespace TriInspector
                 Property.SetValue(value);
             }
         }
+
+        [PublicAPI]
+        public void SetValue(T value)
+        {
+            Property.SetValue(value);
+        }
     }
 }
