@@ -36,7 +36,7 @@ namespace TriInspector.Drawers
 
             if (EditorGUI.EndChangeCheck())
             {
-                propertyValue.SmartValue = value;
+                propertyValue.SetValue(value);
             }
         }
 
