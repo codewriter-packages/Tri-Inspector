@@ -1,5 +1,4 @@
-﻿using TriInspector.Utilities;
-using TriInspectorUnityInternalBridge;
+﻿using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,13 +7,27 @@ namespace TriInspector.Elements
     public class InlineEditorElement : TriElement
     {
         private readonly TriProperty _property;
+        private readonly Props _props;
         private Editor _editor;
         private Rect _editorPosition;
         private bool _dirty;
 
-        public InlineEditorElement(TriProperty property)
+        [System.Serializable]
+        public struct Props
+        {
+            public InlineEditorModes mode;
+            public float previewWidth;
+            public float previewHeight;
+
+            public bool DrawGUI => (mode & InlineEditorModes.GUIOnly) != 0;
+            public bool DrawHeader => (mode & InlineEditorModes.Header) != 0;
+            public bool DrawPreview => (mode & InlineEditorModes.Preview) != 0;
+        }
+
+        public InlineEditorElement(TriProperty property, Props props = default)
         {
             _property = property;
+            _props = props;
             _editorPosition = Rect.zero;
         }
 
@@ -82,9 +95,55 @@ namespace TriInspector.Elements
             if (_editor != null && shouldDrawEditor)
             {
                 GUILayout.BeginArea(_editorPosition);
-                GUILayout.BeginVertical();
-                _editor.OnInspectorGUI();
-                GUILayout.EndVertical();
+                GUILayout.BeginHorizontal();
+
+                if (_props.DrawHeader || _props.DrawGUI)
+                {
+                    GUILayout.BeginVertical();
+
+                    if (_props.DrawHeader)
+                    {
+                        GUILayout.BeginVertical();
+                        _editor.DrawHeader();
+                        GUILayout.EndVertical();
+                    }
+
+                    if (_props.DrawGUI)
+                    {
+                        GUILayout.BeginVertical();
+                        _editor.OnInspectorGUI();
+                        GUILayout.EndVertical();
+                    }
+
+                    GUILayout.EndVertical();
+                }
+
+                if (_props.DrawPreview && _editor.HasPreviewGUI())
+                {
+                    GUILayout.BeginVertical();
+
+                    var horizontal = _props.DrawHeader || _props.DrawGUI;
+
+                    var previewOpts = horizontal
+                        ? new[] {GUILayout.Width(_props.previewWidth), GUILayout.ExpandHeight(true),}
+                        : new[] {GUILayout.ExpandWidth(true), GUILayout.Height(_props.previewHeight),};
+
+                    var previewRect = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, previewOpts);
+
+                    previewRect.width = Mathf.Max(previewRect.width, 10);
+                    previewRect.height = Mathf.Max(previewRect.height, 10);
+
+                    var guiEnabled = GUI.enabled;
+                    GUI.enabled = true;
+
+                    _editor.DrawPreview(previewRect);
+
+                    GUI.enabled = guiEnabled;
+
+                    GUILayout.EndVertical();
+                }
+
+                GUILayout.EndHorizontal();
                 lastEditorRect = GUILayoutUtility.GetLastRect();
                 GUILayout.EndArea();
             }
