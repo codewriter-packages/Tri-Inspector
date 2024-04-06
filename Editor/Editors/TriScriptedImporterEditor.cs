@@ -30,6 +30,13 @@ namespace TriInspector.Editors
             base.OnDisable();
         }
 
+        public override void OnInspectorGUI()
+        {
+            _core.OnInspectorGUI();
+
+            ApplyRevertGUI();
+        }
+
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
