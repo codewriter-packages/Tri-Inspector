@@ -18,17 +18,6 @@ namespace TriInspector.Elements
             _editorPosition = Rect.zero;
         }
 
-        protected override void OnAttachToPanel()
-        {
-            base.OnAttachToPanel();
-
-            var target = _property.Value as Object;
-            if (target != null && !InternalEditorUtilityProxy.GetIsInspectorExpanded(target))
-            {
-                InternalEditorUtilityProxy.SetIsInspectorExpanded(target, true);
-            }
-        }
-
         protected override void OnDetachFromPanel()
         {
             if (_editor != null)
@@ -83,6 +72,11 @@ namespace TriInspector.Elements
             if (_editor == null && shouldDrawEditor && _property.Value is Object obj && obj != null)
             {
                 _editor = Editor.CreateEditor(obj);
+
+                if (!InternalEditorUtilityProxy.GetIsInspectorExpanded(obj))
+                {
+                    InternalEditorUtilityProxy.SetIsInspectorExpanded(obj, true);
+                }
             }
 
             if (_editor != null && shouldDrawEditor)
