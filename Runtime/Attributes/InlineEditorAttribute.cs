@@ -8,5 +8,18 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class InlineEditorAttribute : Attribute
     {
+        public InlineEditorModes Mode { get; set; } = InlineEditorModes.GUIOnly;
+
+        public float PreviewWidth { get; set; } = 100;
+        public float PreviewHeight { get; set; } = 50;
+
+        public InlineEditorAttribute()
+        {
+        }
+
+        public InlineEditorAttribute(InlineEditorModes mode)
+        {
+            Mode = mode;
+        }
     }
 }
