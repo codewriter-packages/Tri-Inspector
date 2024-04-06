@@ -34,7 +34,6 @@ namespace TriInspector.Drawers
             {
                 mode = Attribute.Mode,
                 previewHeight = Attribute.PreviewHeight,
-                previewWidth = Attribute.PreviewWidth,
             }));
             return element;
         }

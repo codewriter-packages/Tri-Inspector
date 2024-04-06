@@ -10,7 +10,6 @@ namespace TriInspector
     {
         public InlineEditorModes Mode { get; set; } = InlineEditorModes.GUIOnly;
 
-        public float PreviewWidth { get; set; } = 100;
         public float PreviewHeight { get; set; } = 50;
 
         public InlineEditorAttribute()
