@@ -14,6 +14,11 @@ namespace TriInspector.Utilities
 
         public static bool IsSerializableByUnity(FieldInfo fieldInfo)
         {
+            if (fieldInfo.IsInitOnly)
+            {
+                return false;
+            }
+
             if (fieldInfo.GetCustomAttribute<NonSerializedAttribute>() != null ||
                 fieldInfo.GetCustomAttribute<HideInInspector>() != null)
             {
