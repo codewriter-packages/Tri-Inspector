@@ -25,14 +25,11 @@ namespace TriInspector.Utilities
                 return false;
             }
 
-            if (fieldInfo.GetCustomAttribute<SerializeReference>() != null)
-            {
-                return true;
-            }
-
             if (fieldInfo.IsPublic || fieldInfo.GetCustomAttribute<SerializeField>() != null)
             {
-                return IsTypeSerializable(fieldInfo.FieldType);
+                return 
+                    fieldInfo.GetCustomAttribute<SerializeReference>() != null ||
+                    IsTypeSerializable(fieldInfo.FieldType);
             }
 
             return false;
