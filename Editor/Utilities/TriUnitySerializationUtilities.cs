@@ -32,11 +32,15 @@ namespace TriInspector.Utilities
                 {
                     if (fieldInfo.FieldType.GetElementType().IsSerializable)
                         return true;
+                    else
+                        return false;
                 }
-                else if (fieldInfo.FieldType == typeof(List<>))
+                else if (fieldInfo.FieldType.IsGenericType && fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(List<>))
                 {
                     if (fieldInfo.FieldType.GenericTypeArguments[0].IsSerializable)
                         return true;
+                    else
+                        return false;
                 }
                 else
                 {
