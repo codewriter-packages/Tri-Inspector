@@ -25,11 +25,28 @@ namespace TriInspector.Utilities
                 return false;
             }
 
+            if (fieldInfo.GetCustomAttribute<SerializeReference>() != null)
+            {
+                // if it's a list or array, the base type should be serializable
+                if (fieldInfo.FieldType.IsArray)
+                {
+                    if (fieldInfo.FieldType.GetElementType().IsSerializable)
+                        return true;
+                }
+                else if (fieldInfo.FieldType == typeof(List<>))
+                {
+                    if (fieldInfo.FieldType.GenericTypeArguments[0].IsSerializable)
+                        return true;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
             if (fieldInfo.IsPublic || fieldInfo.GetCustomAttribute<SerializeField>() != null)
             {
-                return 
-                    fieldInfo.GetCustomAttribute<SerializeReference>() != null ||
-                    IsTypeSerializable(fieldInfo.FieldType);
+                return IsTypeSerializable(fieldInfo.FieldType);
             }
 
             return false;
