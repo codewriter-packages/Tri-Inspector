@@ -297,7 +297,7 @@ namespace TriInspector.Utilities
             public bool Match(Type type, Type targetType)
             {
                 return MatchOut(type, out var constraint) &&
-                       constraint.IsAssignableFrom(targetType);
+                       (constraint.IsAssignableFrom(targetType) || MatchGeneric(constraint, targetType));
             }
 
             public bool Match(Type type)
@@ -316,6 +316,19 @@ namespace TriInspector.Utilities
                 var succeed = MatchInternal(type, out targetType);
                 _cache[type] = (succeed, targetType);
                 return succeed;
+            }
+            
+            public bool MatchGeneric(Type type, Type targetType)
+            {
+                if (type.IsGenericType && targetType.IsGenericType)
+                {
+                    var currentGenericType = type.GetGenericTypeDefinition();
+                    var targetGenericType = targetType.GetGenericTypeDefinition();
+
+                    return currentGenericType == targetGenericType;
+                }
+                
+                return false;
             }
 
             private bool MatchInternal(Type type, out Type targetType)

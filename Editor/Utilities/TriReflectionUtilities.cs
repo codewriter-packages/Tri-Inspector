@@ -12,6 +12,7 @@ namespace TriInspector.Utilities
             new Dictionary<Type, IReadOnlyList<Attribute>>();
 
         private static IReadOnlyList<Assembly> _assemblies;
+        private static IReadOnlyList<Type> _allTypesBackingField;
         private static IReadOnlyList<Type> _allNonAbstractTypesBackingField;
 
         public static IReadOnlyList<Assembly> Assemblies
@@ -24,6 +25,31 @@ namespace TriInspector.Utilities
                 }
 
                 return _assemblies;
+            }
+        }
+
+        public static IReadOnlyList<Type> AllTypes
+        {
+            get
+            {
+                if (_allTypesBackingField == null)
+                {
+                    _allTypesBackingField = Assemblies
+                        .SelectMany(asm =>
+                        {
+                            try
+                            {
+                                return asm.GetTypes();
+                            }
+                            catch (ReflectionTypeLoadException)
+                            {
+                                return Array.Empty<Type>();
+                            }
+                        })
+                        .ToList();
+                }
+
+                return _allTypesBackingField;
             }
         }
 
