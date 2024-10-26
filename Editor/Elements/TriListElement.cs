@@ -31,6 +31,7 @@ namespace TriInspector.Elements
 
             _property = property;
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
+            _fixDefaultValue = settings?.FixDefaultValue ?? false;
             _showElementLabels = settings?.ShowElementLabels ?? false;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
@@ -44,7 +45,6 @@ namespace TriInspector.Elements
                 onRemoveCallback = RemoveElementCallback,
                 onReorderCallbackWithDetails = ReorderCallback,
             };
-            _fixDefaultValue = settings?.FixDefaultValue ?? false;
 
             if (!_reorderableListGui.displayAdd && !_reorderableListGui.displayRemove)
             {
