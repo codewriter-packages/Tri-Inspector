@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using TriInspectorUnityInternalBridge;
 using TriInspector.Utilities;
 using UnityEditor;
@@ -19,6 +20,7 @@ namespace TriInspector.Elements
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
         private readonly bool _showElementLabels;
+        private readonly bool _fixDefaultValue;
 
         private float _lastContentWidth;
 
@@ -43,11 +45,29 @@ namespace TriInspector.Elements
                 onRemoveCallback = RemoveElementCallback,
                 onReorderCallbackWithDetails = ReorderCallback,
             };
+            _fixDefaultValue = settings?.FixDefaultValue ?? false;
 
             if (!_reorderableListGui.displayAdd && !_reorderableListGui.displayRemove)
             {
                 _reorderableListGui.footerHeight = 0f;
             }
+        }
+        
+        private Type GetPropertyElementType(SerializedProperty property)
+        {
+            Type type = property.serializedObject.targetObject.GetType();
+            FieldInfo fieldInfo = type.GetField(property.propertyPath);
+
+            if (fieldInfo != null && fieldInfo.FieldType.IsArray)
+            {
+                return fieldInfo.FieldType.GetElementType(); // For arrays
+            }
+            else if (fieldInfo != null && fieldInfo.FieldType.IsGenericType)
+            {
+                return fieldInfo.FieldType.GetGenericArguments()[0]; // For lists
+            }
+
+            return null;
         }
 
         public override bool Update()
@@ -134,6 +154,12 @@ namespace TriInspector.Elements
             if (_property.TryGetSerializedProperty(out _))
             {
                 ReorderableListProxy.DoAddButton(reorderableList, addedReferenceValue);
+
+                if (_fixDefaultValue)
+                {
+                    reorderableList.serializedProperty.GetArrayElementAtIndex(reorderableList.index).boxedValue = Activator.CreateInstance(_property.ArrayElementType);
+                }
+
                 _property.NotifyValueChanged();
                 return;
             }
