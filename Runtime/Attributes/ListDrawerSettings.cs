@@ -12,5 +12,6 @@ namespace TriInspector
         public bool HideRemoveButton { get; set; }
         public bool AlwaysExpanded { get; set; }
         public bool ShowElementLabels { get; set; }
+        public bool FixDefaultValue { get; set; } = false;
     }
 }

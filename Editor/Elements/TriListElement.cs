@@ -19,6 +19,7 @@ namespace TriInspector.Elements
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
         private readonly bool _showElementLabels;
+        private readonly bool _fixDefaultValue;
 
         private float _lastContentWidth;
 
@@ -30,6 +31,7 @@ namespace TriInspector.Elements
 
             _property = property;
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
+            _fixDefaultValue = settings?.FixDefaultValue ?? false;
             _showElementLabels = settings?.ShowElementLabels ?? false;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
@@ -134,6 +136,12 @@ namespace TriInspector.Elements
             if (_property.TryGetSerializedProperty(out _))
             {
                 ReorderableListProxy.DoAddButton(reorderableList, addedReferenceValue);
+
+                if (_fixDefaultValue)
+                {
+                    reorderableList.serializedProperty.GetArrayElementAtIndex(reorderableList.index).boxedValue = Activator.CreateInstance(_property.ArrayElementType);
+                }
+
                 _property.NotifyValueChanged();
                 return;
             }
