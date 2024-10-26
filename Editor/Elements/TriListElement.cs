@@ -52,23 +52,6 @@ namespace TriInspector.Elements
                 _reorderableListGui.footerHeight = 0f;
             }
         }
-        
-        private Type GetPropertyElementType(SerializedProperty property)
-        {
-            Type type = property.serializedObject.targetObject.GetType();
-            FieldInfo fieldInfo = type.GetField(property.propertyPath);
-
-            if (fieldInfo != null && fieldInfo.FieldType.IsArray)
-            {
-                return fieldInfo.FieldType.GetElementType(); // For arrays
-            }
-            else if (fieldInfo != null && fieldInfo.FieldType.IsGenericType)
-            {
-                return fieldInfo.FieldType.GetGenericArguments()[0]; // For lists
-            }
-
-            return null;
-        }
 
         public override bool Update()
         {
