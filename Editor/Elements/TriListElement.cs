@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using System.Reflection;
 using TriInspectorUnityInternalBridge;
 using TriInspector.Utilities;
 using UnityEditor;
