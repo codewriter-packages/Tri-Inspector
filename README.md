@@ -276,6 +276,24 @@ public Material mat;
 public string[] collection = {"hello", "world"};
 ```
 
+#### Unit
+
+![Unit](https://github.com/user-attachments/assets/7b40aa28-cb5f-4764-9ec1-19ed95b12803)
+
+```csharp
+[Unit("My custom Unit")]
+public float freeTextUnit;
+
+[Unit(UnitAttribute.Meter)]
+public float lengthInMeters;
+
+[Unit(UnitAttribute.Centimeter)]
+public float lengthInCentimeters;
+
+[Unit(UnitAttribute.Millimeter)]
+public float lengthInMillimeters;
+```
+
 ### Styling
 
 #### Title
