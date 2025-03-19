@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Globalization;
 using TriInspector;
 using UnityEngine;
 
@@ -6,6 +7,9 @@ public class Decorators_UnitSample : ScriptableObject
 {
     [Unit("My custom Unit")]
     public float freeTextUnit;
+
+    [Unit("$" + nameof(GetDynamicUnit))]
+    public float dynamicUnit;
 
     [Unit(UnitAttribute.Meter)]
     public float lengthInMeters;
@@ -108,4 +112,9 @@ public class Decorators_UnitSample : ScriptableObject
 
     [Unit(UnitAttribute.MeterPerSquareSecond)]
     public float accelerationInMetersPerSquareSecond;
+
+    private string GetDynamicUnit()
+    {
+        return DateTime.Now.ToString(CultureInfo.CurrentCulture);
+    }
 }

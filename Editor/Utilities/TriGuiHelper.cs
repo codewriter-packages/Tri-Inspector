@@ -8,8 +8,15 @@ namespace TriInspector.Utilities
 {
     public static class TriGuiHelper
     {
+        private static readonly GUIContent TempContentShared = new GUIContent();
         private static readonly Stack<Object> TargetObjects = new Stack<Object>();
 
+        internal static GUIContent TempContent(string text)
+        {
+            TempContentShared.text = text;
+            return TempContentShared;
+        }
+        
         internal static bool IsAnyEditorPushed()
         {
             return TargetObjects.Count > 0;
