@@ -278,20 +278,14 @@ public string[] collection = {"hello", "world"};
 
 #### Unit
 
-![Unit](https://github.com/user-attachments/assets/7b40aa28-cb5f-4764-9ec1-19ed95b12803)
+![Unit](https://github.com/user-attachments/assets/ad355200-150b-4a03-9b96-255f966a097b)
 
 ```csharp
-[Unit("My custom Unit")]
-public float freeTextUnit;
-
 [Unit(UnitAttribute.Meter)]
 public float lengthInMeters;
 
-[Unit(UnitAttribute.Centimeter)]
-public float lengthInCentimeters;
-
-[Unit(UnitAttribute.Millimeter)]
-public float lengthInMillimeters;
+[Unit("My custom Unit")]
+public float freeTextUnit;
 ```
 
 ### Styling
