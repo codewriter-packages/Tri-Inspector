@@ -1,17 +1,19 @@
 ﻿using System.Collections.Generic;
 using TriInspector.Resolvers;
 using UnityEngine;
+using UnityEditor;
 
 namespace TriInspector.Elements
 {
     public class TriTabGroupElement : TriHeaderGroupBaseElement
     {
         private const string DefaultTabName = "Main";
-
         private readonly List<TabInfo> _tabs;
         private readonly Dictionary<string, TriElement> _tabElements;
-
         private string _activeTabName;
+        private string _tabGroupId;
+        private bool _isInitializing;
+        private bool _activeTabLoaded = false;
 
         private struct TabInfo
         {
@@ -25,6 +27,54 @@ namespace TriInspector.Elements
             _tabs = new List<TabInfo>();
             _tabElements = new Dictionary<string, TriElement>();
             _activeTabName = null;
+            _tabGroupId = "";
+        }
+
+        private string GetTabGroupPreferenceKey()
+        {
+            if (string.IsNullOrEmpty(_tabGroupId) && _tabs.Count > 0 && _tabs[0].property != null)
+            {
+                // Create a unique key by walking up to find the root object
+                var property = _tabs[0].property;
+                var rootProperty = property;
+                while (rootProperty.Parent != null)
+                {
+                    rootProperty = rootProperty.Parent;
+                }
+
+                var targetObject = rootProperty.Value as Object;
+                if (targetObject != null)
+                {
+                    _tabGroupId = $"TriTabGroup_{targetObject.GetInstanceID()}_{property.PropertyPath}";
+                }
+            }
+            return _tabGroupId;
+        }
+
+        private void SaveActiveTab()
+        {
+            if (_isInitializing) return;
+
+            var preferenceKey = GetTabGroupPreferenceKey();
+            if (!string.IsNullOrEmpty(preferenceKey) && !string.IsNullOrEmpty(_activeTabName))
+            {
+                EditorPrefs.SetString(preferenceKey, _activeTabName);
+            }
+        }
+
+        private bool LoadActiveTab()
+        {
+            var preferenceKey = GetTabGroupPreferenceKey();
+            if (!string.IsNullOrEmpty(preferenceKey))
+            {
+                var savedTab = EditorPrefs.GetString(preferenceKey, null);
+                if (!string.IsNullOrEmpty(savedTab) && _tabElements.ContainsKey(savedTab))
+                {
+                    SetActiveTabInternal(savedTab);
+                    return true;
+                }
+            }
+            return false;
         }
 
         protected override void DrawHeader(Rect position)
@@ -32,6 +82,13 @@ namespace TriInspector.Elements
             if (_tabs.Count == 0)
             {
                 return;
+            }
+
+            // Load saved tab state if no active tab is set
+            if (!_activeTabLoaded)
+            {
+                _activeTabLoaded = true;
+                LoadActiveTab();
             }
 
             var tabRect = new Rect(position)
@@ -54,13 +111,11 @@ namespace TriInspector.Elements
                     var tabStyle = index == 0 ? TriEditorStyles.TabFirst
                         : index == tabCount - 1 ? TriEditorStyles.TabLast
                         : TriEditorStyles.TabMiddle;
-
                     var isTabActive = GUI.Toggle(tabRect, _activeTabName == tab.name, content, tabStyle);
                     if (isTabActive && _activeTabName != tab.name)
                     {
                         SetActiveTab(tab.name);
                     }
-
                     tabRect.x += tabRect.width;
                 }
             }
@@ -69,7 +124,6 @@ namespace TriInspector.Elements
         protected override void AddPropertyChild(TriElement element, TriProperty property)
         {
             var tabName = DefaultTabName;
-
             if (property.TryGetAttribute(out TabAttribute tab))
             {
                 tabName = tab.TabName ?? tabName;
@@ -78,14 +132,12 @@ namespace TriInspector.Elements
             if (!_tabElements.TryGetValue(tabName, out var tabElement))
             {
                 tabElement = new TriElement();
-
                 var info = new TabInfo
                 {
                     name = tabName,
                     titleResolver = ValueResolver.ResolveString(property.Definition, tabName),
                     property = property,
                 };
-
                 _tabElements[tabName] = tabElement;
                 _tabs.Add(info);
 
@@ -96,20 +148,29 @@ namespace TriInspector.Elements
 
                 if (_activeTabName == null)
                 {
-                    SetActiveTab(tabName);
+                    _isInitializing = true;
+                    if (!LoadActiveTab())
+                    {
+                        SetActiveTabInternal(tabName);
+                    }
+                    _isInitializing = false;
                 }
             }
 
             tabElement.AddChild(element);
         }
 
-        private void SetActiveTab(string tabName)
+        private void SetActiveTabInternal(string tabName)
         {
             _activeTabName = tabName;
-
             RemoveAllChildren();
-
             AddChild(_tabElements[_activeTabName]);
+        }
+
+        private void SetActiveTab(string tabName)
+        {
+            SetActiveTabInternal(tabName);
+            SaveActiveTab();
         }
     }
 }
