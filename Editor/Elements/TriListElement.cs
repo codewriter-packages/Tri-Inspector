@@ -248,6 +248,56 @@ namespace TriInspector.Elements
             });
         }
 
+        private void SetArraySizeCallback(int arraySize)
+        {
+            if (arraySize < 0)
+            {
+                return;
+            }
+
+            if (_property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                serializedProperty.arraySize = arraySize;
+                _property.NotifyValueChanged();
+                return;
+            }
+
+            var template = CloneValue(_property);
+
+            _property.SetValues(targetIndex =>
+            {
+                var value = (IList) _property.GetValue(targetIndex);
+
+                if (_property.FieldType.IsArray)
+                {
+                    var array = Array.CreateInstance(_property.ArrayElementType, arraySize);
+                    Array.Copy(template, array, Math.Min(arraySize, template.Length));
+
+                    value = array;
+                }
+                else
+                {
+                    if (value == null)
+                    {
+                        value = (IList) Activator.CreateInstance(_property.FieldType);
+                    }
+
+                    while (value.Count > arraySize)
+                    {
+                        value.RemoveAt(value.Count - 1);
+                    }
+
+                    while (value.Count < arraySize)
+                    {
+                        var newElement = CreateDefaultElementValue(_property);
+                        value.Add(newElement);
+                    }
+                }
+
+                return value;
+            });
+        }
+
         private bool GenerateChildren()
         {
             var count = _reorderableListGui.count;
@@ -293,10 +343,13 @@ namespace TriInspector.Elements
 
         private void DrawHeaderCallback(Rect rect)
         {
-            var labelRect = new Rect(rect);
+            var labelRect = new Rect(rect)
+            {
+                xMax = rect.xMax - 50,
+            };
             var arraySizeRect = new Rect(rect)
             {
-                xMin = rect.xMax - 100,
+                xMin = labelRect.xMax,
             };
 
             if (_alwaysExpanded)
@@ -308,8 +361,16 @@ namespace TriInspector.Elements
                 TriEditorGUI.Foldout(labelRect, _property);
             }
 
-            var label = _reorderableListGui.count == 0 ? "Empty" : $"{_reorderableListGui.count} items";
-            GUI.Label(arraySizeRect, label, Styles.ItemsCount);
+            EditorGUI.BeginChangeCheck();
+
+            var newArraySize = EditorGUI.DelayedIntField(arraySizeRect, _reorderableListGui.count);
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                SetArraySizeCallback(newArraySize);
+                GUIUtility.ExitGUI();
+                return;
+            }
 
             if (Event.current.type == EventType.DragUpdated && rect.Contains(Event.current.mousePosition))
             {
@@ -410,7 +471,7 @@ namespace TriInspector.Elements
         private class ListPropertyOverrideContext : TriPropertyOverrideContext
         {
             public static readonly ListPropertyOverrideContext Instance = new ListPropertyOverrideContext();
-            
+
             private readonly GUIContent _noneLabel = GUIContent.none;
 
             public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
@@ -428,7 +489,7 @@ namespace TriInspector.Elements
                 return false;
             }
         }
- 
+
         private static class Styles
         {
             public static readonly GUIStyle ItemsCount;
