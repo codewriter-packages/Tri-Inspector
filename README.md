@@ -288,6 +288,24 @@ public float lengthInMeters;
 public float freeTextUnit;
 ```
 
+#### Preview Mesh
+
+![Preview Mesh](https://github.com/user-attachments/assets/d589a769-dc55-4e96-b0cc-edcde2677760)
+
+```csharp
+[LabelWidth(270f)]
+[PreviewMesh(100, 100)]
+public GameObject meshCustomLengthAndWidth;
+
+[LabelWidth(200f)]
+[PreviewMesh(200, 160, false)]
+public GameObject meshNoFoldoutNoMesh;
+
+[LabelWidth(200f)]
+[PreviewMesh(200, 160, false)]
+public GameObject meshNoFoldoutWithMesh;
+```
+
 ### Styling
 
 #### Title
