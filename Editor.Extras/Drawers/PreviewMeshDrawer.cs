@@ -163,7 +163,7 @@ namespace TriInspector.Drawers
                 {
                     return;
                 }
-                float currentWidth = _width == -1 ? (int) EditorGUIUtility.currentViewWidth : _width;
+                float currentWidth = _width == -1 ? (int) position.width : _width;
                 currentWidth = Math.Max(currentWidth, _c_MIN_WIDTH);
 
                 if (position.height == 0f)
