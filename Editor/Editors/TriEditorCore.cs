@@ -46,10 +46,9 @@ namespace TriInspector.Editors
                 EditorGUILayout.HelpBox("Script is missing", MessageType.Warning);
                 return;
             }
-
-            foreach (var targetObject in serializedObject.targetObjects)
+			for(int i = 0; i < serializedObject.targetObjects.Length; i++)
             {
-                if (TriGuiHelper.IsEditorTargetPushed(targetObject))
+                if (TriGuiHelper.IsEditorTargetPushed(serializedObject.targetObjects[i]))
                 {
                     GUILayout.Label("Recursive inline editors not supported");
                     return;
