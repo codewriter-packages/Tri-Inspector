@@ -290,7 +290,7 @@ public float freeTextUnit;
 
 #### Preview Mesh
 
-![Preview Mesh](https://github.com/user-attachments/assets/e4587d39-959a-4d02-9e9f-5a7eea4ad5dc)
+![Preview Mesh](https://github.com/user-attachments/assets/329bb723-d2fc-4e18-97e6-f47706b0eb46)
 
 ```csharp
 [LabelWidth(270f)]
