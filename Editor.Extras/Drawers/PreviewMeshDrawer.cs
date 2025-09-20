@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Elements;
@@ -77,8 +78,19 @@ namespace TriInspector.Drawers
                 {
                     if (_mat == null)
                     {
-                        _mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                        _mat.color = new Color(0.4f, 0.7f, 0.4f);
+                        var shaderNames = new[]
+                        {
+                            "Universal Render Pipeline/Lit",
+                            "Standard",
+                            "Legacy Shaders/Diffuse",
+                        };
+
+                        var shader = shaderNames.Select(name => Shader.Find(name)).First(shader => shader != null);
+
+                        _mat = new Material(shader)
+                        {
+                            color = new Color(0.4f, 0.7f, 0.4f),
+                        };
                     }
                     return _mat;
                 }
