@@ -89,6 +89,7 @@ namespace TriInspector.Drawers
 
                         _mat = new Material(shader)
                         {
+                            hideFlags = HideFlags.HideAndDontSave,
                             color = new Color(0.4f, 0.7f, 0.4f),
                         };
                     }
