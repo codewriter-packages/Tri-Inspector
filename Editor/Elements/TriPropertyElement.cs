@@ -58,7 +58,17 @@ namespace TriInspector.Elements
             EditorGUI.showMixedValue = _property.IsValueMixed;
             var overrideCtx = TriPropertyOverrideContext.BeginProperty();
 
+            if (_property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                EditorGUI.BeginProperty(position, null, serializedProperty);
+            }
+
             base.OnGUI(position);
+
+            if (_property.TryGetSerializedProperty(out _))
+            {
+                EditorGUI.EndProperty();
+            }
 
             overrideCtx.EndProperty();
             EditorGUI.showMixedValue = oldShowMixedValue;
