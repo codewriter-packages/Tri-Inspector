@@ -32,19 +32,35 @@ namespace TriInspector.Drawers
         private sealed class EnumToggleButtonsElement : TriElement
         {
             private readonly TriProperty _property;
-            private readonly List<KeyValuePair<string, Enum>> _enumValues;
+            private readonly List<EnumEntry> _enumValues;
             private readonly bool _isFlags;
 
             public EnumToggleButtonsElement(TriProperty property)
             {
                 _property = property;
                 _enumValues = Enum.GetNames(property.FieldType)
-                    .Zip(Enum.GetValues(property.FieldType).OfType<Enum>(),
-                        (name, value) => new KeyValuePair<string, Enum>(name, value))
+                    .Zip(Enum.GetValues(property.FieldType).OfType<Enum>(), (name, value) => new EnumEntry
+                    {
+                        name = name,
+                        value = value,
+                        displayName = ObjectNames.NicifyVariableName(name),
+                    })
                     .ToList();
                 _isFlags = property.FieldType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
 
-                _enumValues.Sort(new DeclarationOrderComparer(property.FieldType));
+                var enumFields = property.FieldType.GetFields(BindingFlags.Static | BindingFlags.Public);
+
+                foreach (var enumValue in _enumValues)
+                {
+                    var enumField = Array.Find(enumFields, it => it.Name == enumValue.name);
+                    var inspectorNameAttr = enumField?.GetCustomAttribute<InspectorNameAttribute>();
+                    if (inspectorNameAttr != null)
+                    {
+                        enumValue.displayName = inspectorNameAttr.displayName;
+                    }
+                }
+
+                _enumValues.Sort(new DeclarationOrderComparer(enumFields));
             }
 
             public override float GetHeight(float width)
@@ -65,11 +81,11 @@ namespace TriInspector.Drawers
                 {
                     var itemRect = SplitRectWidth(position, _enumValues.Count, i);
                     var itemStyle = GetButtonStyle(_enumValues.Count, i);
-                    var itemName = _enumValues[i].Key;
-                    var itemValue = _enumValues[i].Value;
+                    var itemDisplayName = _enumValues[i].displayName;
+                    var itemValue = _enumValues[i].value;
 
                     var oldSelected = value != null && (_isFlags ? value.HasFlag(itemValue) : value.Equals(itemValue));
-                    var newSelected = GUI.Toggle(itemRect, oldSelected, itemName, itemStyle);
+                    var newSelected = GUI.Toggle(itemRect, oldSelected, itemDisplayName, itemStyle);
 
                     if (oldSelected != newSelected)
                     {
@@ -121,19 +137,26 @@ namespace TriInspector.Drawers
                 return rect;
             }
 
-            private class DeclarationOrderComparer : IComparer<KeyValuePair<string, Enum>>
+            private class EnumEntry
+            {
+                public string name;
+                public string displayName;
+                public Enum value;
+            }
+
+            private class DeclarationOrderComparer : IComparer<EnumEntry>
             {
                 private readonly FieldInfo[] _fields;
 
-                public DeclarationOrderComparer(Type enumType)
+                public DeclarationOrderComparer(FieldInfo[] fields)
                 {
-                    _fields = enumType.GetFields(BindingFlags.Static | BindingFlags.Public);
+                    _fields = fields;
                 }
 
-                public int Compare(KeyValuePair<string, Enum> x, KeyValuePair<string, Enum> y)
+                public int Compare(EnumEntry x, EnumEntry y)
                 {
-                    var orderX = Array.FindIndex(_fields, it => it.Name == x.Key);
-                    var orderY = Array.FindIndex(_fields, it => it.Name == y.Key);
+                    var orderX = Array.FindIndex(_fields, it => it.Name == x.name);
+                    var orderY = Array.FindIndex(_fields, it => it.Name == y.name);
                     return orderX.CompareTo(orderY);
                 }
             }
