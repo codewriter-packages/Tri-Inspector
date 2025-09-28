@@ -10,6 +10,9 @@ public class Decorators_DropdownSample : ScriptableObject
     [Dropdown(nameof(GetStringValues))]
     public string stringValue;
 
+    [Dropdown(nameof(GetStringValues))]
+    public string[] stringArray;
+
     [Dropdown(nameof(GetVectorValues))]
     public Vector3 vectorValue;
 

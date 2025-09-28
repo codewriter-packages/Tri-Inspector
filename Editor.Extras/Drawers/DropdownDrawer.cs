@@ -2,8 +2,9 @@
 using TriInspector.Drawers;
 using TriInspector.Elements;
 using TriInspector.Resolvers;
+using UnityEngine;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Decorator)]
+[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {

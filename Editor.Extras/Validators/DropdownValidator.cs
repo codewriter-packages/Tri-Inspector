@@ -2,7 +2,7 @@
 using TriInspector.Resolvers;
 using TriInspector.Validators;
 
-[assembly: RegisterTriAttributeValidator(typeof(DropdownValidator<>))]
+[assembly: RegisterTriAttributeValidator(typeof(DropdownValidator<>), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
