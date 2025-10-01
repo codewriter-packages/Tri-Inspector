@@ -183,6 +183,7 @@ namespace TriInspector.Drawers
             private readonly TriElement _cellElementContainer;
             private readonly ReorderableList _listGui;
             private readonly TableListPropertyOverrideContext _propertyOverrideContext;
+            private readonly bool _showAlternatingBackground;
 
             private bool _wasRendered;
 
@@ -191,9 +192,12 @@ namespace TriInspector.Drawers
             public TableMultiColumnTreeView(TriProperty property, TriElement container, ReorderableList listGui)
                 : base(new TreeViewState(), new TableColumnHeader())
             {
+                property.TryGetAttribute(out ListDrawerSettingsAttribute listSettings);
+                
                 _property = property;
                 _cellElementContainer = container;
                 _listGui = listGui;
+                _showAlternatingBackground = listSettings?.ShowAlternatingBackground ?? true;
                 _propertyOverrideContext = new TableListPropertyOverrideContext(property);
 
                 showAlternatingRowBackgrounds = true;
@@ -302,7 +306,12 @@ namespace TriInspector.Drawers
                     base.RowGUI(args);
                     return;
                 }
-
+                
+                if (_showAlternatingBackground && args.row % 2 != 0)
+                {
+                    EditorGUI.DrawRect(args.rowRect, new Color(0.1f, 0.1f, 0.1f, 0.15f));
+                }
+                
                 var rowElement = (TableRowElement) _cellElementContainer.GetChild(args.row);
 
                 for (var i = 0; i < multiColumnHeader.state.visibleColumns.Length; i++)
