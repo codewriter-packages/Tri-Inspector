@@ -385,7 +385,6 @@ namespace TriInspector.Elements
             if (EditorGUI.EndChangeCheck())
             {
                 SetArraySizeCallback(newArraySize);
-                GUIUtility.ExitGUI();
                 return;
             }
 
