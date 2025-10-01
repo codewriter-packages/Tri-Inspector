@@ -9,6 +9,7 @@ namespace TriInspector
     {
         private static readonly List<TriElement> Empty = new List<TriElement>();
 
+        private float _cachedHeight;
         private bool _attached;
         private List<TriElement> _children = Empty;
 
@@ -16,6 +17,8 @@ namespace TriInspector
         public int ChildrenCount => _children.Count;
 
         public bool IsAttached => _attached;
+
+        internal float CachedHeight => _cachedHeight;
 
         [PublicAPI]
         public virtual bool Update()
@@ -43,24 +46,29 @@ namespace TriInspector
                 Debug.LogError($"{GetType().Name} not attached");
             }
 
+            if (Event.current.type != EventType.Layout)
+            {
+                return _cachedHeight;
+            }
+
             switch (_children.Count)
             {
                 case 0:
-                    return 0f;
+                    return _cachedHeight = 0f;
 
                 case 1:
-                    return _children[0].GetHeight(width);
+                    return _cachedHeight = _children[0].GetHeight(width);
 
                 default:
                 {
-                    var height = (_children.Count - 1) * EditorGUIUtility.standardVerticalSpacing;
+                    _cachedHeight = (_children.Count - 1) * EditorGUIUtility.standardVerticalSpacing;
 
                     foreach (var child in _children)
                     {
-                        height += child.GetHeight(width);
+                        _cachedHeight += child.GetHeight(width);
                     }
 
-                    return height;
+                    return _cachedHeight;
                 }
             }
         }

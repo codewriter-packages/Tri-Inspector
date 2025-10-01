@@ -12,6 +12,8 @@ namespace TriInspector.Elements
 {
     public class TriListElement : TriElement
     {
+        private const int MinElementsForVirtualization = 25;
+
         private const float ListExtraWidth = 7f;
         private const float DraggableAreaExtraWidth = 14f;
 
@@ -21,6 +23,8 @@ namespace TriInspector.Elements
         private readonly bool _showElementLabels;
 
         private float _lastContentWidth;
+        private int? _lastInvisibleElement;
+        private int? _lastVisibleElement;
 
         protected ReorderableList ListGui => _reorderableListGui;
 
@@ -109,11 +113,20 @@ namespace TriInspector.Elements
         {
             if (!_property.IsExpanded)
             {
+                _lastInvisibleElement = null;
+                _lastVisibleElement = null;
+
                 ReorderableListProxy.DoListHeader(_reorderableListGui, new Rect(position)
                 {
                     yMax = position.yMax - 4,
                 });
                 return;
+            }
+
+            if (_reorderableListGui.count < MinElementsForVirtualization)
+            {
+                _lastInvisibleElement = null;
+                _lastVisibleElement = null;
             }
 
             var labelWidthExtra = ListExtraWidth + DraggableAreaExtraWidth;
@@ -403,6 +416,36 @@ namespace TriInspector.Elements
                 return;
             }
 
+            if (_lastInvisibleElement.HasValue && index + 1 < _lastInvisibleElement.Value ||
+                _lastVisibleElement.HasValue && index - 1 > _lastVisibleElement.Value)
+            {
+                return;
+            }
+
+            if (_reorderableListGui.count > MinElementsForVirtualization)
+            {
+                if (Event.current.type == EventType.Repaint)
+                {
+                    var windowRect = GUIClipProxy.VisibleRect;
+                    var rectInWindow = GUIClipProxy.UnClipToWindow(rect);
+
+                    if (rectInWindow.yMax < 0)
+                    {
+                        _lastInvisibleElement = index;
+                    } else if (_lastInvisibleElement == index)
+                    {
+                        _lastInvisibleElement = index / 2;
+                        _lastVisibleElement = index / 2 + 1;
+                        _property.PropertyTree.RequestRepaint();
+                    }
+
+                    if (rectInWindow.y < windowRect.height)
+                    {
+                        _lastVisibleElement = index;
+                    }
+                }
+            }
+
             if (!_reorderableListGui.draggable)
             {
                 rect.xMin += DraggableAreaExtraWidth;
@@ -419,6 +462,12 @@ namespace TriInspector.Elements
             if (index >= ChildrenCount)
             {
                 return EditorGUIUtility.singleLineHeight;
+            }
+
+            if (_lastInvisibleElement.HasValue && index + 1 < _lastInvisibleElement.Value ||
+                _lastVisibleElement.HasValue && index - 1 > _lastVisibleElement.Value)
+            {
+                return Mathf.Max(EditorGUIUtility.singleLineHeight, GetChild(index).CachedHeight);
             }
 
             return GetChild(index).GetHeight(_lastContentWidth);
