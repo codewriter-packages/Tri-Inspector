@@ -37,6 +37,7 @@ namespace TriInspector.Elements
             _showElementLabels = settings?.ShowElementLabels ?? false;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
+                showDefaultBackground = settings?.ShowDefaultBackground ?? true,
                 draggable = settings?.Draggable ?? true,
                 displayAdd = settings == null || !settings.HideAddButton,
                 displayRemove = settings == null || !settings.HideRemoveButton,
