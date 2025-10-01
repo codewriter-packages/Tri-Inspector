@@ -13,5 +13,6 @@ namespace TriInspector
         public bool AlwaysExpanded { get; set; }
         public bool ShowElementLabels { get; set; }
         public bool ShowDefaultBackground { get; set; } = true;
+        public bool ShowAlternatingBackground { get; set; } = true;
     }
 }

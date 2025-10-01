@@ -21,6 +21,7 @@ namespace TriInspector.Elements
         private readonly ReorderableList _reorderableListGui;
         private readonly bool _alwaysExpanded;
         private readonly bool _showElementLabels;
+        private readonly bool _showAlternatingBackground;
 
         private float _lastContentWidth;
         private int? _lastInvisibleElement;
@@ -35,6 +36,7 @@ namespace TriInspector.Elements
             _property = property;
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
             _showElementLabels = settings?.ShowElementLabels ?? false;
+            _showAlternatingBackground = settings?.ShowAlternatingBackground ?? true;
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
                 showDefaultBackground = settings?.ShowDefaultBackground ?? true,
@@ -43,6 +45,7 @@ namespace TriInspector.Elements
                 displayRemove = settings == null || !settings.HideRemoveButton,
                 drawHeaderCallback = DrawHeaderCallback,
                 elementHeightCallback = ElementHeightCallback,
+                drawElementBackgroundCallback = DrawElementBackgroundCallback,
                 drawElementCallback = DrawElementCallback,
                 onAddCallback = AddElementCallback,
                 onRemoveCallback = RemoveElementCallback,
@@ -408,6 +411,23 @@ namespace TriInspector.Elements
 
                 Event.current.Use();
             }
+        }
+        
+        private void DrawElementBackgroundCallback(Rect rect, int index, bool isActive, bool isFocused)
+        {
+            if (_lastInvisibleElement.HasValue && index + 1 < _lastInvisibleElement.Value ||
+                _lastVisibleElement.HasValue && index - 1 > _lastVisibleElement.Value)
+            {
+                return;
+            }
+
+            if (_showAlternatingBackground && index % 2 != 0)
+            {
+                EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f, 0.15f));
+            }
+
+            ReorderableList.defaultBehaviours.DrawElementBackground(rect, index, isActive, isFocused,
+                _reorderableListGui.draggable);
         }
 
         private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)
