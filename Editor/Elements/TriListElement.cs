@@ -418,7 +418,10 @@ namespace TriInspector.Elements
             if (_lastInvisibleElement.HasValue && index + 1 < _lastInvisibleElement.Value ||
                 _lastVisibleElement.HasValue && index - 1 > _lastVisibleElement.Value)
             {
-                return;
+                if (index != _reorderableListGui.index)
+                {
+                    return;
+                }
             }
 
             if (_showAlternatingBackground && index % 2 != 0)
@@ -440,7 +443,10 @@ namespace TriInspector.Elements
             if (_lastInvisibleElement.HasValue && index + 1 < _lastInvisibleElement.Value ||
                 _lastVisibleElement.HasValue && index - 1 > _lastVisibleElement.Value)
             {
-                return;
+                if (index != _reorderableListGui.index)
+                {
+                    return;
+                }
             }
 
             if (_reorderableListGui.count > MinElementsForVirtualization)
@@ -462,7 +468,10 @@ namespace TriInspector.Elements
 
                     if (rectInWindow.y < windowRect.height)
                     {
-                        _lastVisibleElement = index;
+                        if (!_lastVisibleElement.HasValue || index > _lastVisibleElement.Value)
+                        {
+                            _lastVisibleElement = index;
+                        }
                     }
                 }
             }
@@ -488,7 +497,10 @@ namespace TriInspector.Elements
             if (_lastInvisibleElement.HasValue && index + 1 < _lastInvisibleElement.Value ||
                 _lastVisibleElement.HasValue && index - 1 > _lastVisibleElement.Value)
             {
-                return Mathf.Max(EditorGUIUtility.singleLineHeight, GetChild(index).CachedHeight);
+                if (index != _reorderableListGui.index)
+                {
+                    return Mathf.Max(EditorGUIUtility.singleLineHeight, GetChild(index).CachedHeight);
+                }
             }
 
             return GetChild(index).GetHeight(_lastContentWidth);
