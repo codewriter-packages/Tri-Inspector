@@ -288,6 +288,18 @@ public float lengthInMeters;
 public float freeTextUnit;
 ```
 
+#### Preview Object
+
+![Preview Object](https://github.com/user-attachments/assets/339849d6-1491-4638-b099-7f3afe813dcb)
+
+```csharp
+[PreviewObject]
+public Texture2D texture;
+
+[PreviewObject(Height = 100)]
+public GameObject gameObj;
+```
+
 #### Preview Mesh
 
 ![Preview Mesh](https://github.com/user-attachments/assets/329bb723-d2fc-4e18-97e6-f47706b0eb46)
