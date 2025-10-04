@@ -76,11 +76,6 @@ namespace TriInspector.Drawers
                 EditorStyles.objectField.Draw(previewRect, false, false, false, false);
             }
 
-            if (assetToPreview == null)
-            {
-                return;
-            }
-
             const int previewContentPadding = 2;
             var previewContentRect = new Rect(previewRect)
             {
@@ -90,17 +85,55 @@ namespace TriInspector.Drawers
                 yMax = previewRect.yMax - previewContentPadding,
             };
 
+            if (assetToPreview == null)
+            {
+                GUI.Label(previewContentRect, "None", EditorStyles.centeredGreyMiniLabel);
+                return;
+            }
+
+            if (assetToPreview is Sprite sprite)
+            {
+                DrawSpritePreview(previewContentRect, sprite);
+                return;
+            }
+
+            DrawAssetPreview(previewContentRect, assetToPreview, property);
+        }
+
+        private void DrawAssetPreview(Rect position, Object assetToPreview, TriProperty property)
+        {
             var previewTexture = AssetPreview.GetAssetPreview(assetToPreview);
 
             if (previewTexture != null)
             {
-                EditorGUI.DrawPreviewTexture(previewContentRect, previewTexture, null, ScaleMode.ScaleToFit);
+                EditorGUI.DrawPreviewTexture(position, previewTexture, null, ScaleMode.ScaleToFit);
             }
 
             if (AssetPreview.IsLoadingAssetPreview(assetToPreview.GetInstanceID()))
             {
                 property.PropertyTree.RequestRepaint();
             }
+        }
+
+        private static void DrawSpritePreview(Rect position, Sprite sprite)
+        {
+            var texRect = sprite.textureRect;
+            var fullSize = new Vector2(sprite.texture.width, sprite.texture.height);
+            var invFullSize = new Vector2(1f / fullSize.x, 1f / fullSize.y);
+            var size = new Vector2(texRect.width, texRect.height);
+            var invSize = new Vector2(1f / size.x, 1f / size.y);
+
+            var coords = new Rect(
+                Vector2.Scale(texRect.position, invFullSize),
+                Vector2.Scale(texRect.size, invFullSize));
+            var ratio = Vector2.Scale(position.size, invSize);
+            var minRatio = Mathf.Min(ratio.x, ratio.y);
+
+            var center = position.center;
+            position.size = size * minRatio;
+            position.center = center;
+
+            GUI.DrawTextureWithTexCoords(position, sprite.texture, coords);
         }
 
         private float GetPreviewSize()
