@@ -92,7 +92,10 @@ namespace TriInspector.Drawers
 
             var previewTexture = AssetPreview.GetAssetPreview(assetToPreview);
 
-            EditorGUI.DrawPreviewTexture(previewContentRect, previewTexture, null, ScaleMode.ScaleToFit);
+            if (previewTexture != null)
+            {
+                EditorGUI.DrawPreviewTexture(previewContentRect, previewTexture, null, ScaleMode.ScaleToFit);
+            }
 
             if (AssetPreview.IsLoadingAssetPreview(assetToPreview.GetInstanceID()))
             {
