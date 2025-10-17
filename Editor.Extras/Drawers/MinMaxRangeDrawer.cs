@@ -39,9 +39,7 @@ namespace TriInspector.Drawers
                     _minMaxVector2IntResolver = ValueResolver.Resolve<Vector2Int>(propertyDefinition, Attribute.MinMaxMemberName);
                     if (_minMaxVector2IntResolver.TryGetErrorString(out var vector2IntError))
                     {
-                        return $"Failed to resolve MinMaxMemberName '{Attribute.MinMaxMemberName}'.\n" +
-                               $"Vector2 Error: {vector2Error}\n" +
-                               $"Vector2Int Error: {vector2IntError}";
+                        return vector2IntError;
                     }
                 }
                 return TriExtensionInitializationResult.Ok;
