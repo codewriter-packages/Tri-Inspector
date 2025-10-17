@@ -5,11 +5,11 @@ using TriInspector.Resolvers;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DynamicRangeAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly: RegisterTriAttributeDrawer(typeof(SliderAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {
-    public class DynamicRangeAttributeDrawer : TriAttributeDrawer<DynamicRangeAttribute>
+    public class SliderAttributeDrawer : TriAttributeDrawer<SliderAttribute>
     {
         private ValueResolver<float> _minFloatResolver;
         private ValueResolver<int> _minIntResolver;

@@ -6,11 +6,11 @@ using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriAttributeDrawer(typeof(MinMaxRangeAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly: RegisterTriAttributeDrawer(typeof(MinMaxSliderAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {
-    public class MinMaxRangeAttributeDrawer : TriAttributeDrawer<MinMaxRangeAttribute>
+    public class MinMaxSliderAttributeDrawer : TriAttributeDrawer<MinMaxSliderAttribute>
     {
         private ValueResolver<float> _minFloatResolver;
         private ValueResolver<int> _minIntResolver;
