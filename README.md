@@ -250,6 +250,26 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 }
 ```
 
+#### DynamicRange
+
+![DynamicRange](https://github.com/user-attachments/assets/9ad79364-715e-439c-8772-3a4b5b1aea5e)
+
+```csharp
+[DynamicRange(nameof(_min), nameof(_max))]
+public int dynamicIntRange = -5;
+
+[DynamicRange(0, nameof(GetMax))]
+public float dynamicMaxFloatRange = 4.6f;
+
+[DynamicRange(nameof(minMax))]
+public float dynamicFloatRange = 1.05f;
+
+public Vector2 minMax = new(-10, 10);
+private int _min = -20;
+private int _max = 20;
+public float GetMax() => 10;
+```
+
 #### Scene
 
 ![Scene](https://user-images.githubusercontent.com/26966368/179394466-a9397212-e3bc-40f1-b721-8f7c43aa3048.png)
@@ -265,6 +285,30 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 ```csharp
 [InlineEditor]
 public Material mat;
+```
+
+#### MinMaxRange
+
+![MinMaxRange](https://github.com/user-attachments/assets/d36966ef-9433-45c1-be61-b02a85682553)
+
+```csharp
+[MinMaxRange(0f, 10f)]
+public Vector2 fixedMinMaxRange = new(2f, 4f);
+
+[MinMaxRange(nameof(_min), nameof(_max))]
+public Vector2Int dynamicIntMinMaxRange = new(-8, 0);
+
+[MinMaxRange(-20, nameof(GetMax))]
+public Vector2 dynamicFloatMaxRange = new(-7.7f, -1.7f);
+
+[MinMaxRange(nameof(minMax))]
+public Vector2Int dynamicFloatMinMaxRange = new(0, 4);
+
+
+public Vector2 minMax = new(-10, 10);
+private int _min = -20;
+private int _max = 20;
+public float GetMax() => 10;
 ```
 
 #### DisplayAsString
