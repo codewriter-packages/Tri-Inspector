@@ -1,9 +1,9 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 
 namespace TriInspector.Utilities
 {
-    public static class TriEditorGUI
+    public static partial class TriEditorGUI
     {
         public static void Foldout(Rect rect, TriProperty property)
         {
