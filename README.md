@@ -251,24 +251,25 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 }
 ```
 
-#### Slider/DynamicRange
+#### Slider
 
-![Slider/DynamicRange](https://github.com/user-attachments/assets/9ad79364-715e-439c-8772-3a4b5b1aea5e)
+![Slider](https://github.com/user-attachments/assets/9ad79364-715e-439c-8772-3a4b5b1aea5e)
 
 ```csharp
 [Slider(nameof(_min), nameof(_max))]
-public int dynamicIntSlider = -5;
+public int dynamicIntSlider = -6;
 
 [Slider(0, nameof(GetMax))]
 public float dynamicMaxFloatSlider = 4.6f;
 
-[Slider(nameof(minMax))]
-public float dynamicFloatSlider = 1.05f;
-
-[DynamicRange(nameof(minMax))]
-public float dynamicFloatRange = 1.05f;
-
 public Vector2 minMax = new(-10, 10);
+
+[Slider(nameof(minMax))]
+public float dynamicFloatSlider = 1.83f;
+
+[Slider(nameof(minMax), autoClamp: true)]
+public int dynamicIntSliderClamped = 4;
+
 private int _min = -20;
 private int _max = 20;
 public float GetMax() => 10;
@@ -297,19 +298,24 @@ public Material mat;
 
 ```csharp
 [MinMaxSlider(0f, 10f)]
+[MinMaxSlider(0f, 10f)]
 public Vector2 fixedMinMaxSlider = new(2f, 4f);
 
 [MinMaxSlider(nameof(_min), nameof(_max))]
 public Vector2Int dynamicIntMinMaxSlider = new(-8, 0);
 
 [MinMaxSlider(-20, nameof(GetMax))]
-public Vector2 dynamicFloatMaxRange = new(-7.7f, -1.7f);
-
-[MinMaxSlider(nameof(minMax))]
-public Vector2Int dynamicFloatMinMaxSlider = new(0, 4);
-
+public Vector2 dynamicFloatMaxSlider = new(-7.7f, -1.7f);
 
 public Vector2 minMax = new(-10, 10);
+
+[MinMaxSlider(nameof(minMax))]
+public Vector2 dynamicFloatMinMaxSlider = new(0, 4);
+
+[MinMaxSlider(nameof(minMax), autoClamp: true)]
+public Vector2Int dynamicIntMinMaxSliderClamped = new(2, 6);
+
+
 private int _min = -20;
 private int _max = 20;
 public float GetMax() => 10;
