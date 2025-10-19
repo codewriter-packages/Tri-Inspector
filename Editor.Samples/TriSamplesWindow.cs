@@ -163,34 +163,19 @@ namespace TriInspector.Editor.Samples
         private static string GetTypeNiceName(Type type)
         {
             var name = type.Name;
-            const string suffix = "Sample";
 
-            // 1. Remove the prefix (e.g., "Decorators_")
             if (name.Contains('_'))
             {
                 var index = name.IndexOf('_');
                 name = name.Substring(index + 1);
             }
 
-            // 2. Define the delimiter
-            var delimiter = $"{suffix}Or"; // "SampleOr"
+            if (name.EndsWith("Sample"))
+            {
+                name = name.Remove(name.Length - "Sample".Length);
+            }
 
-            // 3. Split by "SampleOr"
-            // "SliderSampleOrDynamicRangeSample" -> ["Slider", "DynamicRangeSample"]
-            // "SliderSample" -> ["SliderSample"]
-            var parts = name.Split(new[] { delimiter }, StringSplitOptions.None);
-
-            // 4. Clean the "Sample" suffix from EACH part
-            var cleanedParts = parts.Select(part =>
-                part.EndsWith(suffix)
-                    ? part.Remove(part.Length - suffix.Length)
-                    : part
-            );
-
-            // 5. Join with "/"
-            // ["Slider", "DynamicRange"] -> "Slider/DynamicRange"
-            // ["Slider"] -> "Slider"
-            return string.Join("/", cleanedParts);
+            return name;
         }
 
         private class MenuTree : TreeView

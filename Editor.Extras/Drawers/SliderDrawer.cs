@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
@@ -11,96 +12,23 @@ namespace TriInspector.Drawers
 {
     public class SliderAttributeDrawer : TriAttributeDrawer<SliderAttribute>
     {
-        private ValueResolver<float> _minFloatResolver;
-        private ValueResolver<int> _minIntResolver;
-        private ValueResolver<float> _maxFloatResolver;
-        private ValueResolver<int> _maxIntResolver;
-        private ValueResolver<Vector2> _minMaxVector2Resolver;
-        private ValueResolver<Vector2Int> _minMaxVector2IntResolver;
+        private SliderAttributeHelpers.SliderResolvers _resolvers;
 
-        private Type _valueType;
-
-        private bool IsNumericType(Type type)
-        {
-            if (type == null) return false;
-            return typeof(IConvertible).IsAssignableFrom(type) &&
-                   type != typeof(string) &&
-                   type != typeof(bool) &&
-                   type != typeof(char);
-        }
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
-            _valueType = propertyDefinition.FieldType;
-            if (!IsNumericType(_valueType))
-            {
-                return "[Range] attribute can only be used on numeric fields (like int, float, double, etc.).";
-            }
+            _resolvers = SliderAttributeHelpers.Initialize(Attribute, propertyDefinition, out var errorResult);
 
-            if (!string.IsNullOrEmpty(Attribute.MinMaxMemberName))
+            //SliderAttributeValidator is expected to return an error result if initialization fails.
+            if (errorResult.IsError)
             {
-                _minMaxVector2Resolver = ValueResolver.Resolve<Vector2>(propertyDefinition, Attribute.MinMaxMemberName);
-                if (_minMaxVector2Resolver.TryGetErrorString(out var vector2Error))
-                {
-                    _minMaxVector2Resolver = null;
-                    _minMaxVector2IntResolver = ValueResolver.Resolve<Vector2Int>(propertyDefinition, Attribute.MinMaxMemberName);
-                    if (_minMaxVector2IntResolver.TryGetErrorString(out var vector2IntError))
-                    {
-                        return vector2IntError;
-                    }
-                }
-                return TriExtensionInitializationResult.Ok;
+                return TriExtensionInitializationResult.Skip;
             }
-
-            if (!string.IsNullOrEmpty(Attribute.MinMemberName))
-            {
-                _minFloatResolver = ValueResolver.Resolve<float>(propertyDefinition, Attribute.MinMemberName);
-                if (_minFloatResolver.TryGetErrorString(out var floatError))
-                {
-                    _minFloatResolver = null;
-                    _minIntResolver = ValueResolver.Resolve<int>(propertyDefinition, Attribute.MinMemberName);
-                    if (_minIntResolver.TryGetErrorString(out var intError))
-                    {
-                        return intError;
-                    }
-                }
-            }
-
-            if (!string.IsNullOrEmpty(Attribute.MaxMemberName))
-            {
-                _maxFloatResolver = ValueResolver.Resolve<float>(propertyDefinition, Attribute.MaxMemberName);
-                if (_maxFloatResolver.TryGetErrorString(out var floatError))
-                {
-                    _maxFloatResolver = null;
-                    _maxIntResolver = ValueResolver.Resolve<int>(propertyDefinition, Attribute.MaxMemberName);
-                    if (_maxIntResolver.TryGetErrorString(out var intError))
-                    {
-                        return intError;
-                    }
-                }
-            }
-
             return TriExtensionInitializationResult.Ok;
         }
-
         public override void OnGUI(Rect position, TriProperty property, TriElement next)
         {
-            double minLimit = _minMaxVector2Resolver?.GetValue(property, Vector2.zero).x ?? 
-                              _minMaxVector2IntResolver?.GetValue(property, Vector2Int.zero).x ??
-                              _minFloatResolver?.GetValue(property, Attribute.MinFixed) ??
-                              _minIntResolver?.GetValue(property, (int) Attribute.MinFixed) ??
-                              Attribute.MinFixed;
-
-            double maxLimit = _minMaxVector2Resolver?.GetValue(property, Vector2.zero).y ??
-                              _minMaxVector2IntResolver?.GetValue(property, Vector2Int.zero).y ?? 
-                              _maxFloatResolver?.GetValue(property, Attribute.MaxFixed) ??
-                              _maxIntResolver?.GetValue(property, (int) Attribute.MaxFixed) ??
-                              Attribute.MaxFixed;
-
-            if (minLimit > maxLimit) (minLimit, maxLimit) = (maxLimit, minLimit);
-
             var label = property.DisplayNameContent;
-
             double currentValue;
             try
             {
@@ -112,33 +40,157 @@ namespace TriInspector.Drawers
                 return;
             }
 
-            if (property.FieldType == typeof(int))
-            {
-                minLimit = Mathf.RoundToInt((float)minLimit);
-                maxLimit = Mathf.RoundToInt((float)maxLimit);
-            }
+            var (minLimit, maxLimit) = SliderAttributeHelpers.GetLimits(property, Attribute, _resolvers);
 
-            // If clamping changed the value, update the property immediately.
-            double clampedValue = Math.Clamp(currentValue, minLimit, maxLimit);
-            if (Math.Abs(clampedValue - currentValue) > double.Epsilon)
+            if (Attribute.AutoClamp)
             {
-                property.SetValue(Convert.ChangeType(clampedValue, _valueType));
-                currentValue = clampedValue;
+                double clampedValue = Math.Clamp(currentValue, minLimit, maxLimit);
+                const double epsilon = 1e-9;
+                if (Math.Abs(clampedValue - currentValue) > epsilon)
+                {
+                    property.SetValue(Convert.ChangeType(clampedValue, property.ValueType));
+                    currentValue = clampedValue;
+                }
             }
 
             EditorGUI.BeginChangeCheck();
             float sliderValue = EditorGUI.Slider(position, label, (float) currentValue, (float) minLimit, (float) maxLimit);
-
             if (EditorGUI.EndChangeCheck())
             {
-                object finalValue = Convert.ChangeType(sliderValue, _valueType);
+                var finalValue = Convert.ChangeType(sliderValue, property.ValueType);
                 property.SetValue(finalValue);
             }
         }
-
         public override float GetHeight(float width, TriProperty property, TriElement next)
         {
             return EditorGUIUtility.singleLineHeight;
+        }
+    }
+
+    internal static class SliderAttributeHelpers
+    {
+        internal class SliderResolvers
+        {
+            public ValueResolver<float> minFloatResolver;
+            public ValueResolver<int> minIntResolver;
+            public ValueResolver<float> maxFloatResolver;
+            public ValueResolver<int> maxIntResolver;
+            public ValueResolver<Vector2> minMaxVector2Resolver;
+            public ValueResolver<Vector2Int> minMaxVector2IntResolver;
+
+            internal SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition, SliderAttribute attribute)
+                : this(ref errors, propertyDefinition, attribute.MinMemberName, attribute.MaxMemberName, attribute.MinMaxMemberName)
+            {
+            }
+            protected SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition, string minMemberName, string maxMemberName, string minMaxMemberName)
+            {
+                var resolverErrors = new HashSet<string>();
+
+                bool hasMinMaxMember = !string.IsNullOrEmpty(minMaxMemberName);
+                if (hasMinMaxMember)
+                {
+                    minMaxVector2Resolver = ValueResolver.Resolve<Vector2>(propertyDefinition, minMaxMemberName);
+                    if (minMaxVector2Resolver.TryGetErrorString(out var vector2Error))
+                    {
+                        minMaxVector2Resolver = null;
+                        minMaxVector2IntResolver = ValueResolver.Resolve<Vector2Int>(propertyDefinition, minMaxMemberName);
+                        if (minMaxVector2IntResolver.TryGetErrorString(out var vector2IntError))
+                        {
+                            errors.Add(vector2Error);
+                            errors.Add(vector2IntError);
+                        }
+                    }
+                }
+
+                bool hasMinMember = !string.IsNullOrEmpty(minMemberName);
+                if (hasMinMember && !hasMinMaxMember)
+                {
+                    minFloatResolver = ValueResolver.Resolve<float>(propertyDefinition, minMemberName);
+                    if (minFloatResolver.TryGetErrorString(out var floatError))
+                    {
+                        minFloatResolver = null;
+                        minIntResolver = ValueResolver.Resolve<int>(propertyDefinition, minMemberName);
+                        if (minIntResolver.TryGetErrorString(out var intError))
+                        {
+                            errors.Add(floatError);
+                            errors.Add(intError);
+                        }
+                    }
+                }
+
+                bool hasMaxMember = !string.IsNullOrEmpty(maxMemberName);
+                if (hasMaxMember && !hasMinMaxMember)
+                {
+                    maxFloatResolver = ValueResolver.Resolve<float>(propertyDefinition, maxMemberName);
+                    if (maxFloatResolver.TryGetErrorString(out var floatError))
+                    {
+                        maxFloatResolver = null;
+                        maxIntResolver = ValueResolver.Resolve<int>(propertyDefinition, maxMemberName);
+                        if (maxIntResolver.TryGetErrorString(out var intError))
+                        {
+                            errors.Add(floatError);
+                            errors.Add(intError);
+                        }
+                    }
+                }
+            }
+        }
+        private static bool IsNumericType(Type type)
+        {
+            if (type == null) return false;
+            return typeof(IConvertible).IsAssignableFrom(type) &&
+                   type != typeof(string) &&
+                   type != typeof(bool) &&
+                   type != typeof(char);
+        }
+        public static SliderResolvers Initialize(SliderAttribute attribute,
+            TriPropertyDefinition propertyDefinition, out TriExtensionInitializationResult errorResult)
+        {
+            var errors = new HashSet<string>();
+
+            if (!IsNumericType(propertyDefinition.FieldType))
+            {
+                errors.Add("[Slider] attribute can only be used on numeric fields (like int, float, double, etc.).");
+            }
+
+            var resolvers = new SliderResolvers(ref errors, propertyDefinition, attribute);
+
+            if (errors.Count > 0)
+            {
+                errorResult = string.Join(Environment.NewLine, errors);
+                return null;
+            }
+
+            errorResult = TriExtensionInitializationResult.Ok;
+            return resolvers;
+        }
+        public static (double min, double max) GetLimits(TriProperty property, SliderAttribute attribute, SliderResolvers resolvers)
+        {
+            return GetLimits(property, attribute.MinFixed, attribute.MaxFixed, resolvers);
+        }
+        public static (double min, double max) GetLimits(TriProperty property, float minFixed, float maxFixed, SliderResolvers resolvers)
+        {
+            double minLimit = resolvers.minMaxVector2Resolver?.GetValue(property, Vector2.zero).x ??
+                              resolvers.minMaxVector2IntResolver?.GetValue(property, Vector2Int.zero).x ??
+                              resolvers.minFloatResolver?.GetValue(property, minFixed) ??
+                              resolvers.minIntResolver?.GetValue(property, (int) minFixed) ??
+                              minFixed;
+
+            double maxLimit = resolvers.minMaxVector2Resolver?.GetValue(property, Vector2.zero).y ??
+                              resolvers.minMaxVector2IntResolver?.GetValue(property, Vector2Int.zero).y ??
+                              resolvers.maxFloatResolver?.GetValue(property, maxFixed) ??
+                              resolvers.maxIntResolver?.GetValue(property, (int) maxFixed) ??
+                              maxFixed;
+
+            if (minLimit > maxLimit) (minLimit, maxLimit) = (maxLimit, minLimit);
+
+            if (property.FieldType == typeof(int) || property.FieldType == typeof(Vector2Int))
+            {
+                minLimit = Mathf.RoundToInt((float) minLimit);
+                maxLimit = Mathf.RoundToInt((float) maxLimit);
+            }
+
+            return (minLimit, maxLimit);
         }
     }
 }

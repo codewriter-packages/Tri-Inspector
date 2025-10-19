@@ -12,11 +12,15 @@ public class Decorators_MinMaxSliderSample : ScriptableObject
     [MinMaxSlider(-20, nameof(GetMax))]
     public Vector2 dynamicFloatMaxSlider = new(-7.7f, -1.7f);
 
-    [MinMaxSlider(nameof(minMax))]
-    public Vector2Int dynamicFloatMinMaxSlider = new(0, 4);
-
-
     public Vector2 minMax = new(-10, 10);
+
+    [MinMaxSlider(nameof(minMax))]
+    public Vector2 dynamicFloatMinMaxSlider = new(0, 4);
+
+    [MinMaxSlider(nameof(minMax), autoClamp: true)]
+    public Vector2Int dynamicIntMinMaxSliderClamped = new(2, 6);
+
+
     private int _min = -20;
     private int _max = 20;
     public float GetMax() => 10;

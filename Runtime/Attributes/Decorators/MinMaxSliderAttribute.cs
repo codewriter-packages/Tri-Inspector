@@ -8,39 +8,44 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class MinMaxSliderAttribute : PropertyAttribute
     {
-        public float MinFixed { get; }
-        public float MaxFixed { get; }
+        public float MinFixed { get; } = 0f;
+        public float MaxFixed { get; } = 1f;
 
         public string MinMemberName { get; }
         public string MaxMemberName { get; }
         public string MinMaxMemberName { get; }
 
-        public MinMaxSliderAttribute() : this(0f, 1f) { }
+        public bool AutoClamp { get; }
+
+
+        public MinMaxSliderAttribute() { }
         public MinMaxSliderAttribute(float min, float max)
         {
             MinFixed = min;
             MaxFixed = max;
         }
-        public MinMaxSliderAttribute(string minMemberName, string maxMemberName) : this()
+        public MinMaxSliderAttribute(string minMemberName, string maxMemberName, bool autoClamp = false) : this()
         {
             MinMemberName = minMemberName;
             MaxMemberName = maxMemberName;
+            AutoClamp = autoClamp;
         }
-        public MinMaxSliderAttribute(float min, string maxMemberName)
+        public MinMaxSliderAttribute(float min, string maxMemberName, bool autoClamp = false)
         {
             MinFixed = min;
-            MaxFixed = 1;
             MaxMemberName = maxMemberName;
+            AutoClamp = autoClamp;
         }
-        public MinMaxSliderAttribute(string minMemberName, float max)
+        public MinMaxSliderAttribute(string minMemberName, float max, bool autoClamp = false)
         {
-            MinFixed = 0;
             MaxFixed = max;
             MinMemberName = minMemberName;
+            AutoClamp = autoClamp;
         }
-        public MinMaxSliderAttribute(string minMaxMemberName) : this()
+        public MinMaxSliderAttribute(string minMaxMemberName, bool autoClamp = false) : this()
         {
             MinMaxMemberName = minMaxMemberName;
+            AutoClamp = autoClamp;
         }
     }
 }

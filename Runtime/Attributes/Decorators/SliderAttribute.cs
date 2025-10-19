@@ -8,43 +8,44 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class SliderAttribute : Attribute
     {
-        public float MinFixed { get; }
-        public float MaxFixed { get; }
+        public float MinFixed { get; } = 0f;
+        public float MaxFixed { get; } = 1f;
 
         public string MinMemberName { get; }
         public string MaxMemberName { get; }
         public string MinMaxMemberName { get; }
 
-        public SliderAttribute() : this(0f, 1f) { }
+        public bool AutoClamp { get; }
 
+
+        public SliderAttribute() { }
         public SliderAttribute(float min, float max)
         {
             MinFixed = min;
             MaxFixed = max;
         }
-
-        public SliderAttribute(string minMemberName, string maxMemberName) : this()
+        public SliderAttribute(string minMemberName, string maxMemberName, bool autoClamp = false) : this()
         {
             MinMemberName = minMemberName;
             MaxMemberName = maxMemberName;
+            AutoClamp = autoClamp;
         }
-
-        public SliderAttribute(float min, string maxMemberName)
+        public SliderAttribute(float min, string maxMemberName, bool autoClamp = false)
         {
             MinFixed = min;
-            MaxFixed = 1;
             MaxMemberName = maxMemberName;
+            AutoClamp = autoClamp;
         }
-
-        public SliderAttribute(string minMemberName, float max)
+        public SliderAttribute(string minMemberName, float max, bool autoClamp = false)
         {
-            MinFixed = 0;
             MaxFixed = max;
             MinMemberName = minMemberName;
+            AutoClamp = autoClamp;
         }
-        public SliderAttribute(string minMaxMemberName) : this()
+        public SliderAttribute(string minMaxMemberName, bool autoClamp = false) : this()
         {
             MinMaxMemberName = minMaxMemberName;
+            AutoClamp = autoClamp;
         }
     }
 }
