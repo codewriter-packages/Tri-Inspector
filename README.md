@@ -8,18 +8,18 @@ _Advanced inspector attributes for Unity_
 - [Roadmap](#Roadmap-)
 - [Samples](#Samples)
 - [Attributes](#Attributes)
-    - [Misc](#Misc)
-    - [Validation](#Validation)
-    - [Decorators](#Decorators)
-    - [Styling](#Styling)
-    - [Collections](#Collections)
-    - [Conditionals](#Conditionals)
-    - [Buttons](#Buttons)
-    - [Debug](#Debug)
-    - [Groups](#Groups)
+  - [Misc](#Misc)
+  - [Validation](#Validation)
+  - [Decorators](#Decorators)
+  - [Styling](#Styling)
+  - [Collections](#Collections)
+  - [Conditionals](#Conditionals)
+  - [Buttons](#Buttons)
+  - [Debug](#Debug)
+  - [Groups](#Groups)
 - [Integrations](#Integrations)
-    - [Odin Inspector](#Odin-Inspector)
-    - [Odin Validator](#Odin-Validator)
+  - [Odin Inspector](#Odin-Inspector)
+  - [Odin Validator](#Odin-Validator)
 - [License](#License)
 
 ## How to Install
@@ -33,7 +33,8 @@ Library distributed as git package ([How to install package from git URL](https:
 > Git URL: https://github.com/codewriter-packages/Unity-Localization-Stub-for-Tri-Inspector.git
 
 ## Roadmap ![GitHub Repo stars](https://img.shields.io/github/stars/codewriter-packages/Tri-Inspector?style=social)
-Each star ★ on the project page brings new features closer. 
+
+Each star ★ on the project page brings new features closer.
 You can suggest new features in the [Discussions](https://github.com/codewriter-packages/Tri-Inspector/discussions).
 
 ## Samples
@@ -121,7 +122,7 @@ Invokes callback on property modification.
 
 ```csharp
 [OnValueChanged(nameof(OnMaterialChanged))]
-public Material mat; 
+public Material mat;
 
 private void OnMaterialChanged()
 {
@@ -250,6 +251,30 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 }
 ```
 
+#### Slider
+
+![Slider](https://github.com/user-attachments/assets/9ad79364-715e-439c-8772-3a4b5b1aea5e)
+
+```csharp
+[Slider(nameof(_min), nameof(_max))]
+public int dynamicIntSlider = -6;
+
+[Slider(0, nameof(GetMax))]
+public float dynamicMaxFloatSlider = 4.6f;
+
+public Vector2 minMax = new(-10, 10);
+
+[Slider(nameof(minMax))]
+public float dynamicFloatSlider = 1.83f;
+
+[Slider(nameof(minMax), autoClamp: true)]
+public int dynamicIntSliderClamped = 4;
+
+private int _min = -20;
+private int _max = 20;
+public float GetMax() => 10;
+```
+
 #### Scene
 
 ![Scene](https://user-images.githubusercontent.com/26966368/179394466-a9397212-e3bc-40f1-b721-8f7c43aa3048.png)
@@ -265,6 +290,35 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 ```csharp
 [InlineEditor]
 public Material mat;
+```
+
+#### MinMaxSlider
+
+![MinMaxSlider](https://github.com/user-attachments/assets/d36966ef-9433-45c1-be61-b02a85682553)
+
+```csharp
+[MinMaxSlider(0f, 10f)]
+[MinMaxSlider(0f, 10f)]
+public Vector2 fixedMinMaxSlider = new(2f, 4f);
+
+[MinMaxSlider(nameof(_min), nameof(_max))]
+public Vector2Int dynamicIntMinMaxSlider = new(-8, 0);
+
+[MinMaxSlider(-20, nameof(GetMax))]
+public Vector2 dynamicFloatMaxSlider = new(-7.7f, -1.7f);
+
+public Vector2 minMax = new(-10, 10);
+
+[MinMaxSlider(nameof(minMax))]
+public Vector2 dynamicFloatMinMaxSlider = new(0, 4);
+
+[MinMaxSlider(nameof(minMax), autoClamp: true)]
+public Vector2Int dynamicIntMinMaxSliderClamped = new(2, 6);
+
+
+private int _min = -20;
+private int _max = 20;
+public float GetMax() => 10;
 ```
 
 #### DisplayAsString
@@ -699,7 +753,7 @@ public class FoldoutGroupSample : ScriptableObject
 {
     [Group("foldout")] public int a;
     [Group("foldout")] public bool b;
-    
+
     public string DynamicTitle => "My Foldout";
 }
 ```
@@ -715,7 +769,7 @@ public class ToggleGroupSample : ScriptableObject
     [Group("toggle")] public bool enabled;
     [Group("toggle")] public int a;
     [Group("toggle")] public bool b;
-    
+
     public string DynamicTitle => "My Toggle";
 }
 ```
@@ -774,11 +828,11 @@ public class VerticalGroupSample : ScriptableObject
 
 ### Odin Inspector
 
-Tri Inspector is able to work in compatibility mode with Odin Inspector. 
-In this mode, the primary interface will be drawn by the Odin Inspector. However, 
+Tri Inspector is able to work in compatibility mode with Odin Inspector.
+In this mode, the primary interface will be drawn by the Odin Inspector. However,
 parts of the interface can be rendered by the Tri Inspector.
 
-In order for the interface to be rendered by Tri instead of Odin, 
+In order for the interface to be rendered by Tri instead of Odin,
 it is necessary to mark classes with `[DrawWithTriInspector]` attribute.
 
 Alternatively, you can mark the entire assembly with an attribute `[assembly:DrawWithTriInspector]`
@@ -787,7 +841,7 @@ to draw all types in the assembly using the Tri Inspector.
 ### Odin Validator
 
 Tri Inspector is integrated with the Odin Validator
-so all validation results from Tri attributes will be shown 
+so all validation results from Tri attributes will be shown
 in the Odin Validator window.
 
 ![Odin-Validator-Integration](https://user-images.githubusercontent.com/26966368/169645537-d8f0b50f-46af-4804-95e8-337ff3b5ae83.png)
