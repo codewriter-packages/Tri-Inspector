@@ -253,7 +253,7 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 
 #### Slider
 
-![Slider](https://github.com/user-attachments/assets/9ad79364-715e-439c-8772-3a4b5b1aea5e)
+![Slider](https://github.com/user-attachments/assets/4f56d7e6-0032-4037-b890-740a3f93cebe)
 
 ```csharp
 [Slider(nameof(_min), nameof(_max))]
@@ -294,10 +294,9 @@ public Material mat;
 
 #### MinMaxSlider
 
-![MinMaxSlider](https://github.com/user-attachments/assets/d36966ef-9433-45c1-be61-b02a85682553)
+![MinMaxSlider](https://github.com/user-attachments/assets/44deaa4e-5e26-49f0-bc8a-b84b9f48f08a)
 
 ```csharp
-[MinMaxSlider(0f, 10f)]
 [MinMaxSlider(0f, 10f)]
 public Vector2 fixedMinMaxSlider = new(2f, 4f);
 
@@ -314,7 +313,6 @@ public Vector2 dynamicFloatMinMaxSlider = new(0, 4);
 
 [MinMaxSlider(nameof(minMax), autoClamp: true)]
 public Vector2Int dynamicIntMinMaxSliderClamped = new(2, 6);
-
 
 private int _min = -20;
 private int _max = 20;
