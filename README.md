@@ -4,38 +4,11 @@ _Advanced inspector attributes for Unity_
 
 ![Tri-Inspector-Demo](https://user-images.githubusercontent.com/26966368/187032895-8c41295b-dd82-40ad-80c3-1efaad202732.png)
 
-- [How to Install](#How-to-Install)
-- [Roadmap](#Roadmap-)
 - [Samples](#Samples)
 - [Attributes](#Attributes)
-  - [Misc](#Misc)
-  - [Validation](#Validation)
-  - [Decorators](#Decorators)
-  - [Styling](#Styling)
-  - [Collections](#Collections)
-  - [Conditionals](#Conditionals)
-  - [Buttons](#Buttons)
-  - [Debug](#Debug)
-  - [Groups](#Groups)
-- [Integrations](#Integrations)
-  - [Odin Inspector](#Odin-Inspector)
-  - [Odin Validator](#Odin-Validator)
+- [Integrations](#Integrations) ([Odin Inspector](#Odin-Inspector), [Odin Validator](#Odin-Validator))
+- [How to Install](#How-to-Install)
 - [License](#License)
-
-## How to Install
-
-Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
-<br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
-
-> **Localization package dependency**<br/>
-> Tri Inspector automatically installs [Localization package](https://docs.unity3d.com/Packages/com.unity.localization@1.0/manual/index.html) as dependency.<br/>
-> If you are not using localization package and do not want to install it, you can install a stub package instead.<br/>
-> Git URL: https://github.com/codewriter-packages/Unity-Localization-Stub-for-Tri-Inspector.git
-
-## Roadmap ![GitHub Repo stars](https://img.shields.io/github/stars/codewriter-packages/Tri-Inspector?style=social)
-
-Each star ★ on the project page brings new features closer.
-You can suggest new features in the [Discussions](https://github.com/codewriter-packages/Tri-Inspector/discussions).
 
 ## Samples
 
@@ -43,6 +16,30 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
 ![Samples](https://user-images.githubusercontent.com/26966368/177045336-a3fcf438-3e70-45d0-b753-299e577b2010.png)
 
 ## Attributes
+
+| [General →](#Misc) | [Validation →](#Validation) | [Decorators →](#Decorators) | [Styling →](#Styling) |
+| --------------------- | ------------------ | ----------------- | ---------------- |
+| Show In Inspector     | Required           | Dropdown          | Title            |
+| Inline Property       | Validate Input     | Asset Dropdown    | Label Text       | 
+| Hide Reference Picker | Info Box           | Scene             | Hide Label       |
+| Property Order        | Assets Only        | Slider            | GUI Color        |
+| Read Only             | Scene Objects Only | Min Max Slider    | Label Width      |
+| On Value Changed      |                    | Inline Editor     | Indent           |
+| Hide Mono Script      |                    | Display As String | Property Space   |
+|                       |                    | Unit              | Property Tooltip |
+|                       |                    | Preview Object    |                  |
+|                       |                    | Preview Mesh      |                  |
+
+| [Groups →](#Groups) | [Conditionals →](#Conditionals) | [Collections →](#Collections) |  [Buttons →](#Buttons) |
+| ---------------- | ---------------------------- | -------------------- | ------------------- |
+| Box Group        | Show/Hide If                      | List Drawer Settings | Button              |
+| Foldout Group    | Enable/Disable If                      | Table List           | Enum Toggle Buttons |
+| Toggle Group     | Show/Hide In Play Mode       |                      |                     |
+| Tab Group        | Enable/Disable In Play Mode  |                      |                     |
+| Horizontal Group |                              |                      |                     |
+| Vertical Group   |                              |                      |                     |
+|                  |                              |                      |                     |
+|                  |                              |                      |                     |
 
 ### Misc
 
@@ -66,6 +63,24 @@ public float EditableProperty
 {
     get => _field;
     set => _field = value;
+}
+```
+
+#### InlineProperty
+
+![InlineProperty](https://user-images.githubusercontent.com/26966368/168234909-1e6bec90-18ed-4d56-91ca-fe09118e1b72.png)
+
+```csharp
+public MinMax rangeFoldout;
+
+[InlineProperty(LabelWidth = 40)]
+public MinMax rangeInline;
+
+[Serializable]
+public class MinMax
+{
+    public int min;
+    public int max;
 }
 ```
 
@@ -251,6 +266,14 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 }
 ```
 
+#### Scene
+
+![Scene](https://user-images.githubusercontent.com/26966368/179394466-a9397212-e3bc-40f1-b721-8f7c43aa3048.png)
+
+```csharp
+[Scene] public string scene;
+```
+
 #### Slider
 
 ![Slider](https://github.com/user-attachments/assets/4f56d7e6-0032-4037-b890-740a3f93cebe)
@@ -273,23 +296,6 @@ public int dynamicIntSliderClamped = 4;
 private int _min = -20;
 private int _max = 20;
 public float GetMax() => 10;
-```
-
-#### Scene
-
-![Scene](https://user-images.githubusercontent.com/26966368/179394466-a9397212-e3bc-40f1-b721-8f7c43aa3048.png)
-
-```csharp
-[Scene] public string scene;
-```
-
-#### InlineEditor
-
-![InlineEditor](https://user-images.githubusercontent.com/26966368/168234617-86a7f500-e635-46f8-90f2-5696e5ae7e63.png)
-
-```csharp
-[InlineEditor]
-public Material mat;
 ```
 
 #### MinMaxSlider
@@ -317,6 +323,15 @@ public Vector2Int dynamicIntMinMaxSliderClamped = new(2, 6);
 private int _min = -20;
 private int _max = 20;
 public float GetMax() => 10;
+```
+
+#### InlineEditor
+
+![InlineEditor](https://user-images.githubusercontent.com/26966368/168234617-86a7f500-e635-46f8-90f2-5696e5ae7e63.png)
+
+```csharp
+[InlineEditor]
+public Material mat;
 ```
 
 #### DisplayAsString
@@ -503,24 +518,6 @@ public Rect rect;
 public Vector3 vec;
 
 public string DynamicTooltip => DateTime.Now.ToShortTimeString();
-```
-
-#### InlineProperty
-
-![InlineProperty](https://user-images.githubusercontent.com/26966368/168234909-1e6bec90-18ed-4d56-91ca-fe09118e1b72.png)
-
-```csharp
-public MinMax rangeFoldout;
-
-[InlineProperty(LabelWidth = 40)]
-public MinMax rangeInline;
-
-[Serializable]
-public class MinMax
-{
-    public int min;
-    public int max;
-}
 ```
 
 ### Collections
@@ -843,6 +840,16 @@ so all validation results from Tri attributes will be shown
 in the Odin Validator window.
 
 ![Odin-Validator-Integration](https://user-images.githubusercontent.com/26966368/169645537-d8f0b50f-46af-4804-95e8-337ff3b5ae83.png)
+
+## How to Install
+
+Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
+<br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
+
+> **Localization package dependency**<br/>
+> Tri Inspector automatically installs [Localization package](https://docs.unity3d.com/Packages/com.unity.localization@1.0/manual/index.html) as dependency.<br/>
+> If you are not using localization package and do not want to install it, you can install a stub package instead.<br/>
+> Git URL: https://github.com/codewriter-packages/Unity-Localization-Stub-for-Tri-Inspector.git
 
 ## License
 
