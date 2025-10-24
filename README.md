@@ -17,29 +17,100 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
 
 ## Attributes
 
-| [General →](#Misc) | [Validation →](#Validation) | [Decorators →](#Decorators) | [Styling →](#Styling) |
-| --------------------- | ------------------ | ----------------- | ---------------- |
-| Show In Inspector     | Required           | Dropdown          | Title            |
-| Inline Property       | Validate Input     | Asset Dropdown    | Label Text       | 
-| Hide Reference Picker | Info Box           | Scene             | Hide Label       |
-| Property Order        | Assets Only        | Slider            | GUI Color        |
-| Read Only             | Scene Objects Only | Min Max Slider    | Label Width      |
-| On Value Changed      |                    | Inline Editor     | Indent           |
-| Hide Mono Script      |                    | Display As String | Property Space   |
-|                       |                    | Unit              | Property Tooltip |
-|                       |                    | Preview Object    |                  |
-|                       |                    | Preview Mesh      |                  |
-
-| [Groups →](#Groups) | [Conditionals →](#Conditionals) | [Collections →](#Collections) |  [Buttons →](#Buttons) |
-| ---------------- | ---------------------------- | -------------------- | ------------------- |
-| Box Group        | Show/Hide If                      | List Drawer Settings | Button              |
-| Foldout Group    | Enable/Disable If                      | Table List           | Enum Toggle Buttons |
-| Toggle Group     | Show/Hide In Play Mode       |                      |                     |
-| Tab Group        | Enable/Disable In Play Mode  |                      |                     |
-| Horizontal Group |                              |                      |                     |
-| Vertical Group   |                              |                      |                     |
-|                  |                              |                      |                     |
-|                  |                              |                      |                     |
+<table>
+    <tr>
+        <td><a href="#Misc"><b>General →</b></a></td>
+        <td><a href="#Validation"><b>Validation →</b></a></td>
+        <td><a href="#Decorators"><b>Decorators →</b></a></td>
+        <td><a href="#Styling"><b>Styling →</b></a></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <ul>
+                <li>Show In Inspector</li>
+                <li>Inline Property</li>
+                <li>Hide Reference Picker</li>
+                <li>Property Order</li>
+                <li>Read Only</li>
+                <li>On Value Changed</li>
+                <li>Hide Mono Script</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>Required</li>
+                <li>Validate Input</li>
+                <li>Info Box</li>
+                <li>Assets Only</li>
+                <li>Scene Objects Only</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>Dropdown</li>
+                <li>Asset Dropdown</li>
+                <li>Scene</li>
+                <li>Slider</li>
+                <li>Min Max Slider</li>
+                <li>Inline Editor</li>
+                <li>Display As String</li>
+                <li>Unit</li>
+                <li>Preview Object</li>
+                <li>Preview Mesh</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>Title</li>
+                <li>Label Text</li>
+                <li>Hide Label</li>
+                <li>GUI Color</li>
+                <li>Label Width</li>
+                <li>Indent</li>
+                <li>Property Space</li>
+                <li>Property Tooltip</li>
+            </ul>
+        </td>
+    </tr>
+    <tr>
+        <td><a href="#Groups"><b>Groups →</b></a></td>
+        <td><a href="#Conditionals"><b>Conditionals →</b></a></td>
+        <td><a href="#Collections"><b>Collections →</b></a></td>
+        <td><a href="#Buttons"><b>Buttons →</b></a></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <ul>
+                <li>Box Group</li>
+                <li>Foldout Group</li>
+                <li>Toggle Group</li>
+                <li>Tab Group</li>
+                <li>Horizontal Group</li>
+                <li>Vertical Group</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>Show/Hide If</li>
+                <li>Enable/Disable If</li>
+                <li>Show/Hide In Play Mode</li>
+                <li>Enable/Disable In Play Mode</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>List Drawer Settings</li>
+                <li>Table List</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>Button</li>
+                <li>Enum Toggle Buttons</li>
+            </ul>
+        </td>
+    </tr>
+</table>
 
 ### Misc
 
