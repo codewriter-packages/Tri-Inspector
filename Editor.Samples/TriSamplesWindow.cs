@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TriInspector.Utilities;
+using TriInspector.Editors;
 using UnityEditor;
 using UnityEditor.IMGUI.Controls;
 using UnityEngine;
@@ -14,8 +14,7 @@ namespace TriInspector.Editor.Samples
         private SearchField _searchField;
 
         private ScriptableObject _current;
-        private SerializedObject _currentSerializedObject;
-        private TriPropertyTree _currentPropertyTree;
+        private UnityEditor.Editor _currentEditor;
         private MonoScript _currentMonoScript;
         private Vector2 _currentScroll;
 
@@ -79,7 +78,7 @@ namespace TriInspector.Editor.Samples
 
         private void DrawElement()
         {
-            if (_currentPropertyTree == null || _currentMonoScript == null)
+            if (_currentEditor == null || _currentMonoScript == null)
             {
                 return;
             }
@@ -92,27 +91,19 @@ namespace TriInspector.Editor.Samples
                 {
                     GUILayout.Label(_current.name, SampleWindowStyles.HeaderDisplayNameLabel);
 
-                    _currentSerializedObject.UpdateIfRequiredOrScript();
-                    _currentPropertyTree.Update();
-                    _currentPropertyTree.RunValidationIfRequired();
+                    if (_currentEditor.GetType() != typeof(TriScriptableObjectEditor))
+                    {
+                        EditorGUILayout.HelpBox(
+                            "Detected third party asset that overrides all inspectors. Tri-Inspector's attributes might not work\n" +
+                            _currentEditor.GetType().FullName, MessageType.Error);
+                    }
 
                     GUILayout.Space(10);
                     GUILayout.Label("Preview", EditorStyles.boldLabel);
 
-                    using (TriGuiHelper.PushEditorTarget(_current))
                     using (new GUILayout.VerticalScope(SampleWindowStyles.BoxWithPadding))
                     {
-                        _currentPropertyTree.Draw();
-                    }
-
-                    if (_currentSerializedObject.ApplyModifiedProperties())
-                    {
-                        _currentPropertyTree.RequestValidation();
-                    }
-
-                    if (_currentPropertyTree.RepaintRequired)
-                    {
-                        Repaint();
+                        _currentEditor.OnInspectorGUI();
                     }
 
                     GUILayout.Space(10);
@@ -134,17 +125,7 @@ namespace TriInspector.Editor.Samples
                 _current = null;
             }
 
-            if (_currentSerializedObject != null)
-            {
-                _currentSerializedObject.Dispose();
-                _currentSerializedObject = null;
-            }
-
-            if (_currentPropertyTree != null)
-            {
-                _currentPropertyTree.Dispose();
-                _currentPropertyTree = null;
-            }
+            DestroyImmediate(_currentEditor);
 
             _currentScroll = Vector2.zero;
 
@@ -154,9 +135,8 @@ namespace TriInspector.Editor.Samples
                 _current.name = GetTypeNiceName(type);
                 _current.hideFlags = HideFlags.DontSave;
 
-                _currentSerializedObject = new SerializedObject(_current);
+                _currentEditor = UnityEditor.Editor.CreateEditor(_current);
                 _currentMonoScript = MonoScript.FromScriptableObject(_current);
-                _currentPropertyTree = new TriPropertyTreeForSerializedObject(_currentSerializedObject);
             }
         }
 
@@ -209,7 +189,7 @@ namespace TriInspector.Editor.Samples
                 var root = new TreeViewItem(-1, -1);
 
                 var sampleTypes = typeof(TriSamplesWindow).Assembly.GetTypes()
-                    .Where(type => type.BaseType == typeof(ScriptableObject))
+                    .Where(type => type.BaseType == typeof(ScriptableObject) && type.Name.EndsWith("Sample"))
                     .OrderBy(type => type.Name)
                     .ToList();
 
