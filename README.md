@@ -50,6 +50,8 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
                 <li>Dropdown</li>
                 <li>Asset Dropdown</li>
                 <li>Scene</li>
+                <li>Animator Parameter</li>
+                <li>Material Property</li>
                 <li>Slider</li>
                 <li>Min Max Slider</li>
                 <li>Inline Editor</li>
@@ -343,6 +345,38 @@ private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
 
 ```csharp
 [Scene] public string scene;
+```
+
+#### AnimatorParameter
+
+`AnimatorParameter` automatically lists all available parameters from the target Animator, with optional filtering by parameter type.
+
+![AnimatorParameter](https://github.com/user-attachments/assets/9cd8837e-3d78-4b5f-808f-27bf16635099)
+
+```csharp
+[AnimatorParameter(nameof(animator))]
+public string parameterName;
+
+[AnimatorParameter(nameof(animator), AnimatorControllerParameterType.Float)]
+public int parameterHash;
+
+public Animator animator;
+```
+
+#### MaterialProperty
+
+`MaterialProperty` automatically displays valid shader properties from the target Material, including support for specific types (Float, Color, Vector, Texture, etc.).
+
+![MaterialProperty](https://github.com/user-attachments/assets/09eab958-aa13-43c6-a780-4a2d4d2704bb)
+
+```csharp
+[MaterialProperty(nameof(material))]
+public string propertyName;
+
+[MaterialProperty(nameof(material), ShaderPropertyType.Color)]
+public int propertyHash;
+
+public Material material;
 ```
 
 #### Slider
