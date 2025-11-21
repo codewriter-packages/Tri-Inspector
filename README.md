@@ -57,6 +57,7 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
                 <li>Unit</li>
                 <li>Preview Object</li>
                 <li>Preview Mesh</li>
+                <li>Layer</li>
             </ul>
         </td>
         <td valign="top">
@@ -454,6 +455,12 @@ public GameObject meshNoFoldoutNoMesh;
 [LabelWidth(200f)]
 [PreviewMesh(200, 160, false)]
 public GameObject meshNoFoldoutWithMesh;
+```
+
+#### Layer
+
+```csharp
+[Layer] public int layer;
 ```
 
 ### Styling
