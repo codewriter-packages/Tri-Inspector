@@ -3,7 +3,7 @@ using TriInspector.Validators;
 using UnityEditor;
 using UnityEngine;
 
-[assembly: RegisterTriAttributeValidator(typeof(SceneObjectsOnlyValidator))]
+[assembly: RegisterTriAttributeValidator(typeof(SceneObjectsOnlyValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
@@ -11,9 +11,13 @@ namespace TriInspector.Validators
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
-            if (!typeof(Object).IsAssignableFrom(propertyDefinition.FieldType))
+            var targetType = propertyDefinition.IsArrayElement
+                ? propertyDefinition.FieldType
+                : (propertyDefinition.IsArray ? propertyDefinition.ArrayElementType : propertyDefinition.FieldType);
+
+            if (!typeof(Object).IsAssignableFrom(targetType))
             {
-                return "AssetsOnly attribute can be used only on Object fields";
+                return "SceneObjectsOnly attribute can be used only on Object fields";
             }
 
             return TriExtensionInitializationResult.Ok;
