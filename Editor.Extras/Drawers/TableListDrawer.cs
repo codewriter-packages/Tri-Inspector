@@ -177,7 +177,11 @@ namespace TriInspector.Drawers
         }
 
         [Serializable]
+#if UNITY_6000_0_OR_NEWER
+        private class TableMultiColumnTreeView : TreeView<int>
+#else
         private class TableMultiColumnTreeView : TreeView
+#endif
         {
             private readonly TriProperty _property;
             private readonly TriElement _cellElementContainer;
@@ -190,7 +194,11 @@ namespace TriInspector.Drawers
             public Action<int> SelectionChangedCallback;
 
             public TableMultiColumnTreeView(TriProperty property, TriElement container, ReorderableList listGui)
+#if UNITY_6000_0_OR_NEWER
+                : base(new TreeViewState<int>(), new TableColumnHeader())
+#else
                 : base(new TreeViewState(), new TableColumnHeader())
+#endif
             {
                 property.TryGetAttribute(out ListDrawerSettingsAttribute listSettings);
                 
@@ -225,9 +233,15 @@ namespace TriInspector.Drawers
                 }
             }
 
+#if UNITY_6000_0_OR_NEWER
+            protected override TreeViewItem<int> BuildRoot()
+            {
+                var root = new TreeViewItem<int>(0, -1, string.Empty);
+#else
             protected override TreeViewItem BuildRoot()
             {
                 var root = new TreeViewItem(0, -1, string.Empty);
+#endif
                 var columns = new List<MultiColumnHeaderState.Column>
                 {
                     new MultiColumnHeaderState.Column
@@ -273,7 +287,11 @@ namespace TriInspector.Drawers
                 return root;
             }
 
+#if UNITY_6000_0_OR_NEWER
+            protected override float GetCustomRowHeight(int row, TreeViewItem<int> item)
+#else
             protected override float GetCustomRowHeight(int row, TreeViewItem item)
+#endif
             {
                 if (item is TableTreeEmptyItem)
                 {
@@ -399,7 +417,11 @@ namespace TriInspector.Drawers
         }
 
         [Serializable]
+#if UNITY_6000_0_OR_NEWER
+        private class TableTreeEmptyItem : TreeViewItem<int>
+#else
         private class TableTreeEmptyItem : TreeViewItem
+#endif
         {
             public TableTreeEmptyItem() : base(0, 0, "Table is Empty")
             {
@@ -407,7 +429,11 @@ namespace TriInspector.Drawers
         }
 
         [Serializable]
+#if UNITY_6000_0_OR_NEWER
+        private class TableTreeItem : TreeViewItem<int>
+#else
         private class TableTreeItem : TreeViewItem
+#endif
         {
             public TableTreeItem(int id, TriProperty property) : base(id, 0)
             {
