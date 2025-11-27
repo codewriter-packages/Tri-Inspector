@@ -158,7 +158,11 @@ namespace TriInspector.Editor.Samples
             return name;
         }
 
+#if UNITY_6000_0_OR_NEWER
+        private class MenuTree : TreeView<int>
+#else
         private class MenuTree : TreeView
+#endif
         {
             private readonly Dictionary<string, GroupItem> _groups = new Dictionary<string, GroupItem>();
 
@@ -168,7 +172,11 @@ namespace TriInspector.Editor.Samples
             {
             }
 
+#if UNITY_6000_0_OR_NEWER
+            protected override bool CanMultiSelect(TreeViewItem<int> item)
+#else
             protected override bool CanMultiSelect(TreeViewItem item)
+#endif
             {
                 return false;
             }
@@ -184,9 +192,15 @@ namespace TriInspector.Editor.Samples
                 SelectedTypeChanged?.Invoke(type);
             }
 
+#if UNITY_6000_0_OR_NEWER
+            protected override TreeViewItem<int> BuildRoot()
+            {
+                var root = new TreeViewItem<int>(-1, -1);
+#else
             protected override TreeViewItem BuildRoot()
             {
                 var root = new TreeViewItem(-1, -1);
+#endif
 
                 var sampleTypes = typeof(TriSamplesWindow).Assembly.GetTypes()
                     .Where(type => type.BaseType == typeof(ScriptableObject) && type.Name.EndsWith("Sample"))
@@ -211,14 +225,22 @@ namespace TriInspector.Editor.Samples
                 return root;
             }
 
+#if UNITY_6000_0_OR_NEWER
+            private class GroupItem : TreeViewItem<int>
+#else
             private class GroupItem : TreeViewItem
+#endif
             {
                 public GroupItem(int id, string name) : base(id, 0, name)
                 {
                 }
             }
 
+#if UNITY_6000_0_OR_NEWER
+            private class SampleItem : TreeViewItem<int>
+#else
             private class SampleItem : TreeViewItem
+#endif
             {
                 public Type Type { get; }
 
