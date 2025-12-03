@@ -10,6 +10,12 @@ using UnityEditor.IMGUI.Controls;
 using UnityEditorInternal;
 using UnityEngine;
 
+#if UNITY_6000_2_OR_NEWER
+using TreeView = UnityEditor.IMGUI.Controls.TreeView<int>;
+using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
+using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
+#endif
+
 [assembly: RegisterTriAttributeDrawer(typeof(TableListDrawer), TriDrawerOrder.Drawer)]
 
 namespace TriInspector.Drawers
@@ -193,7 +199,7 @@ namespace TriInspector.Drawers
                 : base(new TreeViewState(), new TableColumnHeader())
             {
                 property.TryGetAttribute(out ListDrawerSettingsAttribute listSettings);
-                
+
                 _property = property;
                 _cellElementContainer = container;
                 _listGui = listGui;
@@ -306,12 +312,12 @@ namespace TriInspector.Drawers
                     base.RowGUI(args);
                     return;
                 }
-                
+
                 if (_showAlternatingBackground && args.row % 2 != 0)
                 {
                     EditorGUI.DrawRect(args.rowRect, new Color(0.1f, 0.1f, 0.1f, 0.15f));
                 }
-                
+
                 var rowElement = (TableRowElement) _cellElementContainer.GetChild(args.row);
 
                 for (var i = 0; i < multiColumnHeader.state.visibleColumns.Length; i++)
