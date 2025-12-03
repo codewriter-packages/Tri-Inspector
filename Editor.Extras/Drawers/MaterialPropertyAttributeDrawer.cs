@@ -343,12 +343,12 @@ namespace TriInspector.Drawers
 
         private static IEnumerable<(string name, int id, ShaderPropertyType type)> EnumerateShaderProperties(Shader shader)
         {
-            int count = ShaderUtil.GetPropertyCount(shader);
+            int count = shader.GetPropertyCount();
             for (int i = 0; i < count; i++)
             {
-                string name = ShaderUtil.GetPropertyName(shader, i);
+                string name = shader.GetPropertyName(i);
                 int id = Shader.PropertyToID(name);
-                var type = (ShaderPropertyType)ShaderUtil.GetPropertyType(shader, i);
+                var type = shader.GetPropertyType(i);
                 yield return (name, id, type);
             }
         }
@@ -360,10 +360,10 @@ namespace TriInspector.Drawers
 
             if (value is int id)
             {
-                int count = ShaderUtil.GetPropertyCount(material.shader);
+                int count = material.shader.GetPropertyCount();
                 for (int i = 0; i < count; i++)
                 {
-                    string propName = ShaderUtil.GetPropertyName(material.shader, i);
+                    string propName = material.shader.GetPropertyName(i);
                     if (Shader.PropertyToID(propName) == id)
                         return propName;
                 }
