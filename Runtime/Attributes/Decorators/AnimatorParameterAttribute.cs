@@ -1,3 +1,5 @@
+#if TRI_MODULE_ANIMATION
+
 using System;
 using System.Diagnostics;
 using UnityEngine;
@@ -21,3 +23,5 @@ namespace TriInspector
         }
     }
 }
+
+#endif

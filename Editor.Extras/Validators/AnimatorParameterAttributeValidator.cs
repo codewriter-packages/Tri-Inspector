@@ -1,3 +1,5 @@
+#if TRI_MODULE_ANIMATION
+
 using System.Linq;
 using TriInspector;
 using TriInspector.Drawers;
@@ -83,3 +85,5 @@ namespace TriInspector.Validators
         }
     }
 }
+
+#endif

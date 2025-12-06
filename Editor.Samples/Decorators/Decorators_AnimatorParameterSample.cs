@@ -1,3 +1,5 @@
+#if TRI_MODULE_ANIMATION
+
 using UnityEngine;
 using TriInspector;
 
@@ -11,3 +13,5 @@ public class Decorators_AnimatorParameterSample : ScriptableObject
 
     public Animator animator;
 }
+
+#endif

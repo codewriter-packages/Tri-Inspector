@@ -1,3 +1,5 @@
+#if TRI_MODULE_ANIMATION
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -394,3 +396,5 @@ namespace TriInspector.Drawers
 
     #endregion
 }
+
+#endif
