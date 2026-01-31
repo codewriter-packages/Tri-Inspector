@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace TriInspector.Elements
@@ -10,6 +11,8 @@ namespace TriInspector.Elements
     {
         private readonly TriProperty _property;
         private readonly Func<TriProperty, IEnumerable<ITriDropdownItem>> _valuesGetter;
+        private readonly bool _useAdvancedDropdown;
+        private readonly AdvancedDropdownState _dropdownState;
 
         private object _currentValue;
         private string _currentText;
@@ -17,10 +20,13 @@ namespace TriInspector.Elements
         private bool _hasNextValue;
         private object _nextValue;
 
-        public TriDropdownElement(TriProperty property, Func<TriProperty, IEnumerable<ITriDropdownItem>> valuesGetter)
+        public TriDropdownElement(TriProperty property, Func<TriProperty, IEnumerable<ITriDropdownItem>> valuesGetter,
+            bool useAdvancedDropdown = true)
         {
             _property = property;
             _valuesGetter = valuesGetter;
+            _useAdvancedDropdown = useAdvancedDropdown;
+            _dropdownState = new AdvancedDropdownState();
         }
 
         public override float GetHeight(float width)
@@ -53,7 +59,14 @@ namespace TriInspector.Elements
 
             if (GUI.Button(position, _currentText, EditorStyles.popup))
             {
-                ShowDropdown(position);
+                if (_useAdvancedDropdown)
+                {
+                    ShowAdvancedDropdown(position);
+                }
+                else
+                {
+                    ShowDropdown(position);
+                }
             }
         }
 
@@ -69,12 +82,89 @@ namespace TriInspector.Elements
             }
 
             menu.DropDown(position);
+        }
 
-            void ChangeValue(object v)
+        private void ShowAdvancedDropdown(Rect position)
+        {
+            var items = _valuesGetter.Invoke(_property);
+            var dropdown = new TriAdvancedDropdown(_dropdownState, _property, items, ChangeValue);
+            dropdown.Show(position);
+        }
+
+        private void ChangeValue(object v)
+        {
+            _nextValue = v;
+            _hasNextValue = true;
+            _property.PropertyTree.RequestRepaint();
+        }
+
+        private class TriAdvancedDropdown : AdvancedDropdown
+        {
+            private readonly TriProperty _property;
+            private readonly IEnumerable<ITriDropdownItem> _items;
+            private readonly Action<object> _onSelected;
+
+            public TriAdvancedDropdown(AdvancedDropdownState state,
+                TriProperty property,
+                IEnumerable<ITriDropdownItem> items,
+                Action<object> onSelected)
+                : base(state)
             {
-                _nextValue = v;
-                _hasNextValue = true;
-                _property.PropertyTree.RequestRepaint();
+                _property = property;
+                _items = items;
+                _onSelected = onSelected;
+
+                minimumSize = new Vector2(200, 300);
+            }
+
+            protected override AdvancedDropdownItem BuildRoot()
+            {
+                var root = new AdvancedDropdownItem(_property.DisplayName);
+
+                foreach (var item in _items)
+                {
+                    var path = item.Text.Split('/');
+                    var parent = root;
+
+                    for (var i = 0; i < path.Length; i++)
+                    {
+                        if (i == path.Length - 1)
+                        {
+                            parent.AddChild(new TriAdvancedDropdownItem(path[i], item.Value));
+                        }
+                        else
+                        {
+                            var child = parent.children.FirstOrDefault(c => c.name == path[i]);
+                            if (child == null)
+                            {
+                                child = new AdvancedDropdownItem(path[i]);
+                                parent.AddChild(child);
+                            }
+
+                            parent = child;
+                        }
+                    }
+                }
+
+                return root;
+            }
+
+            protected override void ItemSelected(AdvancedDropdownItem item)
+            {
+                if (item is TriAdvancedDropdownItem customItem)
+                {
+                    _onSelected?.Invoke(customItem.Value);
+                }
+            }
+        }
+
+        private class TriAdvancedDropdownItem : AdvancedDropdownItem
+        {
+            public object Value { get; }
+
+            public TriAdvancedDropdownItem(string name, object value) : base(name)
+            {
+                Value = value;
             }
         }
     }

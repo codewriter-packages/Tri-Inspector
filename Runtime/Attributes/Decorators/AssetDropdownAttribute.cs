@@ -11,6 +11,7 @@ namespace TriInspector
         public string Filter { get; }
         public string[] SearchInFolders { get; }
         public bool HideNextDrawer { get; set; } = true;
+        public bool Advanced { get; set; } = true;
 
         public AssetDropdownAttribute(string filter, string[] searchInFolders = null)
         {
