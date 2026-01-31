@@ -115,9 +115,11 @@ namespace TriInspector.Elements
                 {
                     if (_toggleProperty?.Value is bool cachedValue)
                     {
+                        EditorGUI.BeginChangeCheck();
+                        
                         var newValue = EditorGUI.ToggleLeft(headerLabelRect, headerContent, cachedValue);
                     
-                        if (newValue != cachedValue)
+                        if (EditorGUI.EndChangeCheck())
                         {
                             _toggleProperty.SetValue(newValue);
                         }
