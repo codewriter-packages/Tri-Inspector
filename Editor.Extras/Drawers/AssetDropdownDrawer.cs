@@ -31,7 +31,7 @@ namespace TriInspector.Drawers
 
         public override TriElement CreateElement(TriProperty property, TriElement next)
         {
-            var dropdownElement = new TriDropdownElement(property, EnumerateAssets);
+            var dropdownElement = new TriDropdownElement(property, EnumerateAssets, Attribute.Advanced);
 
             if (Attribute.HideNextDrawer)
             {

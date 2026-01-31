@@ -26,7 +26,7 @@ namespace TriInspector.Drawers
 
         public override TriElement CreateElement(TriProperty property, TriElement next)
         {
-            return new TriDropdownElement(property, _valuesResolver.GetDropdownItems);
+            return new TriDropdownElement(property, _valuesResolver.GetDropdownItems, Attribute.Advanced);
         }
     }
 }
