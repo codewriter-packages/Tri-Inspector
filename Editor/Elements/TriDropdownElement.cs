@@ -126,11 +126,13 @@ namespace TriInspector.Elements
                     var path = item.Text.Split('/');
                     var parent = root;
 
+                    var isOn = _property.Comparer.Equals(item.Value, _property.Value);
+
                     for (var i = 0; i < path.Length; i++)
                     {
                         if (i == path.Length - 1)
                         {
-                            parent.AddChild(new TriAdvancedDropdownItem(path[i], item.Value));
+                            parent.AddChild(new TriAdvancedDropdownItem(path[i], item.Value, isOn));
                         }
                         else
                         {
@@ -160,11 +162,18 @@ namespace TriInspector.Elements
 
         private class TriAdvancedDropdownItem : AdvancedDropdownItem
         {
+            private static readonly GUIContent Checkmark = EditorGUIUtility.IconContent("Checkmark") ?? GUIContent.none;
+
             public object Value { get; }
 
-            public TriAdvancedDropdownItem(string name, object value) : base(name)
+            public TriAdvancedDropdownItem(string name, object value, bool isOn) : base(name)
             {
                 Value = value;
+
+                if (isOn)
+                {
+                    icon = Checkmark.image as Texture2D;
+                }
             }
         }
     }
