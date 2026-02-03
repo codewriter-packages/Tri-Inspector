@@ -32,7 +32,7 @@ namespace TriInspector.Drawers
             var oldColor = GUI.color;
             var newColor = _colorResolver?.GetValue(property, Color.white) ?? Attribute.Color;
 
-            GUI.color = newColor;
+            GUI.color = Attribute.Multiply ? oldColor * newColor : newColor;
             GUI.contentColor = newColor;
 
             next.OnGUI(position);

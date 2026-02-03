@@ -11,7 +11,8 @@ namespace TriInspector
     {
         public Color Color { get; }
         public string GetColor { get; }
-        
+        public bool Multiply { get; set; } = true;
+
         public GUIColorAttribute(float r, float g, float b, float a = 1f)
         {
             Color = new Color(r, g, b, a);
