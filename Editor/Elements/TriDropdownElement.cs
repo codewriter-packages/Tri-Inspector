@@ -136,7 +136,11 @@ namespace TriInspector.Elements
                         }
                         else
                         {
+#if UNITY_6000_5_OR_NEWER
+                            var child = parent.childList.FirstOrDefault(c => c.name == path[i]);
+#else
                             var child = parent.children.FirstOrDefault(c => c.name == path[i]);
+#endif
                             if (child == null)
                             {
                                 child = new AdvancedDropdownItem(path[i]);
