@@ -1,6 +1,7 @@
 ﻿using TriInspector;
 using TriInspector.Validators;
 using UnityEditor;
+using UnityEngine;
 
 [assembly: RegisterTriValueValidator(typeof(MissingReferenceValidator))]
 
@@ -13,7 +14,12 @@ namespace TriInspector.Validators
             if (propertyValue.Property.TryGetSerializedProperty(out var serializedProperty) &&
                 serializedProperty.propertyType == SerializedPropertyType.ObjectReference &&
                 serializedProperty.objectReferenceValue == null &&
-                serializedProperty.objectReferenceInstanceIDValue != 0)
+#if UNITY_6000_4_OR_NEWER
+                serializedProperty.objectReferenceEntityIdValue != EntityId.None
+#else
+                serializedProperty.objectReferenceInstanceIDValue != 0
+#endif
+            )
             {
                 return TriValidationResult.Warning($"{GetName(propertyValue.Property)} is missing");
             }
