@@ -114,7 +114,23 @@ namespace TriInspector.Elements
 
                 AddPropertyChild(groupElement, property);
             }
-
+            else
+            {
+                bool found = false;
+                for (var i = 0; i < ChildrenCount; ++i)
+                {
+                    if (GetChild(i) == groupElement)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    groupElement.RemoveAllChildren();
+                    AddPropertyChild(groupElement, property);
+                }
+            }
             return groupElement;
         }
 
