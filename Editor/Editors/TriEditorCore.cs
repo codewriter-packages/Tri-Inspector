@@ -8,9 +8,6 @@ namespace TriInspector.Editors
 {
     public class TriEditorCore
     {
-        internal static readonly Dictionary<TriPropertyTree, VisualElement> UiElementsRoots
-            = new Dictionary<TriPropertyTree, VisualElement>();
-
         private readonly Editor _editor;
 
         private TriPropertyTreeForSerializedObject _inspector;
@@ -24,8 +21,6 @@ namespace TriInspector.Editors
         {
             if (_inspector != null)
             {
-                UiElementsRoots.Remove(_inspector);
-
                 _inspector.Dispose();
             }
 
@@ -59,11 +54,6 @@ namespace TriInspector.Editors
             if (_inspector == null)
             {
                 _inspector = new TriPropertyTreeForSerializedObject(serializedObject);
-            }
-
-            if (visualRoot != null)
-            {
-                UiElementsRoots[_inspector] = visualRoot;
             }
 
             serializedObject.UpdateIfRequiredOrScript();
