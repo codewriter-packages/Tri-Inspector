@@ -64,20 +64,57 @@ namespace TriInspector.Drawers
                 {
                     var pIndex = i;
                     var pInfo = parameters[pIndex];
+                    var key = $"TriInspector.{_property.PropertyTree.TargetObjectType}.{_property.RawName}.{pInfo.Name}";
 
                     if (pInfo.HasDefaultValue)
                     {
-                        _invocationArgs[pIndex] = pInfo.DefaultValue;
+                        _invocationArgs[pIndex] = GetValue(key, pInfo.ParameterType, pInfo.DefaultValue);
                     }
 
                     var pTriDefinition = TriPropertyDefinition.CreateForGetterSetter(
                         pIndex, pInfo.Name, pInfo.ParameterType,
                         ((self, targetIndex) => _invocationArgs[pIndex]),
-                        ((self, targetIndex, value) => _invocationArgs[pIndex] = value));
+                        ((self, targetIndex, value) =>
+                        {
+                            SetValue(key, pInfo.ParameterType, value);
+                            return _invocationArgs[pIndex] = value;
+                        }));
 
                     var pTriProperty = new TriProperty(_property.PropertyTree, _property, pTriDefinition, null);
 
                     AddChild(new TriPropertyElement(pTriProperty));
+
+                    static object GetValue(string key, Type type, object defaultValue)
+                    {
+                        return type switch
+                        {
+                            Type t when t == typeof(string) => EditorPrefs.GetString(key, (string) defaultValue),
+                            Type t when t == typeof(int) => EditorPrefs.GetInt(key, (int) defaultValue),
+                            Type t when t == typeof(bool) => EditorPrefs.GetBool(key, (bool) defaultValue),
+                            Type t when t == typeof(float) => EditorPrefs.GetFloat(key, (float) defaultValue),
+                            _ => defaultValue,
+                        };
+                    }
+                    static void SetValue(string key, Type type, object value)
+                    {
+                        if (EditorApplication.isPlaying)
+                            return;
+                        switch (type)
+                        {
+                            case Type t when t == typeof(string):
+                                EditorPrefs.SetString(key, (string) value);
+                                break;
+                            case Type t when t == typeof(int):
+                                EditorPrefs.SetInt(key, (int) value);
+                                break;
+                            case Type t when t == typeof(bool):
+                                EditorPrefs.SetBool(key, (bool) value);
+                                break;
+                            case Type t when t == typeof(float):
+                                EditorPrefs.SetFloat(key, (float) value);
+                                break;
+                        }
+                    }
                 }
             }
 
