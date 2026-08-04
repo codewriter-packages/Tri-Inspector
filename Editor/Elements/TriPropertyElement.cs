@@ -1,12 +1,15 @@
 ﻿using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector.Elements
 {
     public class TriPropertyElement : TriElement
     {
         private readonly TriProperty _property;
+
+        private readonly TriElement _wrappedElement;
 
         [Serializable]
         public struct Props
@@ -31,7 +34,33 @@ namespace TriInspector.Elements
                 element = drawers[index].CreateElementInternal(property, element);
             }
 
+            _wrappedElement = element;
+
             AddChild(element);
+        }
+
+        public override VisualElement CreateVisualElement(TriProperty property)
+        {
+            var canRecurse = _property.ExtensionErrors.Count == 0
+                             && TriNativeProjection.IsNative(_wrappedElement);
+
+            if (!canRecurse)
+            {
+                return base.CreateVisualElement(property);
+            }
+
+            var visualElement = _wrappedElement.CreateVisualElement(property);
+
+            void Sync()
+            {
+                visualElement.style.display = _property.IsVisible ? DisplayStyle.Flex : DisplayStyle.None;
+                visualElement.SetEnabled(_property.IsEnabled);
+            }
+
+            Sync();
+            visualElement.schedule.Execute(Sync).Every(100);
+
+            return visualElement;
         }
 
         public override float GetHeight(float width)
@@ -56,7 +85,6 @@ namespace TriInspector.Elements
 
             GUI.enabled &= _property.IsEnabled;
             EditorGUI.showMixedValue = _property.IsValueMixed;
-            var overrideCtx = TriPropertyOverrideContext.BeginProperty();
 
             if (_property.TryGetSerializedProperty(out var serializedProperty))
             {
@@ -70,7 +98,6 @@ namespace TriInspector.Elements
                 EditorGUI.EndProperty();
             }
 
-            overrideCtx.EndProperty();
             EditorGUI.showMixedValue = oldShowMixedValue;
             GUI.enabled = oldEnabled;
         }

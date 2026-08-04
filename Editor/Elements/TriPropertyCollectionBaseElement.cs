@@ -3,11 +3,25 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using TriInspector.Utilities;
+using UnityEngine.UIElements;
 
 namespace TriInspector.Elements
 {
     public abstract class TriPropertyCollectionBaseElement : TriElement
     {
+        protected VisualElement CreateChildrenColumn(TriProperty property)
+        {
+            var column = new VisualElement();
+
+            for (var i = 0; i < ChildrenCount; i++)
+            {
+                var child = GetChild(i).CreateVisualElement(property);
+                column.Add(child);
+            }
+
+            return column;
+        }
+
         private List<DeclareGroupBaseAttribute> _declarations = new List<DeclareGroupBaseAttribute>();
 
         private Dictionary<string, TriPropertyCollectionBaseElement> _groups;

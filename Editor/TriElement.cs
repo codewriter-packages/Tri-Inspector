@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
+using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector
 {
-    public class TriElement
+    public class TriElement : ITriElement
     {
         private static readonly List<TriElement> Empty = new List<TriElement>();
 
         private float _cachedHeight;
-        private bool _cachedheightDirty;
         private bool _attached;
         private List<TriElement> _children = Empty;
 
@@ -47,13 +48,6 @@ namespace TriInspector
                 Debug.LogError($"{GetType().Name} not attached");
             }
 
-            if (Event.current.type != EventType.Layout && !_cachedheightDirty)
-            {
-                return _cachedHeight;
-            }
-
-            _cachedheightDirty = false;
-
             switch (_children.Count)
             {
                 case 0:
@@ -74,6 +68,12 @@ namespace TriInspector
                     return _cachedHeight;
                 }
             }
+        }
+
+        [PublicAPI]
+        public virtual VisualElement CreateVisualElement(TriProperty property)
+        {
+            return new TriImguiContainerImpl(property, this);
         }
 
         [PublicAPI]
@@ -128,7 +128,6 @@ namespace TriInspector
 
             var child = _children[index];
             _children.RemoveAt(index);
-            _cachedheightDirty = true;
 
             if (_attached)
             {
@@ -148,7 +147,6 @@ namespace TriInspector
             }
 
             _children.Clear();
-            _cachedheightDirty = true;
         }
 
         [PublicAPI]
@@ -160,7 +158,6 @@ namespace TriInspector
             }
 
             _children.Add(child);
-            _cachedheightDirty = true;
 
             if (_attached)
             {

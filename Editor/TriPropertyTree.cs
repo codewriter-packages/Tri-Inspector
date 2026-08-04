@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
@@ -8,8 +9,10 @@ namespace TriInspector
 {
     public abstract class TriPropertyTree : IDisposable
     {
+        private readonly List<TriPropertyOverrideContext> _propertyOverrides =
+            new List<TriPropertyOverrideContext>();
+
         private TriPropertyElement _rootPropertyElement;
-        private Rect _cachedOuterRect = new Rect(0, 0, 0, 0);
 
         public TriPropertyDefinition RootPropertyDefinition { get; protected set; }
         public TriProperty RootProperty { get; protected set; }
@@ -19,7 +22,6 @@ namespace TriInspector
         public bool TargetIsPersistent { get; protected set; }
 
         public bool ValidationRequired { get; private set; } = true;
-        public bool RepaintRequired { get; private set; } = true;
 
         public int RepaintFrame { get; private set; } = 0;
 
@@ -62,40 +64,17 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        public virtual void Draw()
+        public ITriElement GetRootElement()
         {
-            RepaintRequired = false;
-
             if (_rootPropertyElement == null)
             {
                 _rootPropertyElement = new TriPropertyElement(RootProperty, new TriPropertyElement.Props
                 {
                     forceInline = !RootProperty.TryGetMemberInfo(out _),
                 });
-                _rootPropertyElement.AttachInternal();
             }
 
-            Profiler.BeginSample("TriInspector.UpdateRootPropertyElement");
-            _rootPropertyElement.Update();
-            Profiler.EndSample();
-
-            var rectOuter = GUILayoutUtility.GetRect(0, 9999, 0, 0);
-            _cachedOuterRect = Event.current.type == EventType.Layout ? _cachedOuterRect : rectOuter;
-
-            var rect = new Rect(_cachedOuterRect);
-            rect = EditorGUI.IndentedRect(rect);
-            rect.height = _rootPropertyElement.GetHeight(rect.width);
-
-            var oldIndent = EditorGUI.indentLevel;
-            EditorGUI.indentLevel = 0;
-
-            GUILayoutUtility.GetRect(_cachedOuterRect.width, rect.height);
-
-            Profiler.BeginSample("TriInspector.DrawRootPropertyElement");
-            _rootPropertyElement.OnGUI(rect);
-            Profiler.EndSample();
-
-            EditorGUI.indentLevel = oldIndent;
+            return _rootPropertyElement;
         }
 
         public void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)
@@ -103,18 +82,40 @@ namespace TriInspector
             RootProperty.EnumerateValidationResults(call);
         }
 
+        [Obsolete("Legacy from IMGUI")]
         public void RequestRepaint()
         {
-            RepaintRequired = true;
         }
 
         public void RequestValidation()
         {
             ValidationRequired = true;
-
-            RequestRepaint();
         }
 
         public abstract void ForceCreateUndoGroup();
+
+        public void AddPropertyOverride(TriPropertyOverrideContext context)
+        {
+            _propertyOverrides.Add(context);
+        }
+
+        public void RemovePropertyOverride(TriPropertyOverrideContext context)
+        {
+            _propertyOverrides.Remove(context);
+        }
+
+        internal bool TryGetOverrideDisplayName(TriProperty property, out GUIContent displayName)
+        {
+            for (var i = _propertyOverrides.Count - 1; i >= 0; i--)
+            {
+                if (_propertyOverrides[i].TryGetDisplayName(property, out displayName))
+                {
+                    return true;
+                }
+            }
+
+            displayName = default;
+            return false;
+        }
     }
 }

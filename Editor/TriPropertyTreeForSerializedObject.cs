@@ -56,13 +56,6 @@ namespace TriInspector
             base.Update(forceUpdate);
         }
 
-        public override void Draw()
-        {
-            DrawMonoScriptProperty();
-
-            base.Draw();
-        }
-
         public override bool ApplyChanges()
         {
             var changed = base.ApplyChanges();
@@ -85,20 +78,6 @@ namespace TriInspector
 
             RequestValidation();
             RequestRepaint();
-        }
-
-        private void DrawMonoScriptProperty()
-        {
-            if (RootProperty.TryGetAttribute(out HideMonoScriptAttribute _))
-            {
-                return;
-            }
-
-            EditorGUI.BeginDisabledGroup(true);
-            var scriptRect = EditorGUILayout.GetControlRect(true);
-            scriptRect.xMin += 3;
-            EditorGUI.PropertyField(scriptRect, _scriptProperty);
-            EditorGUI.EndDisabledGroup();
         }
     }
 }

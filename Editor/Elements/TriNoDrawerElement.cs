@@ -1,5 +1,7 @@
-﻿using UnityEditor;
+﻿using TriInspector.VisualElements;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector.Elements
 {
@@ -12,6 +14,18 @@ namespace TriInspector.Elements
         {
             _property = property;
             _message = new GUIContent($"No drawer for {property.FieldType}");
+        }
+
+        public override VisualElement CreateVisualElement(TriProperty property)
+        {
+            return new TriAlignedLabel(property.DisplayName, new Label(_message.text)
+            {
+                style =
+                {
+                    flexGrow = 1,
+                    unityTextAlign = TextAnchor.MiddleLeft,
+                },
+            });
         }
 
         public override float GetHeight(float width)

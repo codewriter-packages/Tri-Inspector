@@ -1,6 +1,5 @@
 ﻿using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Editors;
 using TriInspector.Elements;
 using TriInspector.Utilities;
 using TriInspectorUnityInternalBridge;
@@ -13,6 +12,11 @@ namespace TriInspector.Drawers
     {
         public override TriElement CreateElement(TriValue<object> propertyValue, TriElement next)
         {
+            if (propertyValue.Property.IsRootProperty)
+            {
+                return next;
+            }
+
             var property = propertyValue.Property;
 
             if (property.TryGetSerializedProperty(out var serializedProperty))
@@ -25,26 +29,11 @@ namespace TriInspector.Drawers
 
                 if (drawWithHandler)
                 {
-                    // if (property.TryGetAttribute(out DrawWithUnityAttribute withUnityAttribute) &&
-                    //     withUnityAttribute.WithUiToolkit)
-                    // {
-                    //     handler.SetPreferredLabel(property.DisplayName);
-                    //
-                    //     var visualElement = handler.CreatePropertyGUI(serializedProperty);
-                    //
-                    //     if (visualElement != null &&
-                    //         TriEditorCore.UiElementsRoots.TryGetValue(property.PropertyTree, out var rootElement))
-                    //     {
-                    //         return new TriUiToolkitPropertyElement(property, serializedProperty,
-                    //             visualElement, rootElement);
-                    //     }
-                    // }
-                    
                     return new TriBuiltInPropertyElement(property, serializedProperty, handler);
                 }
             }
 
-            return base.CreateElement(propertyValue, next);
+            return next;
         }
     }
 }

@@ -60,6 +60,20 @@ namespace TriInspector.Drawers
                 _reloadRequired = true;
             }
 
+            protected override void OnAttachToPanel()
+            {
+                base.OnAttachToPanel();
+
+                _property.PropertyTree.AddPropertyOverride(_treeView.OverrideContext);
+            }
+
+            protected override void OnDetachFromPanel()
+            {
+                _property.PropertyTree.RemovePropertyOverride(_treeView.OverrideContext);
+
+                base.OnDetachFromPanel();
+            }
+
             public override bool Update()
             {
                 var dirty = base.Update();
@@ -216,6 +230,8 @@ namespace TriInspector.Drawers
 
             public float Width { get; set; }
 
+            public TriPropertyOverrideContext OverrideContext => _propertyOverrideContext;
+
             public void RefreshHeight()
             {
                 RefreshCustomRowHeights();
@@ -339,7 +355,6 @@ namespace TriInspector.Drawers
                     cellRect.height = cellElement.GetHeight(cellRect.width);
 
                     using (TriGuiHelper.PushLabelWidth(EditorGUIUtility.labelWidth / rowElement.ChildrenCount))
-                    using (TriPropertyOverrideContext.BeginOverride(_propertyOverrideContext))
                     {
                         cellElement.OnGUI(cellRect);
                     }

@@ -70,6 +70,9 @@ namespace TriInspector.Editor.Integrations.Odin
                 _initialized = true;
                 _propertyTree = new TriPropertyTreeForOdin<T>(ValueEntry);
                 _labelOverrideContext = new LabelOverrideContext(_propertyTree);
+
+                // Scoped to the root property, so it is safe to keep registered for the tree's whole lifetime.
+                _propertyTree.AddPropertyOverride(_labelOverrideContext);
             }
 
             _propertyTree.Update();
@@ -77,10 +80,7 @@ namespace TriInspector.Editor.Integrations.Odin
 
             _labelOverrideContext.Label = label ?? GUIContent.none;
 
-            using (TriPropertyOverrideContext.BeginOverride(_labelOverrideContext))
-            {
-                _propertyTree.Draw();
-            }
+            _propertyTree.Draw();
 
             if (_propertyTree.RepaintRequired)
             {

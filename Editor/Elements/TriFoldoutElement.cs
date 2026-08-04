@@ -1,6 +1,7 @@
 ﻿using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector.Elements
 {
@@ -13,6 +14,52 @@ namespace TriInspector.Elements
             _property = property;
 
             DeclareGroups(property.ValueType);
+        }
+
+        public override VisualElement CreateVisualElement(TriProperty property)
+        {
+            var foldout = new Foldout
+            {
+                text = _property.DisplayName,
+                value = _property.IsExpanded,
+            };
+
+            var built = false;
+
+            void BuildContentIfNeeded()
+            {
+                if (built)
+                {
+                    return;
+                }
+
+                built = true;
+
+                GenerateChildren();
+                foldout.Add(CreateChildrenColumn(property));
+            }
+
+            if (_property.IsExpanded)
+            {
+                BuildContentIfNeeded();
+            }
+
+            foldout.RegisterValueChangedCallback(evt =>
+            {
+                if (evt.target != foldout)
+                {
+                    return;
+                }
+
+                _property.IsExpanded = evt.newValue;
+
+                if (evt.newValue)
+                {
+                    BuildContentIfNeeded();
+                }
+            });
+
+            return foldout;
         }
 
         public override bool Update()

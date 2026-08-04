@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using TriInspector.Utilities;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace TriInspector.Editors
@@ -27,28 +25,16 @@ namespace TriInspector.Editors
             _inspector = null;
         }
 
-        public void OnInspectorGUI(VisualElement visualRoot = null)
+        public VisualElement CreateVisualElement()
         {
             var serializedObject = _editor.serializedObject;
 
-            if (serializedObject.targetObjects.Length == 0)
-            {
-                return;
-            }
+            var container = new VisualElement();
 
-            if (serializedObject.targetObject == null)
+            if (serializedObject.targetObjects.Length == 0 || serializedObject.targetObject == null)
             {
-                EditorGUILayout.HelpBox("Script is missing", MessageType.Warning);
-                return;
-            }
-
-            foreach (var targetObject in serializedObject.targetObjects)
-            {
-                if (TriGuiHelper.IsEditorTargetPushed(targetObject))
-                {
-                    GUILayout.Label("Recursive inline editors not supported");
-                    return;
-                }
+                container.Add(new HelpBox("Script is missing", HelpBoxMessageType.Warning));
+                return container;
             }
 
             if (_inspector == null)
@@ -56,79 +42,37 @@ namespace TriInspector.Editors
                 _inspector = new TriPropertyTreeForSerializedObject(serializedObject);
             }
 
+            if (!_inspector.RootProperty.TryGetAttribute(out HideMonoScriptAttribute _))
+            {
+                var scriptProperty = serializedObject.FindProperty("m_Script");
+                if (scriptProperty != null)
+                {
+                    var scriptField = new PropertyField(scriptProperty);
+                    scriptField.SetEnabled(false);
+                    scriptField.Bind(serializedObject);
+                    container.Add(scriptField);
+                }
+            }
+
             serializedObject.UpdateIfRequiredOrScript();
-
             _inspector.Update();
-            _inspector.RunValidationIfRequired();
 
-            EditorGUIUtility.hierarchyMode = false;
+            container.Add(_inspector.GetRootElement().CreateVisualElement(_inspector.RootProperty));
 
-            using (TriGuiHelper.PushEditorTarget(serializedObject.targetObject))
+            container.schedule.Execute(() =>
             {
-                _inspector.Draw();
-            }
+                serializedObject.UpdateIfRequiredOrScript();
 
-            if (serializedObject.ApplyModifiedProperties())
-            {
-                _inspector.RequestValidation();
-            }
+                _inspector.Update();
+                _inspector.RunValidationIfRequired();
 
-            if (_inspector.RepaintRequired)
-            {
-                _editor.Repaint();
-            }
-        }
-
-        public VisualElement CreateVisualElement()
-        {
-            var container = new VisualElement();
-            var root = new VisualElement()
-            {
-                style =
+                if (serializedObject.ApplyModifiedProperties())
                 {
-                    position = Position.Absolute,
-                },
-            };
-
-            container.Add(new IMGUIContainer(() =>
-            {
-                const float labelExtraPadding = 2;
-                const float labelWidthRatio = 0.45f;
-                const float labelMinWidth = 120;
-
-                var space = container.resolvedStyle.left + container.resolvedStyle.right + labelExtraPadding;
-
-                EditorGUIUtility.wideMode = true;
-                EditorGUIUtility.hierarchyMode = false;
-                EditorGUIUtility.labelWidth = Mathf.Max(labelMinWidth,
-                    container.resolvedStyle.width * labelWidthRatio - space);
-
-                GUILayout.BeginVertical(Styles.RootLayout);
-                OnInspectorGUI(root);
-                GUILayout.EndVertical();
-            })
-            {
-                style =
-                {
-                    marginLeft = -Styles.RootMarginLeft,
-                    marginRight = -Styles.RootMarginRight,
-                },
-            });
-
-            container.Add(root);
+                    _inspector.RequestValidation();
+                }
+            }).Every(0);
 
             return container;
-        }
-
-        private static class Styles
-        {
-            public const int RootMarginLeft = 15;
-            public const int RootMarginRight = 6;
-
-            public static readonly GUIStyle RootLayout = new GUIStyle
-            {
-                padding = new RectOffset(RootMarginLeft, RootMarginRight, 0, 0),
-            };
         }
     }
 }

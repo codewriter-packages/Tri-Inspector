@@ -4,8 +4,10 @@ using System.Linq;
 using TriInspectorUnityInternalBridge;
 using TriInspector.Utilities;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 namespace TriInspector.Elements
@@ -19,6 +21,7 @@ namespace TriInspector.Elements
 
         private readonly TriProperty _property;
         private readonly ReorderableList _reorderableListGui;
+        private readonly ListPropertyOverrideContext _elementLabelOverride;
         private readonly bool _alwaysExpanded;
         private readonly bool _showElementLabels;
         private readonly bool _showAlternatingBackground;
@@ -37,6 +40,7 @@ namespace TriInspector.Elements
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
             _showElementLabels = settings?.ShowElementLabels ?? false;
             _showAlternatingBackground = settings?.ShowAlternatingBackground ?? true;
+            _elementLabelOverride = new ListPropertyOverrideContext(_property, _showElementLabels);
             _reorderableListGui = new ReorderableList(null, _property.ArrayElementType)
             {
                 showDefaultBackground = settings?.ShowDefaultBackground ?? true,
@@ -56,6 +60,11 @@ namespace TriInspector.Elements
             {
                 _reorderableListGui.footerHeight = 0f;
             }
+        }
+
+        public override VisualElement CreateVisualElement(TriProperty property)
+        {
+            return new ListViewTriElement(this);
         }
 
         public override bool Update()
@@ -480,10 +489,7 @@ namespace TriInspector.Elements
                 rect.xMin += DraggableAreaExtraWidth;
             }
 
-            using (TriPropertyOverrideContext.BeginOverride(ListPropertyOverrideContext.Instance))
-            {
-                GetChild(index).OnGUI(rect);
-            }
+            GetChild(index).OnGUI(rect);
         }
 
         private float ElementHeightCallback(int index)
@@ -549,18 +555,143 @@ namespace TriInspector.Elements
             return false;
         }
 
+        public sealed class ListViewTriElement : ListView, ITriElement
+        {
+            private readonly TriListElement _owner;
+
+            public ListViewTriElement(TriListElement owner)
+            {
+                _owner = owner;
+
+                var gui = owner._reorderableListGui;
+
+                showFoldoutHeader = true;
+                headerTitle = owner._property.DisplayName;
+                showBoundCollectionSize = true;
+                showAddRemoveFooter = gui.displayAdd || gui.displayRemove;
+                reorderable = gui.draggable;
+                reorderMode = ListViewReorderMode.Animated;
+                showAlternatingRowBackgrounds = owner._showAlternatingBackground
+                    ? AlternatingRowBackground.All
+                    : AlternatingRowBackground.None;
+                virtualizationMethod = CollectionVirtualizationMethod.DynamicHeight;
+                selectionType = SelectionType.None;
+                makeItem = () => new VisualElement();
+                bindItem = BindListViewItem;
+                unbindItem = (itemRoot, _) => itemRoot.Clear();
+
+                if (owner._property.TryGetSerializedProperty(out var serializedProperty) && serializedProperty.isArray)
+                {
+                    this.BindProperty(serializedProperty);
+                }
+                else
+                {
+                    itemsSource = owner._property.Value as IList;
+                    itemsAdded += _ => owner.AddElementCallback(gui, null);
+                    itemsRemoved += indices =>
+                    {
+                        foreach (var index in indices.OrderByDescending(i => i))
+                        {
+                            gui.index = index;
+                            owner.RemoveElementCallback(gui);
+                        }
+                    };
+                    itemIndexChanged += (from, to) => owner.ReorderCallback(gui, from, to);
+                }
+
+                if (owner._alwaysExpanded)
+                {
+                    var foldout = this.Q<Foldout>();
+                    if (foldout != null)
+                    {
+                        foldout.value = true;
+                        foldout.RegisterValueChangedCallback(evt =>
+                        {
+                            if (!evt.newValue)
+                            {
+                                foldout.SetValueWithoutNotify(true);
+                            }
+                        });
+
+                        var toggle = foldout.Q<Toggle>();
+                        if (toggle != null)
+                        {
+                            toggle.SetEnabled(false);
+                        }
+                    }
+                }
+
+                RegisterListDragAndDrop();
+
+                RegisterCallback<AttachToPanelEvent>(_ =>
+                    owner._property.PropertyTree.AddPropertyOverride(owner._elementLabelOverride));
+                RegisterCallback<DetachFromPanelEvent>(_ =>
+                    owner._property.PropertyTree.RemovePropertyOverride(owner._elementLabelOverride));
+            }
+
+            public VisualElement CreateVisualElement(TriProperty property)
+            {
+                return this;
+            }
+
+            private void BindListViewItem(VisualElement itemRoot, int index)
+            {
+                itemRoot.Clear();
+
+                var elementProperties = _owner._property.ArrayElementProperties;
+                if (index < 0 || index >= elementProperties.Count)
+                {
+                    return;
+                }
+
+                var itemElement = _owner.CreateItemElement(elementProperties[index]);
+
+                itemRoot.Add(itemElement.CreateVisualElement(elementProperties[index]));
+            }
+
+            private void RegisterListDragAndDrop()
+            {
+                RegisterCallback<DragUpdatedEvent>(evt =>
+                {
+                    DragAndDrop.visualMode =
+                        DragAndDrop.objectReferences.All(obj => _owner.TryGetDragAndDropObject(obj, out _))
+                            ? DragAndDropVisualMode.Copy
+                            : DragAndDropVisualMode.Rejected;
+                    evt.StopPropagation();
+                });
+
+                RegisterCallback<DragPerformEvent>(evt =>
+                {
+                    DragAndDrop.AcceptDrag();
+
+                    foreach (var obj in DragAndDrop.objectReferences)
+                    {
+                        if (_owner.TryGetDragAndDropObject(obj, out var addedReferenceValue))
+                        {
+                            _owner.AddElementCallback(_owner._reorderableListGui, addedReferenceValue);
+                        }
+                    }
+
+                    evt.StopPropagation();
+                });
+            }
+        }
+
         private class ListPropertyOverrideContext : TriPropertyOverrideContext
         {
-            public static readonly ListPropertyOverrideContext Instance = new ListPropertyOverrideContext();
-
+            private readonly TriProperty _listProperty;
+            private readonly bool _showElementLabels;
             private readonly GUIContent _noneLabel = GUIContent.none;
+
+            public ListPropertyOverrideContext(TriProperty listProperty, bool showElementLabels)
+            {
+                _listProperty = listProperty;
+                _showElementLabels = showElementLabels;
+            }
 
             public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
             {
-                var showLabels = property.TryGetAttribute(out ListDrawerSettingsAttribute settings) &&
-                                 settings.ShowElementLabels;
-
-                if (!showLabels)
+                if (!_showElementLabels && property.Parent == _listProperty)
                 {
                     displayName = _noneLabel;
                     return true;
@@ -568,25 +699,6 @@ namespace TriInspector.Elements
 
                 displayName = default;
                 return false;
-            }
-        }
-
-        private static class Styles
-        {
-            public static readonly GUIStyle ItemsCount;
-
-            static Styles()
-            {
-                ItemsCount = new GUIStyle(GUI.skin.label)
-                {
-                    alignment = TextAnchor.MiddleRight,
-                    normal =
-                    {
-                        textColor = EditorGUIUtility.isProSkin
-                            ? new Color(0.6f, 0.6f, 0.6f)
-                            : new Color(0.3f, 0.3f, 0.3f),
-                    },
-                };
             }
         }
     }

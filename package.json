@@ -2,8 +2,8 @@
   "name": "com.codewriter.triinspector",
   "displayName": "Tri Inspector",
   "description": "Advanced inspector attributes for Unity",
-  "version": "1.15.1",
-  "unity": "2020.3",
+  "version": "2.0.0",
+  "unity": "6000.0",
   "author": "CodeWriter (https://github.com/orgs/codewriter-packages)",
   "homepage": "https://github.com/codewriter-packages/Tri-Inspector#readme",
   "dependencies": {

@@ -1,6 +1,9 @@
-﻿using TriInspectorUnityInternalBridge;
+﻿using TriInspector.VisualElements;
+using TriInspectorUnityInternalBridge;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector.Elements
 {
@@ -18,6 +21,17 @@ namespace TriInspector.Elements
             _property = property;
             _serializedProperty = serializedProperty;
             _propertyHandler = propertyHandler;
+        }
+
+        public override VisualElement CreateVisualElement(TriProperty property)
+        {
+            var label = _property.DisplayNameContent?.text ?? string.Empty;
+
+            var field = new TriPropertyField(_serializedProperty, label);
+            field.BindProperty(_serializedProperty);
+            field.TrackPropertyValue(_serializedProperty, _ => _property.NotifyValueChanged());
+
+            return field;
         }
 
         public override float GetHeight(float width)

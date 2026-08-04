@@ -17,12 +17,6 @@ namespace TriInspector.Editors
             _core.Dispose();
         }
 
-
-        public override void OnInspectorGUI()
-        {
-            _core.OnInspectorGUI();
-        }
-
         public override VisualElement CreateInspectorGUI()
         {
             return _core.CreateVisualElement();

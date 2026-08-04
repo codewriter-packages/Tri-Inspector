@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
 using TriInspector.Elements;
-using UnityEditor;
 
 namespace TriInspector
 {
@@ -14,70 +11,7 @@ namespace TriInspector
                 return next;
             }
 
-            var element = new TriElement();
-            element.AddChild(new TriPropertyValidationResultElement(property));
-            element.AddChild(next);
-            return element;
-        }
-
-        public class TriPropertyValidationResultElement : TriElement
-        {
-            private readonly TriProperty _property;
-            private IReadOnlyList<TriValidationResult> _validationResults;
-
-            public TriPropertyValidationResultElement(TriProperty property)
-            {
-                _property = property;
-            }
-
-            public override float GetHeight(float width)
-            {
-                if (ChildrenCount == 0)
-                {
-                    return -EditorGUIUtility.standardVerticalSpacing;
-                }
-
-                return base.GetHeight(width);
-            }
-
-            public override bool Update()
-            {
-                var dirty = base.Update();
-
-                dirty |= GenerateValidationResults();
-
-                return dirty;
-            }
-
-            private bool GenerateValidationResults()
-            {
-                if (ReferenceEquals(_property.ValidationResults, _validationResults))
-                {
-                    return false;
-                }
-
-                _validationResults = _property.ValidationResults;
-
-                RemoveAllChildren();
-
-                foreach (var result in _validationResults)
-                {
-                    var infoBox = result.FixAction != null
-                        ? new TriInfoBoxElement(result.Message, result.MessageType,
-                            inlineAction: () => ExecuteFix(result.FixAction),
-                            inlineActionContent: result.FixActionContent)
-                        : new TriInfoBoxElement(result.Message, result.MessageType);
-
-                    AddChild(infoBox);
-                }
-
-                return true;
-            }
-
-            private void ExecuteFix(Action fixAction)
-            {
-                _property.ModifyAndRecordForUndo(targetIndex => fixAction?.Invoke());
-            }
+            return new TriValidatorsElement(property, next);
         }
     }
 }
