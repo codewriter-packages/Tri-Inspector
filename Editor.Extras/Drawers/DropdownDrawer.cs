@@ -1,8 +1,8 @@
 ﻿using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Elements;
 using TriInspector.Resolvers;
-using UnityEngine;
+using TriInspector.VisualElements;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
@@ -24,9 +24,9 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriDropdownElement(property, _valuesResolver.GetDropdownItems, Attribute.Advanced);
+            return new TriDropdownVisualElement(property, _valuesResolver.GetDropdownItems, Attribute.Advanced);
         }
     }
 }

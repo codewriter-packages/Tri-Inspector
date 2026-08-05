@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using TriInspector.Elements;
-using UnityEditor;
+using TriInspector.VisualElements;
 using UnityEngine;
 using UnityEngine.Profiling;
+using UnityEngine.UIElements;
 
 namespace TriInspector
 {
@@ -12,7 +12,7 @@ namespace TriInspector
         private readonly List<TriPropertyOverrideContext> _propertyOverrides =
             new List<TriPropertyOverrideContext>();
 
-        private TriPropertyElement _rootPropertyElement;
+        private TriPropertyVisualElement _rootPropertyElement;
 
         public TriPropertyDefinition RootPropertyDefinition { get; protected set; }
         public TriProperty RootProperty { get; protected set; }
@@ -27,10 +27,6 @@ namespace TriInspector
 
         public virtual void Dispose()
         {
-            if (_rootPropertyElement != null && _rootPropertyElement.IsAttached)
-            {
-                _rootPropertyElement.DetachInternal();
-            }
         }
 
         public virtual void Update(bool forceUpdate = false)
@@ -64,11 +60,11 @@ namespace TriInspector
             RequestRepaint();
         }
 
-        public ITriElement GetRootElement()
+        public VisualElement GetRootElement()
         {
             if (_rootPropertyElement == null)
             {
-                _rootPropertyElement = new TriPropertyElement(RootProperty, new TriPropertyElement.Props
+                _rootPropertyElement = new TriPropertyVisualElement(RootProperty, new TriPropertyVisualElement.Props
                 {
                     forceInline = !RootProperty.TryGetMemberInfo(out _),
                 });

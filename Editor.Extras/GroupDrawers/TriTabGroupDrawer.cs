@@ -1,6 +1,7 @@
 ﻿using TriInspector;
-using TriInspector.Elements;
 using TriInspector.GroupDrawers;
+using TriInspector.VisualElements;
+using TriInspector.VisualElements.Groups;
 
 [assembly: RegisterTriGroupDrawer(typeof(TriTabGroupDrawer))]
 
@@ -8,9 +9,9 @@ namespace TriInspector.GroupDrawers
 {
     public class TriTabGroupDrawer : TriGroupDrawer<DeclareTabGroupAttribute>
     {
-        public override TriPropertyCollectionBaseElement CreateElement(DeclareTabGroupAttribute attribute)
+        public override TriPropertyCollectionVisualElement CreateVisualElement(DeclareTabGroupAttribute attribute)
         {
-            return new TriTabGroupElement();
+            return new TriTabGroupVisualElement();
         }
     }
 }

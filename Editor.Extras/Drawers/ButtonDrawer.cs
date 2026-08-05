@@ -1,12 +1,11 @@
-﻿using System;
+using System;
 using System.Reflection;
 using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Elements;
 using TriInspector.Resolvers;
-using TriInspector.Utilities;
-using UnityEditor;
+using TriInspector.VisualElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(ButtonDrawer), TriDrawerOrder.Drawer)]
 
@@ -33,94 +32,100 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriButtonElement(property, Attribute, _nameResolver);
+            return new TriButtonVisualElement(property, Attribute, _nameResolver);
         }
 
-        private class TriButtonElement : TriHeaderGroupBaseElement
+        private class TriButtonVisualElement : VisualElement
         {
             private readonly TriProperty _property;
-            private readonly ButtonAttribute _attribute;
             private readonly ValueResolver<string> _nameResolver;
             private readonly object[] _invocationArgs;
 
-            public TriButtonElement(TriProperty property, ButtonAttribute attribute,
+            public TriButtonVisualElement(TriProperty property, ButtonAttribute attribute,
                 ValueResolver<string> nameResolver)
             {
                 _property = property;
-                _attribute = attribute;
                 _nameResolver = nameResolver;
 
                 var mi = property.TryGetMemberInfo(out var memberInfo)
                     ? (MethodInfo) memberInfo
-                    : throw new Exception("TriButtonElement requires MethodInfo");
+                    : throw new Exception("TriButtonVisualElement requires MethodInfo");
 
                 var parameters = mi.GetParameters();
 
                 _invocationArgs = new object[parameters.Length];
 
-                for (var i = 0; i < parameters.Length; i++)
+                var button = new Button(OnButtonClicked)
                 {
-                    var pIndex = i;
-                    var pInfo = parameters[pIndex];
-
-                    if (pInfo.HasDefaultValue)
-                    {
-                        _invocationArgs[pIndex] = pInfo.DefaultValue;
-                    }
-
-                    var pTriDefinition = TriPropertyDefinition.CreateForGetterSetter(
-                        pIndex, pInfo.Name, pInfo.ParameterType,
-                        ((self, targetIndex) => _invocationArgs[pIndex]),
-                        ((self, targetIndex, value) => _invocationArgs[pIndex] = value));
-
-                    var pTriProperty = new TriProperty(_property.PropertyTree, _property, pTriDefinition, null);
-
-                    AddChild(new TriPropertyElement(pTriProperty));
-                }
-            }
-
-            protected override float GetHeaderHeight(float width)
-            {
-                return GetButtonHeight();
-            }
-
-            protected override void DrawHeader(Rect position)
-            {
-                if (_invocationArgs.Length > 0)
-                {
-                    TriEditorGUI.DrawBox(position, TriEditorStyles.TabOnlyOne);
-                }
-
-                var name = _nameResolver.GetValue(_property);
-
-                if (string.IsNullOrEmpty(name))
-                {
-                    name = _property.DisplayName;
-                }
-
-                if (string.IsNullOrEmpty(name))
-                {
-                    name = _property.RawName;
-                }
-
-                var buttonRect = new Rect(position)
-                {
-                    height = GetButtonHeight(),
+                    text = ResolveName(),
                 };
+                button.AddToClassList(Styles.Button);
 
-                if (GUI.Button(buttonRect, name))
+                if (attribute.ButtonSize != 0)
                 {
-                    InvokeButton(_property, _invocationArgs);
+                    button.style.height = attribute.ButtonSize;
                 }
+
+                Add(button);
+
+                if (parameters.Length == 0)
+                {
+                    Add(button);
+                }
+                else
+                {
+                    var box = new VisualElement();
+                    box.AddToClassList(Styles.ButtonBox);
+                    Add(box);
+
+                    box.Add(button);
+
+                    for (var i = 0; i < parameters.Length; i++)
+                    {
+                        var pIndex = i;
+                        var pInfo = parameters[pIndex];
+
+                        if (pInfo.HasDefaultValue)
+                        {
+                            _invocationArgs[pIndex] = pInfo.DefaultValue;
+                        }
+
+                        var pTriDefinition = TriPropertyDefinition.CreateForGetterSetter(
+                            pIndex, pInfo.Name, pInfo.ParameterType,
+                            ((self, targetIndex) => _invocationArgs[pIndex]),
+                            ((self, targetIndex, value) => _invocationArgs[pIndex] = value));
+
+                        var pTriProperty = new TriProperty(_property.PropertyTree, _property, pTriDefinition, null);
+
+                        box.Add(new TriPropertyVisualElement(pTriProperty));
+                    }
+                }
+
+                this.PeriodicRun(() => button.text = ResolveName());
             }
 
-            private float GetButtonHeight()
+            private string ResolveName()
             {
-                return _attribute.ButtonSize != 0
-                    ? _attribute.ButtonSize
-                    : EditorGUIUtility.singleLineHeight;
+                var buttonName = _nameResolver.GetValue(_property);
+
+                if (string.IsNullOrEmpty(buttonName))
+                {
+                    buttonName = _property.DisplayName;
+                }
+
+                if (string.IsNullOrEmpty(buttonName))
+                {
+                    buttonName = _property.RawName;
+                }
+
+                return buttonName;
+            }
+
+            private void OnButtonClicked()
+            {
+                InvokeButton(_property, _invocationArgs);
             }
         }
 
@@ -141,6 +146,12 @@ namespace TriInspector.Drawers
                     }
                 });
             }
+        }
+
+        private static class Styles
+        {
+            public const string Button = "tri-button";
+            public const string ButtonBox = "tri-button__box";
         }
     }
 }

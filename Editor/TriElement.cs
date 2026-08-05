@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using TriInspector.Elements;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace TriInspector
 {
-    public class TriElement : ITriElement
+    public class TriElement
     {
         private static readonly List<TriElement> Empty = new List<TriElement>();
 
@@ -68,12 +66,6 @@ namespace TriInspector
                     return _cachedHeight;
                 }
             }
-        }
-
-        [PublicAPI]
-        public virtual VisualElement CreateVisualElement(TriProperty property)
-        {
-            return new TriImguiContainerImpl(property, this);
         }
 
         [PublicAPI]

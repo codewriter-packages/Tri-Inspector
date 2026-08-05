@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TriInspector.Elements;
+using TriInspector.VisualElements;
 using UnityEngine;
 
 namespace TriInspector.Utilities
@@ -174,14 +174,15 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static TriPropertyCollectionBaseElement TryCreateGroupElementFor(DeclareGroupBaseAttribute attribute)
+        public static TriPropertyCollectionVisualElement TryCreateGroupVisualElementFor(
+            DeclareGroupBaseAttribute attribute)
         {
             if (!AllGroupDrawersCache.TryGetValue(attribute.GetType(), out var attr))
             {
                 return null;
             }
 
-            return attr.CreateElementInternal(attribute);
+            return attr.CreateVisualElementInternal(attribute);
         }
 
         public static IEnumerable<TriValueDrawer> CreateValueDrawersFor(Type valueType)

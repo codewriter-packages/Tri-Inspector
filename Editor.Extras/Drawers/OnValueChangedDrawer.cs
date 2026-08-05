@@ -1,6 +1,7 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(OnValueChangedDrawer), TriDrawerOrder.System)]
 
@@ -23,46 +24,28 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new OnValueChangedListenerElement(property, next, _actionResolver);
-        }
-
-        private class OnValueChangedListenerElement : TriElement
-        {
-            private readonly TriProperty _property;
-            private readonly ActionResolver _actionResolver;
-
-            public OnValueChangedListenerElement(TriProperty property, TriElement next, ActionResolver actionResolver)
+            void OnValueChanged(TriProperty _)
             {
-                _property = property;
-                _actionResolver = actionResolver;
-
-                AddChild(next);
+                property.PropertyTree.ApplyChanges();
+                _actionResolver.InvokeForAllTargets(property);
+                property.PropertyTree.Update();
             }
 
-            protected override void OnAttachToPanel()
+            next.RegisterCallback<AttachToPanelEvent>(_ =>
             {
-                base.OnAttachToPanel();
+                property.ValueChanged += OnValueChanged;
+                property.ChildValueChanged += OnValueChanged;
+            });
 
-                _property.ValueChanged += OnValueChanged;
-                _property.ChildValueChanged += OnValueChanged;
-            }
-
-            protected override void OnDetachFromPanel()
+            next.RegisterCallback<DetachFromPanelEvent>(_ =>
             {
-                _property.ChildValueChanged -= OnValueChanged;
-                _property.ValueChanged -= OnValueChanged;
+                property.ChildValueChanged -= OnValueChanged;
+                property.ValueChanged -= OnValueChanged;
+            });
 
-                base.OnDetachFromPanel();
-            }
-
-            private void OnValueChanged(TriProperty obj)
-            {
-                _property.PropertyTree.ApplyChanges();
-                _actionResolver.InvokeForAllTargets(_property);
-                _property.PropertyTree.Update();
-            }
+            return next;
         }
     }
 }

@@ -1,74 +1,75 @@
-using System;
 using System.Linq;
 using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Elements;
-using TriInspector.Utilities;
+using TriInspector.VisualElements;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 [assembly: RegisterTriAttributeDrawer(typeof(PreviewMeshDrawer), TriDrawerOrder.Decorator,
     ApplyOnArrayElement = true)]
-    
+
 namespace TriInspector.Drawers
 {
     public class PreviewMeshDrawer : TriAttributeDrawer<PreviewMeshAttribute>
     {
-        private class PreviewMeshPicker : TriElement
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            private readonly TriProperty _property;
-            private readonly bool _useFoldout;
+            return new PreviewMeshVisualElement(property, Attribute);
+        }
 
-            public PreviewMeshPicker(TriProperty property, bool useFoldout)
+        private class PreviewMeshVisualElement : TriHeaderBoxedVisualElement
+        {
+            private readonly MeshPreviewVisualElement _preview;
+
+            public PreviewMeshVisualElement(TriProperty property, PreviewMeshAttribute attribute)
+                : base(property, attribute.UseFoldout, BuildObjectField(property, attribute.UseFoldout))
             {
-                _property = property;
-                _useFoldout = useFoldout;
+                _preview = new MeshPreviewVisualElement(property, attribute.Height, attribute.Width,
+                    attribute.UseFoldout, attribute.RotationMethod);
+
+                Content.Add(_preview);
             }
 
-            public override float GetHeight(float width)
+            protected override void OnExpandedChanged(bool expanded)
             {
-                return EditorGUIUtility.singleLineHeight;
+                _preview.RefreshVisibility();
             }
-            public override void OnGUI(Rect position)
+
+            private static ObjectField BuildObjectField(TriProperty property, bool useFoldout)
             {
-                var pickerRect = position;
-                GUIContent label = new(_property.DisplayName);
+                var allowSceneObjects = property.PropertyTree.TargetIsPersistent == false;
 
-                if (_useFoldout)
+                var field = new ObjectField
                 {
-                    var prefixRect = new Rect(position)
-                    {
-                        height = EditorGUIUtility.singleLineHeight,
-                        xMax = position.xMin + EditorGUIUtility.labelWidth,
-                    };
-                    pickerRect = new Rect(position)
-                    {
-                        height = EditorGUIUtility.singleLineHeight,
-                        xMin = prefixRect.xMax,
-                    };
-
-                    TriEditorGUI.Foldout(prefixRect, _property);
-                    label = GUIContent.none;
+                    objectType = typeof(GameObject),
+                    allowSceneObjects = allowSceneObjects,
+                    value = property.Value as Object,
+                    showMixedValue = property.IsValueMixed,
+                };
+                if (!useFoldout)
+                {
+                    field.AutoSyncLabelFromProperty(property);
                 }
 
-                EditorGUI.BeginChangeCheck();
-                Object obj = _property.Value as Object;
-                var asset = EditorGUI.ObjectField(pickerRect, label, obj, typeof(GameObject), true);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    _property.SetValue(asset);
-                }
+                field.AddToClassList(BaseField<Object>.alignedFieldUssClassName);
+                field.RegisterValueChangedCallback(evt => property.SetValue(evt.newValue));
+                field.AutoSyncValueFromProperty(property);
+
+                return field;
             }
         }
 
-        private class PreviewMesh : TriElement
+        private class MeshPreviewVisualElement : VisualElement
         {
             private readonly int _height;
             private readonly int _width;
             private readonly TriProperty _property;
             private readonly bool _useFoldout;
             private readonly PreviewMeshRotationMethod _rotationMethod;
+            private readonly IMGUIContainer _imgui;
 
             private PreviewRenderUtility _previewUtility;
             private static Material _mat;
@@ -111,16 +112,27 @@ namespace TriInspector.Drawers
             private Vector2 _previewDir = new(-20f, 0f);
 
             #region Initialization
-            public PreviewMesh(TriProperty property, int size, int width, bool useFoldout, PreviewMeshRotationMethod rotationMethod)
+            public MeshPreviewVisualElement(TriProperty property, int height, int width, bool useFoldout, PreviewMeshRotationMethod rotationMethod)
             {
                 _property = property;
-                _height = size;
+                _height = height;
                 _width = width;
                 _useFoldout = useFoldout;
                 _rotationMethod = rotationMethod;
+
+                _imgui = new IMGUIContainer(OnPreviewGUI);
+                _imgui.style.height = _height;
+                Add(_imgui);
+
+                style.display = DisplayStyle.None;
+                style.width = width;
+                style.height = height;
+
+                RegisterCallback<AttachToPanelEvent>(OnAttachToPanel);
+                RegisterCallback<DetachFromPanelEvent>(OnDetachFromPanel);
             }
 
-            protected override void OnAttachToPanel()
+            private void OnAttachToPanel(AttachToPanelEvent evt)
             {
                 _previewUtility = new();
                 _property.ValueChanged += OnValueChanged;
@@ -137,60 +149,53 @@ namespace TriInspector.Drawers
                 _previewUtility.camera.backgroundColor = Color.black;
                 _previewUtility.camera.clearFlags = CameraClearFlags.Color;
 
-                base.OnAttachToPanel();
-
                 GetMeshObject();
+                RefreshVisibility();
             }
 
-            protected override void OnDetachFromPanel()
+            private void OnDetachFromPanel(DetachFromPanelEvent evt)
             {
-                _previewUtility.Cleanup();
+                _previewUtility?.Cleanup();
                 _previewUtility = null;
 
                 _property.ValueChanged -= OnValueChanged;
-
-                base.OnDetachFromPanel();
             }
 
             private void OnValueChanged(TriProperty property)
             {
                 GetMeshObject();
+                RefreshVisibility();
             }
 
-            public override float GetHeight(float width)
+            public void RefreshVisibility()
             {
-                if (_sharedMesh == null)
-                {
-                    return 0f;
-                }
-                if (!_useFoldout || _property.IsExpanded)
-                {
-                    return _height;
-                }
-                return 0f;
+                var shouldShow = _sharedMesh != null && (!_useFoldout || _property.IsExpanded);
+                style.display = shouldShow ? DisplayStyle.Flex : DisplayStyle.None;
             }
 
-            public override void OnGUI(Rect position)
+            private void OnPreviewGUI()
             {
-                if (_sharedMesh == null)
-                {
-                    return;
-                }
-                float currentWidth = _width == -1 ? (int) position.width : _width;
-                currentWidth = Math.Max(currentWidth, _c_MIN_WIDTH);
-
-                if (position.height == 0f)
+                if (_sharedMesh == null || _previewUtility == null)
                 {
                     return;
                 }
 
-                position = new Rect(position.x, position.y, currentWidth, _height);
+                var containerWidth = _imgui.contentRect.width;
+                var currentWidth = _width == -1 ? containerWidth : _width;
+                currentWidth = Mathf.Max(currentWidth, _c_MIN_WIDTH);
+
+                if (containerWidth <= 0f)
+                {
+                    return;
+                }
+
+                var position = new Rect(0f, 0f, currentWidth, _height);
                 _previewUtility.BeginPreview(position, GUIStyle.none);
                 _previewUtility.DrawMesh(_sharedMesh, Matrix4x4.TRS(Vector3.zero, _previewQuaternion, Vector3.one), GetMat, 0);
                 _previewUtility.camera.Render();
 
                 Texture result = _previewUtility.EndPreview();
-                
+
                 if (result)
                 {
                     GUI.DrawTexture(position, result, ScaleMode.ScaleToFit, false);
@@ -268,6 +273,7 @@ namespace TriInspector.Drawers
                         var cameraMovement = mouseEvent.delta * _c_ROTATION_SENSITIVITY;
                         HandlePreviewCameraRotation(cameraMovement);
                         mouseEvent.Use();
+                        _imgui.MarkDirtyRepaint();
                         break;
 
                     case EventType.ScrollWheel:
@@ -276,6 +282,7 @@ namespace TriInspector.Drawers
                         {
                             UpdatePreviewCamera();
                             mouseEvent.Use();
+                            _imgui.MarkDirtyRepaint();
                         }
                         break;
 
@@ -305,17 +312,5 @@ namespace TriInspector.Drawers
 
             #endregion
         }
-
-        public override TriElement CreateElement(TriProperty property, TriElement next)
-        {
-            var root = new TriBoxGroupElement(new TriBoxGroupElement.Props
-            {
-                titleMode = TriBoxGroupElement.TitleMode.Hidden,
-            });
-            root.AddChild(new PreviewMeshPicker(property, Attribute.UseFoldout));
-            root.AddChild(new PreviewMesh(property, Attribute.Height, Attribute.Width, Attribute.UseFoldout, Attribute.RotationMethod));
-            return root;
-        }
-
     }
 }

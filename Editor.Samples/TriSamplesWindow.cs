@@ -2,27 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using TriInspector.Editors;
+using TriInspector.VisualElements;
 using UnityEditor;
-using UnityEditor.IMGUI.Controls;
+using UnityEditor.UIElements;
 using UnityEngine;
-
-#if UNITY_6000_2_OR_NEWER
-using TreeView = UnityEditor.IMGUI.Controls.TreeView<int>;
-using TreeViewState = UnityEditor.IMGUI.Controls.TreeViewState<int>;
-using TreeViewItem = UnityEditor.IMGUI.Controls.TreeViewItem<int>;
-#endif
+using UnityEngine.UIElements;
 
 namespace TriInspector.Editor.Samples
 {
     internal class TriSamplesWindow : EditorWindow
     {
-        private MenuTree _menuTree;
-        private SearchField _searchField;
+        private readonly List<Type> _sampleTypes = new List<Type>();
 
         private ScriptableObject _current;
         private UnityEditor.Editor _currentEditor;
         private MonoScript _currentMonoScript;
-        private Vector2 _currentScroll;
+
+        private TreeView _menuTree;
+        private VisualElement _detailContainer;
 
         [MenuItem("Tools/Tri Inspector/Samples")]
         public static void Open()
@@ -32,15 +29,52 @@ namespace TriInspector.Editor.Samples
             window.Show();
         }
 
-        private void OnEnable()
+        private void CreateGUI()
         {
-            _menuTree = new MenuTree(new TreeViewState());
-            _menuTree.SelectedTypeChanged += ChangeCurrentSample;
+            CollectSampleTypes();
 
-            _searchField = new SearchField();
-            _searchField.downOrUpArrowKeyPressed += _menuTree.SetFocusAndEnsureSelectedItem;
+            var root = rootVisualElement;
+            TriStyleSheet.ApplyTo(root);
+            root.AddToClassList(EditorGUIUtility.isProSkin ? "tri-dark" : "tri-light");
+            root.AddToClassList(TriStyles.Samples);
 
-            _menuTree.Reload();
+            var leftPane = new VisualElement();
+            leftPane.AddToClassList(TriStyles.SamplesMenu);
+            root.Add(leftPane);
+
+            var searchField = new ToolbarSearchField();
+            searchField.AddToClassList(TriStyles.SamplesSearch);
+            searchField.RegisterValueChangedCallback(evt => RebuildMenu(evt.newValue));
+            leftPane.Add(searchField);
+
+            _menuTree = new TreeView
+            {
+                fixedItemHeight = 20,
+                selectionType = SelectionType.Single,
+                makeItem = MakeTreeItem,
+            };
+            _menuTree.AddToClassList(TriStyles.SamplesTree);
+            _menuTree.bindItem = (element, index) =>
+                ((Label) element).text = _menuTree.GetItemDataForIndex<MenuEntry>(index).Name;
+            _menuTree.selectionChanged += OnMenuSelectionChanged;
+            leftPane.Add(_menuTree);
+
+            var rightPane = new ScrollView();
+            rightPane.AddToClassList(TriStyles.SamplesDetailScroll);
+            root.Add(rightPane);
+
+            _detailContainer = new VisualElement();
+            _detailContainer.AddToClassList(TriStyles.SamplesDetail);
+            rightPane.Add(_detailContainer);
+
+            RebuildMenu(string.Empty);
+        }
+
+        private static VisualElement MakeTreeItem()
+        {
+            var label = new Label();
+            label.AddToClassList(TriStyles.SamplesTreeItem);
+            return label;
         }
 
         private void OnDisable()
@@ -48,79 +82,67 @@ namespace TriInspector.Editor.Samples
             ChangeCurrentSample(null);
         }
 
-        private void OnGUI()
+        private void CollectSampleTypes()
         {
-            using (new GUILayout.HorizontalScope())
+            _sampleTypes.Clear();
+            _sampleTypes.AddRange(typeof(TriSamplesWindow).Assembly.GetTypes()
+                .Where(type => type.BaseType == typeof(ScriptableObject) && type.Name.EndsWith("Sample"))
+                .OrderBy(type => type.Name));
+        }
+
+        private void RebuildMenu(string search)
+        {
+            var hasSearch = !string.IsNullOrEmpty(search);
+
+            var groups = new List<KeyValuePair<string, List<Type>>>();
+            var groupLookup = new Dictionary<string, List<Type>>();
+
+            foreach (var type in _sampleTypes)
             {
-                using (new GUILayout.VerticalScope(GUILayout.Width(200)))
+                if (hasSearch &&
+                    GetTypeNiceName(type).IndexOf(search, StringComparison.OrdinalIgnoreCase) < 0)
                 {
-                    DrawMenu();
+                    continue;
                 }
 
-                var separatorRect = GUILayoutUtility.GetLastRect();
-                separatorRect.xMin = separatorRect.xMax;
-                separatorRect.xMax += 1;
-                GUI.Box(separatorRect, "");
-
-                using (new GUILayout.VerticalScope())
+                var group = type.Name.Split('_')[0];
+                if (!groupLookup.TryGetValue(group, out var list))
                 {
-                    DrawElement();
+                    groupLookup[group] = list = new List<Type>();
+                    groups.Add(new KeyValuePair<string, List<Type>>(group, list));
                 }
+
+                list.Add(type);
+            }
+
+            var id = 0;
+            var roots = new List<TreeViewItemData<MenuEntry>>();
+            foreach (var group in groups)
+            {
+                var children = new List<TreeViewItemData<MenuEntry>>();
+                foreach (var type in group.Value)
+                {
+                    children.Add(new TreeViewItemData<MenuEntry>(
+                        id++, new MenuEntry(GetTypeNiceName(type), type)));
+                }
+
+                roots.Add(new TreeViewItemData<MenuEntry>(
+                    id++, new MenuEntry(group.Key, null), children));
+            }
+
+            _menuTree.SetRootItems(roots);
+            _menuTree.Rebuild();
+
+            if (hasSearch)
+            {
+                _menuTree.ExpandAll();
             }
         }
 
-        private void DrawMenu()
+        private void OnMenuSelectionChanged(IEnumerable<object> selection)
         {
-            using (new GUILayout.HorizontalScope(EditorStyles.toolbar, GUILayout.ExpandWidth(true)))
-            {
-                GUILayout.Space(5);
-                _menuTree.searchString = _searchField.OnToolbarGUI(_menuTree.searchString, GUILayout.ExpandWidth(true));
-                GUILayout.Space(5);
-            }
-
-            var menuRect = GUILayoutUtility.GetRect(0, 100000, 0, 100000);
-            _menuTree.OnGUI(menuRect);
-        }
-
-        private void DrawElement()
-        {
-            if (_currentEditor == null || _currentMonoScript == null)
-            {
-                return;
-            }
-
-            using (var scrollScope = new GUILayout.ScrollViewScope(_currentScroll))
-            {
-                _currentScroll = scrollScope.scrollPosition;
-
-                using (new GUILayout.VerticalScope(SampleWindowStyles.Padding))
-                {
-                    GUILayout.Label(_current.name, SampleWindowStyles.HeaderDisplayNameLabel);
-
-                    if (_currentEditor.GetType() != typeof(TriScriptableObjectEditor))
-                    {
-                        EditorGUILayout.HelpBox(
-                            "Detected third party asset that overrides all inspectors. Tri-Inspector's attributes might not work\n" +
-                            _currentEditor.GetType().FullName, MessageType.Error);
-                    }
-
-                    GUILayout.Space(10);
-                    GUILayout.Label("Preview", EditorStyles.boldLabel);
-
-                    using (new GUILayout.VerticalScope(SampleWindowStyles.BoxWithPadding))
-                    {
-                        _currentEditor.OnInspectorGUI();
-                    }
-
-                    GUILayout.Space(10);
-                    GUILayout.Label("Code", EditorStyles.boldLabel);
-
-                    using (new GUILayout.VerticalScope(SampleWindowStyles.BoxWithPadding))
-                    {
-                        GUILayout.TextField(_currentMonoScript.text);
-                    }
-                }
-            }
+            var type = selection.OfType<MenuEntry>().Select(entry => entry.Type).FirstOrDefault();
+            ChangeCurrentSample(type);
         }
 
         private void ChangeCurrentSample(Type type)
@@ -131,19 +153,73 @@ namespace TriInspector.Editor.Samples
                 _current = null;
             }
 
-            DestroyImmediate(_currentEditor);
-
-            _currentScroll = Vector2.zero;
-
-            if (type != null)
+            if (_currentEditor != null)
             {
-                _current = CreateInstance(type);
-                _current.name = GetTypeNiceName(type);
-                _current.hideFlags = HideFlags.DontSave;
-
-                _currentEditor = UnityEditor.Editor.CreateEditor(_current);
-                _currentMonoScript = MonoScript.FromScriptableObject(_current);
+                DestroyImmediate(_currentEditor);
+                _currentEditor = null;
             }
+
+            _currentMonoScript = null;
+
+            _detailContainer?.Clear();
+
+            if (type == null)
+            {
+                return;
+            }
+
+            _current = CreateInstance(type);
+            _current.name = GetTypeNiceName(type);
+            _current.hideFlags = HideFlags.DontSave;
+
+            _currentEditor = UnityEditor.Editor.CreateEditor(_current);
+            _currentMonoScript = MonoScript.FromScriptableObject(_current);
+
+            BuildDetail();
+        }
+
+        private void BuildDetail()
+        {
+            var header = new Label(_current.name);
+            header.AddToClassList(TriStyles.SamplesHeader);
+            _detailContainer.Add(header);
+
+            if (_currentEditor.GetType() != typeof(TriScriptableObjectEditor))
+            {
+                _detailContainer.Add(new HelpBox(
+                    "Detected third party asset that overrides all inspectors. " +
+                    "Tri-Inspector's attributes might not work\n" +
+                    _currentEditor.GetType().FullName, HelpBoxMessageType.Error));
+            }
+
+            _detailContainer.Add(CreateSectionLabel("Preview"));
+            var previewBox = CreateBox();
+            previewBox.Add(new InspectorElement(_currentEditor));
+            _detailContainer.Add(previewBox);
+
+            _detailContainer.Add(CreateSectionLabel("Code"));
+            var codeBox = CreateBox();
+            codeBox.Add(new TextField
+            {
+                multiline = true,
+                isReadOnly = true,
+                value = _currentMonoScript.text,
+            });
+            _detailContainer.Add(codeBox);
+        }
+
+        private static Label CreateSectionLabel(string text)
+        {
+            var label = new Label(text);
+            label.AddToClassList(TriStyles.SamplesSection);
+            return label;
+        }
+
+        private static VisualElement CreateBox()
+        {
+            var box = new VisualElement();
+            box.AddToClassList(TriStyles.SamplesBox);
+            return box;
         }
 
         private static string GetTypeNiceName(Type type)
@@ -164,74 +240,15 @@ namespace TriInspector.Editor.Samples
             return name;
         }
 
-        private class MenuTree : TreeView
+        private readonly struct MenuEntry
         {
-            private readonly Dictionary<string, GroupItem> _groups = new Dictionary<string, GroupItem>();
+            public readonly string Name;
+            public readonly Type Type;
 
-            public event Action<Type> SelectedTypeChanged;
-
-            public MenuTree(TreeViewState state) : base(state)
+            public MenuEntry(string name, Type type)
             {
-            }
-
-            protected override bool CanMultiSelect(TreeViewItem item)
-            {
-                return false;
-            }
-
-            protected override void SelectionChanged(IList<int> selectedIds)
-            {
-                base.SelectionChanged(selectedIds);
-
-                var type = selectedIds.Count > 0 && FindItem(selectedIds[0], rootItem) is SampleItem sampleItem
-                    ? sampleItem.Type
-                    : null;
-
-                SelectedTypeChanged?.Invoke(type);
-            }
-
-            protected override TreeViewItem BuildRoot()
-            {
-                var root = new TreeViewItem(-1, -1);
-
-                var sampleTypes = typeof(TriSamplesWindow).Assembly.GetTypes()
-                    .Where(type => type.BaseType == typeof(ScriptableObject) && type.Name.EndsWith("Sample"))
-                    .OrderBy(type => type.Name)
-                    .ToList();
-
-                var id = 0;
-                foreach (var sampleType in sampleTypes)
-                {
-                    var group = sampleType.Name.Split('_')[0];
-
-                    if (!_groups.TryGetValue(group, out var groupItem))
-                    {
-                        _groups[group] = groupItem = new GroupItem(++id, group);
-
-                        root.AddChild(groupItem);
-                    }
-
-                    groupItem.AddChild(new SampleItem(++id, sampleType));
-                }
-
-                return root;
-            }
-
-            private class GroupItem : TreeViewItem
-            {
-                public GroupItem(int id, string name) : base(id, 0, name)
-                {
-                }
-            }
-
-            private class SampleItem : TreeViewItem
-            {
-                public Type Type { get; }
-
-                public SampleItem(int id, Type type) : base(id, 1, GetTypeNiceName(type))
-                {
-                    Type = type;
-                }
+                Name = name;
+                Type = type;
             }
         }
     }

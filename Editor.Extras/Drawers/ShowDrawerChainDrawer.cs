@@ -2,7 +2,8 @@
 using System.Text;
 using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Elements;
+using TriInspector.VisualElements;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(ShowDrawerChainDrawer), TriDrawerOrder.System)]
 
@@ -10,15 +11,15 @@ namespace TriInspector.Drawers
 {
     public class ShowDrawerChainDrawer : TriAttributeDrawer<ShowDrawerChainAttribute>
     {
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriDrawerChainInfoElement(property.AllDrawers, next);
+            var container = new VisualElement();
+            container.Add(new TriInfoBoxVisualElement(BuildInfo(property.AllDrawers), TriMessageType.None));
+            container.Add(next);
+            return container;
         }
-    }
 
-    public class TriDrawerChainInfoElement : TriElement
-    {
-        public TriDrawerChainInfoElement(IReadOnlyList<TriCustomDrawer> drawers, TriElement next)
+        private static string BuildInfo(IReadOnlyList<TriCustomDrawer> drawers)
         {
             var info = new StringBuilder();
 
@@ -31,8 +32,7 @@ namespace TriInspector.Drawers
                 info.Append(i).Append(": ").Append(drawer.GetType().Name);
             }
 
-            AddChild(new TriInfoBoxElement(info.ToString()));
-            AddChild(next);
+            return info.ToString();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using TriInspector;
-using TriInspector.Elements;
 using TriInspector.GroupDrawers;
-using UnityEngine;
+using TriInspector.VisualElements;
+using TriInspector.VisualElements.Groups;
 
 [assembly: RegisterTriGroupDrawer(typeof(TriHorizontalGroupDrawer))]
 
@@ -9,9 +9,9 @@ namespace TriInspector.GroupDrawers
 {
     public class TriHorizontalGroupDrawer : TriGroupDrawer<DeclareHorizontalGroupAttribute>
     {
-        public override TriPropertyCollectionBaseElement CreateElement(DeclareHorizontalGroupAttribute attribute)
+        public override TriPropertyCollectionVisualElement CreateVisualElement(DeclareHorizontalGroupAttribute attribute)
         {
-            return new TriHorizontalGroupElement(attribute.Sizes);
+            return new TriHorizontalGroupVisualElement(attribute.Sizes);
         }
     }
 }

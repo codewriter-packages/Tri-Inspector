@@ -1,9 +1,12 @@
 ﻿using System;
 using TriInspector;
 using TriInspector.Drawers;
+using TriInspector.VisualElements;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriValueDrawer(typeof(IntegerDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(LongDrawer), TriDrawerOrder.Fallback)]
@@ -30,195 +33,132 @@ namespace TriInspector.Drawers
 {
     public class StringDrawer : BuiltinDrawerBase<string>
     {
-        protected override string OnValueGUI(Rect position, GUIContent label, string value)
-        {
-            return EditorGUI.TextField(position, label, value);
-        }
+        protected override BaseField<string> CreateField() => new TextField();
     }
 
     public class BooleanDrawer : BuiltinDrawerBase<bool>
     {
-        protected override bool OnValueGUI(Rect position, GUIContent label, bool value)
-        {
-            return EditorGUI.Toggle(position, label, value);
-        }
+        protected override BaseField<bool> CreateField() => new Toggle();
     }
 
     public class IntegerDrawer : BuiltinDrawerBase<int>
     {
-        protected override int OnValueGUI(Rect position, GUIContent label, int value)
-        {
-            return EditorGUI.IntField(position, label, value);
-        }
+        protected override BaseField<int> CreateField() => new IntegerField();
     }
 
     public class LongDrawer : BuiltinDrawerBase<long>
     {
-        protected override long OnValueGUI(Rect position, GUIContent label, long value)
-        {
-            return EditorGUI.LongField(position, label, value);
-        }
+        protected override BaseField<long> CreateField() => new LongField();
     }
 
     public class FloatDrawer : BuiltinDrawerBase<float>
     {
-        protected override float OnValueGUI(Rect position, GUIContent label, float value)
-        {
-            return EditorGUI.FloatField(position, label, value);
-        }
+        protected override BaseField<float> CreateField() => new FloatField();
     }
 
     public class ColorDrawer : BuiltinDrawerBase<Color>
     {
-        protected override Color OnValueGUI(Rect position, GUIContent label, Color value)
-        {
-            return EditorGUI.ColorField(position, label, value);
-        }
+        protected override BaseField<Color> CreateField() => new ColorField();
     }
 
     public class Color32Drawer : BuiltinDrawerBase<Color32>
     {
-        protected override Color32 OnValueGUI(Rect position, GUIContent label, Color32 value)
+        public override VisualElement CreateVisualElement(TriValue<Color32> propertyValue, VisualElement next)
         {
-            return EditorGUI.ColorField(position, label, value);
+            if (propertyValue.Property.TryGetSerializedProperty(out _))
+            {
+                return next;
+            }
+
+            return TriBuiltinFieldFactory.Create(propertyValue, new ColorField(), v => v, v => v);
         }
     }
 
     public class LayerMaskDrawer : BuiltinDrawerBase<LayerMask>
     {
-        protected override LayerMask OnValueGUI(Rect position, GUIContent label, LayerMask value)
+        public override VisualElement CreateVisualElement(TriValue<LayerMask> propertyValue, VisualElement next)
         {
-            var mask = InternalEditorUtility.LayerMaskToConcatenatedLayersMask(value);
-            var layers = InternalEditorUtility.layers;
+            if (propertyValue.Property.TryGetSerializedProperty(out _))
+            {
+                return next;
+            }
 
-            position = EditorGUI.PrefixLabel(position, label);
-            return EditorGUI.MaskField(position, mask, layers);
+            return TriBuiltinFieldFactory.Create(propertyValue, new LayerMaskField(), v => v.value, v => v);
         }
     }
 
     public class EnumDrawer : BuiltinDrawerBase<Enum>
     {
-        protected override Enum OnValueGUI(Rect position, GUIContent label, Enum value)
+        public override VisualElement CreateVisualElement(TriValue<Enum> propertyValue, VisualElement next)
         {
-            return EditorGUI.EnumPopup(position, label, value);
+            if (propertyValue.Property.TryGetSerializedProperty(out _))
+            {
+                return next;
+            }
+
+            var enumType = propertyValue.Property.FieldType;
+            var current = propertyValue.SmartValue ?? (Enum) Enum.ToObject(enumType, 0);
+
+            BaseField<Enum> field = enumType.IsDefined(typeof(FlagsAttribute), false)
+                ? new EnumFlagsField(current)
+                : new EnumField(current);
+
+            return TriBuiltinFieldFactory.Create(propertyValue, field);
         }
     }
 
     public class Vector2Drawer : BuiltinDrawerBase<Vector2>
     {
-        public override int CompactModeLines => 2;
-
-        protected override Vector2 OnValueGUI(Rect position, GUIContent label, Vector2 value)
-        {
-            return EditorGUI.Vector2Field(position, label, value);
-        }
+        protected override BaseField<Vector2> CreateField() => new Vector2Field();
     }
 
     public class Vector3Drawer : BuiltinDrawerBase<Vector3>
     {
-        public override int CompactModeLines => 2;
-
-        protected override Vector3 OnValueGUI(Rect position, GUIContent label, Vector3 value)
-        {
-            return EditorGUI.Vector3Field(position, label, value);
-        }
+        protected override BaseField<Vector3> CreateField() => new Vector3Field();
     }
 
     public class Vector4Drawer : BuiltinDrawerBase<Vector4>
     {
-        public override int CompactModeLines => 2;
-
-        protected override Vector4 OnValueGUI(Rect position, GUIContent label, Vector4 value)
-        {
-            return EditorGUI.Vector4Field(position, label, value);
-        }
+        protected override BaseField<Vector4> CreateField() => new Vector4Field();
     }
 
     public class RectDrawer : BuiltinDrawerBase<Rect>
     {
-        public override int CompactModeLines => 3;
-        public override int WideModeLines => 2;
-
-        protected override Rect OnValueGUI(Rect position, GUIContent label, Rect value)
-        {
-            return EditorGUI.RectField(position, label, value);
-        }
+        protected override BaseField<Rect> CreateField() => new RectField();
     }
 
     public class AnimationCurveDrawer : BuiltinDrawerBase<AnimationCurve>
     {
-        protected override AnimationCurve OnValueGUI(Rect position, GUIContent label, AnimationCurve value)
-        {
-            return EditorGUI.CurveField(position, label, value);
-        }
+        protected override BaseField<AnimationCurve> CreateField() => new CurveField();
     }
 
     public class BoundsDrawer : BuiltinDrawerBase<Bounds>
     {
-        public override int CompactModeLines => 3;
-        public override int WideModeLines => 3;
-
-        protected override Bounds OnValueGUI(Rect position, GUIContent label, Bounds value)
-        {
-            return EditorGUI.BoundsField(position, label, value);
-        }
+        protected override BaseField<Bounds> CreateField() => new BoundsField();
     }
 
     public class GradientDrawer : BuiltinDrawerBase<Gradient>
     {
-        private static readonly GUIContent NullLabel = new GUIContent("Gradient is null");
-
-        protected override Gradient OnValueGUI(Rect position, GUIContent label, Gradient value)
-        {
-            if (value == null)
-            {
-                EditorGUI.LabelField(position, label, NullLabel);
-                return null;
-            }
-
-            return EditorGUI.GradientField(position, label, value);
-        }
+        protected override BaseField<Gradient> CreateField() => new GradientField();
     }
 
     public class Vector2IntDrawer : BuiltinDrawerBase<Vector2Int>
     {
-        public override int CompactModeLines => 2;
-
-        protected override Vector2Int OnValueGUI(Rect position, GUIContent label, Vector2Int value)
-        {
-            return EditorGUI.Vector2IntField(position, label, value);
-        }
+        protected override BaseField<Vector2Int> CreateField() => new Vector2IntField();
     }
 
     public class Vector3IntDrawer : BuiltinDrawerBase<Vector3Int>
     {
-        public override int CompactModeLines => 2;
-
-        protected override Vector3Int OnValueGUI(Rect position, GUIContent label, Vector3Int value)
-        {
-            return EditorGUI.Vector3IntField(position, label, value);
-        }
+        protected override BaseField<Vector3Int> CreateField() => new Vector3IntField();
     }
 
     public class RectIntDrawer : BuiltinDrawerBase<RectInt>
     {
-        public override int CompactModeLines => 3;
-        public override int WideModeLines => 2;
-
-        protected override RectInt OnValueGUI(Rect position, GUIContent label, RectInt value)
-        {
-            return EditorGUI.RectIntField(position, label, value);
-        }
+        protected override BaseField<RectInt> CreateField() => new RectIntField();
     }
 
     public class BoundsIntDrawer : BuiltinDrawerBase<BoundsInt>
     {
-        public override int CompactModeLines => 3;
-        public override int WideModeLines => 3;
-
-        protected override BoundsInt OnValueGUI(Rect position, GUIContent label, BoundsInt value)
-        {
-            return EditorGUI.BoundsIntField(position, label, value);
-        }
+        protected override BaseField<BoundsInt> CreateField() => new BoundsIntField();
     }
 }

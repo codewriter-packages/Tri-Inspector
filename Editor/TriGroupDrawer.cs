@@ -1,23 +1,28 @@
 ﻿using System;
 using JetBrains.Annotations;
-using TriInspector.Elements;
+using TriInspector.VisualElements;
 
 namespace TriInspector
 {
     public abstract class TriGroupDrawer
     {
-        public abstract TriPropertyCollectionBaseElement CreateElementInternal(Attribute attribute);
+        public virtual TriPropertyCollectionVisualElement CreateVisualElementInternal(Attribute attribute)
+        {
+            return null;
+        }
     }
 
     public abstract class TriGroupDrawer<TAttribute> : TriGroupDrawer
         where TAttribute : Attribute
     {
-        public sealed override TriPropertyCollectionBaseElement CreateElementInternal(Attribute attribute)
+        public sealed override TriPropertyCollectionVisualElement CreateVisualElementInternal(Attribute attribute)
         {
-            return CreateElement((TAttribute) attribute);
+            return CreateVisualElement((TAttribute) attribute);
         }
-
         [PublicAPI]
-        public abstract TriPropertyCollectionBaseElement CreateElement(TAttribute attribute);
+        public virtual TriPropertyCollectionVisualElement CreateVisualElement(TAttribute attribute)
+        {
+            return null;
+        }
     }
 }

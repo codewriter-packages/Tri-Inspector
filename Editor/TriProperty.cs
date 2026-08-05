@@ -29,12 +29,13 @@ namespace TriInspector
         private string _propertyPath;
         private string _isExpandedPrefsKey;
 
-        private int _lastUpdateFrame;
+        private int _lastUpdateFrame = -1;
         private bool _isUpdating;
 
         [CanBeNull] private object _value;
         [CanBeNull] private Type _valueType;
         private bool _isValueMixed;
+        private int _arrayHash;
 
         public event Action<TriProperty> ValueChanged;
         public event Action<TriProperty> ChildValueChanged;
@@ -376,15 +377,16 @@ namespace TriInspector
 
             PropertyTree.Update(forceUpdate: true);
 
-            NotifyValueChanged();
-
+            UpdateIfRequired(forceUpdate: true);
             PropertyTree.RequestValidation();
-            PropertyTree.RequestRepaint();
         }
 
-        public void NotifyValueChanged()
+        // Re-reads the value and fires ValueChanged if it actually changed. Use this when the value
+        // may have been mutated outside of TriProperty.SetValue (e.g. by a bound native field or a
+        // script), so the change is detected once rather than announced blindly.
+        public void RefreshValue()
         {
-            NotifyValueChanged(this);
+            UpdateIfRequired(forceUpdate: true);
         }
 
         private void NotifyValueChanged(TriProperty property)
@@ -415,8 +417,11 @@ namespace TriInspector
 
             _isUpdating = true;
 
+            var valueChanged = false;
+
             try
             {
+                var isFirstUpdate = _lastUpdateFrame < 0;
                 _lastUpdateFrame = PropertyTree.RepaintFrame;
 
                 ReadValue(this, out var newValue, out var newValueIsMixed);
@@ -425,6 +430,23 @@ namespace TriInspector
                     : ReferenceEquals(_value, newValue) ? _valueType
                     : newValue?.GetType();
                 var valueTypeChanged = _valueType != newValueType;
+
+                bool contentChanged;
+                if (PropertyType == TriPropertyType.Array)
+                {
+                    // Arrays are mutated in place, so the cached reference would be compared against
+                    // itself. Snapshot an order-sensitive hash of the element hashes instead, which
+                    // detects add/remove/reorder as well as element value changes.
+                    var newArrayHash = ComputeArrayHash(newValue as IList);
+                    contentChanged = newArrayHash != _arrayHash;
+                    _arrayHash = newArrayHash;
+                }
+                else
+                {
+                    contentChanged = valueTypeChanged || !ValuesEqual(_value, newValue, newValueType);
+                }
+
+                valueChanged = !isFirstUpdate && (contentChanged || _isValueMixed != newValueIsMixed);
 
                 _value = newValue;
                 _valueType = newValueType;
@@ -495,6 +517,48 @@ namespace TriInspector
             {
                 _isUpdating = false;
             }
+
+            // Value may change outside of TriInspector (e.g. from a script or Undo), and internal
+            // edits route through here too. Notify listeners and re-run validation reactively.
+            if (valueChanged)
+            {
+                PropertyTree.RequestValidation();
+                NotifyValueChanged(this);
+            }
+        }
+
+        private static bool ValuesEqual(object a, object b, Type valueType)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            if (a == null || b == null || valueType == null)
+            {
+                return false;
+            }
+
+            return TriEqualityComparer.Of(valueType).Equals(a, b);
+        }
+
+        private int ComputeArrayHash(IList list)
+        {
+            if (list == null)
+            {
+                return 0;
+            }
+
+            var comparer = TriEqualityComparer.Of(ArrayElementType);
+
+            var hash = list.Count;
+            foreach (var element in list)
+            {
+                var elementHash = element != null ? comparer.GetHashCode(element) : 0;
+                hash = unchecked(hash * 31 + elementHash);
+            }
+
+            return hash;
         }
 
         internal void RunValidation()

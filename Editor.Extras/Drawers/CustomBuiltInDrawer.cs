@@ -1,8 +1,9 @@
 ﻿using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Elements;
 using TriInspector.Utilities;
+using TriInspector.VisualElements;
 using TriInspectorUnityInternalBridge;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriValueDrawer(typeof(CustomBuiltInDrawer), TriDrawerOrder.Fallback - 999)]
 
@@ -10,7 +11,7 @@ namespace TriInspector.Drawers
 {
     public class CustomBuiltInDrawer : TriValueDrawer<object>
     {
-        public override TriElement CreateElement(TriValue<object> propertyValue, TriElement next)
+        public override VisualElement CreateVisualElement(TriValue<object> propertyValue, VisualElement next)
         {
             if (propertyValue.Property.IsRootProperty)
             {
@@ -29,7 +30,7 @@ namespace TriInspector.Drawers
 
                 if (drawWithHandler)
                 {
-                    return new TriBuiltInPropertyElement(property, serializedProperty, handler);
+                    return new TriBuiltInPropertyVisualElement(property, serializedProperty);
                 }
             }
 

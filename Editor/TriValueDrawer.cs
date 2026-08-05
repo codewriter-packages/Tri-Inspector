@@ -1,5 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector
 {
@@ -9,24 +10,29 @@ namespace TriInspector
 
     public abstract class TriValueDrawer<TValue> : TriValueDrawer
     {
-        public sealed override TriElement CreateElementInternal(TriProperty property, TriElement next)
+        public sealed override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return CreateElement(new TriValue<TValue>(property), next);
+            return CreateVisualElement(new TriValue<TValue>(property), next);
         }
 
-        [PublicAPI]
+        public virtual VisualElement CreateVisualElement(TriValue<TValue> propertyValue, VisualElement next)
+        {
+            return null;
+        }
+
+        [Obsolete("Use CreateVisualElement instead")]
         public virtual TriElement CreateElement(TriValue<TValue> propertyValue, TriElement next)
         {
             return new DefaultValueDrawerElement<TValue>(this, propertyValue, next);
         }
 
-        [PublicAPI]
+        [Obsolete("Use CreateVisualElement instead")]
         public virtual float GetHeight(float width, TriValue<TValue> propertyValue, TriElement next)
         {
             return next.GetHeight(width);
         }
 
-        [PublicAPI]
+        [Obsolete("Use CreateVisualElement instead")]
         public virtual void OnGUI(Rect position, TriValue<TValue> propertyValue, TriElement next)
         {
             next.OnGUI(position);

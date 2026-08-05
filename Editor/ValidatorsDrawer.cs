@@ -1,17 +1,18 @@
-using TriInspector.Elements;
+using TriInspector.VisualElements;
+using UnityEngine.UIElements;
 
 namespace TriInspector
 {
     internal class ValidatorsDrawer : TriCustomDrawer
     {
-        public override TriElement CreateElementInternal(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
             if (!property.HasValidators)
             {
                 return next;
             }
 
-            return new TriValidatorsElement(property, next);
+            return new TriValidationResultsVisualElement(property, next);
         }
     }
 }

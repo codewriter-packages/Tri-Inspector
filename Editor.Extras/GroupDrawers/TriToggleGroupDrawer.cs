@@ -1,6 +1,7 @@
 ﻿using TriInspector;
-using TriInspector.Elements;
 using TriInspector.GroupDrawers;
+using TriInspector.VisualElements;
+using TriInspector.VisualElements.Groups;
 
 [assembly: RegisterTriGroupDrawer(typeof(TriToggleGroupDrawer))]
 
@@ -8,15 +9,10 @@ namespace TriInspector.GroupDrawers
 {
     public class TriToggleGroupDrawer : TriGroupDrawer<DeclareToggleGroupAttribute>
     {
-        public override TriPropertyCollectionBaseElement CreateElement(DeclareToggleGroupAttribute attribute)
+        public override TriPropertyCollectionVisualElement CreateVisualElement(DeclareToggleGroupAttribute attribute)
         {
-            return new TriBoxGroupElement(new TriBoxGroupElement.Props
-            {
-                title = attribute.Title,
-                titleMode = TriBoxGroupElement.TitleMode.Toggle,
-                expandedByDefault = attribute.Collapsible,
-                hideIfChildrenInvisible = true,
-            });
+            return new TriToggleGroupVisualElement(attribute.Title, attribute.Collapsible,
+                hideIfChildrenInvisible: true);
         }
     }
 }

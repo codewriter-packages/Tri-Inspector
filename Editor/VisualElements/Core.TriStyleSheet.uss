@@ -1,0 +1,372 @@
+/* ---- Palette ---- */
+
+.tri-dark {
+    --tri-color-border: #141414;
+    --tri-color-header-background-inactive: #2A2A2A;
+    --tri-color-header-background: #353535;
+    --tri-color-content-background: #464646;
+    --tri-color-hover: #585858;
+    --tri-color-foldout-line: #6C6C6C;
+    --tri-color-info-background: rgba(72, 72, 72, 0.65);
+    --tri-color-info-border: rgba(31, 31, 31, 0.65);
+    --tri-color-warning-background: rgba(122, 97, 25, 0.7);
+    --tri-color-warning-border: rgba(31, 24, 6, 0.65);
+    --tri-color-error-background: rgba(126, 40, 40, 0.8);
+    --tri-color-error-border: rgba(31, 12, 12, 0.65);
+}
+
+.tri-light {
+    --tri-color-border: #7E7E7E;
+    --tri-color-header-background-inactive: #F0F0F0;
+    --tri-color-header-background: #B6B6B6;
+    --tri-color-content-background: #DCDCDC;
+    --tri-color-hover: #ECECEC;
+    --tri-color-foldout-line: #929292;
+    --tri-color-info-background: rgba(230, 230, 230, 0.5);
+    --tri-color-info-border: rgba(153, 153, 153, 0.5);
+    --tri-color-warning-background: rgba(230, 184, 46, 0.6);
+    --tri-color-warning-border: rgba(153, 122, 31, 0.5);
+    --tri-color-error-background: rgba(230, 92, 92, 0.6);
+    --tri-color-error-border: rgba(153, 61, 61, 0.5);
+}
+
+.unity-inspector-main-container {
+    min-width: 10px;
+    --unity-property-field-label-base-min-width: 0;
+    --unity-property-field-label-extra-padding: 0;
+    --unity-property-field-label-width-ratio: 0.1;
+}
+
+/* ---- Foldout ---- */
+
+.tri-foldout > .unity-foldout__toggle {
+    margin-left: 2px;
+}
+
+.tri-foldout > .unity-foldout__content {
+    border-left-width: 1px;
+    border-left-color: var(--tri-color-foldout-line);
+    margin-left: 8px;
+    padding-left: 5px;
+    margin-bottom: 2px;
+}
+
+
+/* ---- Box group ---- */
+
+.tri-box-group {
+    margin: 2px -2px 2px 3px;
+    border-width: 1px;
+    border-color: var(--tri-color-border);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    overflow: hidden;
+}
+
+.tri-box-group__header {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 5px;
+    background-color: var(--tri-color-header-background);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.tri-box-group__header > .unity-toggle {
+    margin: 0;
+}
+
+.tri-box-group__title {
+}
+
+.tri-box-group__content {
+    margin: 0;
+    padding: 2px 5px 2px 0;
+    background-color: var(--tri-color-content-background);
+}
+
+.tri-box-group > .unity-foldout > .unity-foldout__toggle {
+    margin-left: 0;
+    padding-left: 4px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    margin-bottom: 0;
+    background-color: var(--tri-color-header-background);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.tri-box-group > .unity-foldout > .unity-foldout__toggle:hover {
+    background-color: var(--tri-color-hover);
+}
+
+/* ---- Tab group ---- */
+
+.tri-tab-group {
+    margin: 2px -2px 2px 3px;
+}
+
+.tri-tab-group__row {
+    flex-direction: row;
+}
+
+.tri-tab-group__button {
+    flex-grow: 1;
+    margin: 0;
+    padding: 4px 4px;
+    border-radius: 0;
+    border-width: 1px 0 0 1px;
+    border-bottom-width: 0;
+    border-color: var(--tri-color-border);
+    background-color: var(--tri-color-header-background-inactive);
+}
+
+.tri-tab-group__button--non-active:hover {
+    background-color: var(--tri-color-hover);
+}
+
+.tri-tab-group__button--active {
+    background-color: var(--tri-color-header-background);
+}
+
+.tri-tab-group__button--first {
+    border-top-left-radius: 3px;
+}
+
+.tri-tab-group__button--last {
+    border-top-right-radius: 3px;
+    border-width: 1px 1px 0 1px;
+}
+
+.tri-tab-group__content {
+    border-width: 0 1px 1px 1px;
+    border-color: var(--tri-color-border);
+    background-color: var(--tri-color-content-background);
+    padding: 2px 5px 2px 0;
+}
+
+/* ---- Horizontal group ---- */
+
+.tri-horizontal-group {
+    flex-direction: row;
+}
+
+.tri-horizontal-group__column {
+    flex-shrink: 1;
+}
+
+/* ---- List ---- */
+
+.tri-list,
+.tri-table {
+    margin: 2px -2px 2px 3px;
+    border-width: 1px;
+    border-color: var(--tri-color-border);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    overflow: hidden;
+}
+
+.tri-list .unity-list-view__reorderable-item__container {
+    padding-left: 0;
+}
+
+.tri-list .unity-list-view__reorderable-handle {
+    justify-content: center;
+    align-items: center;
+    min-width: 18px;
+}
+
+.tri-list__header {
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--tri-color-header-background);
+    border-top-left-radius:3px;
+    border-top-right-radius: 3px;
+}
+
+.tri-list__header .unity-toggle {
+    margin: 0;
+}
+
+.tri-list__header-foldout {
+    padding: 4px;
+    flex-grow: 1;
+    margin: 0;
+}
+
+.tri-list__header-foldout-collapsible:hover {
+    background-color: var(--tri-color-hover);
+}
+
+.tri-list__header-foldout-non-collapsible .unity-foldout__checkmark {
+    opacity: 0;
+    width: 0;
+    margin-left: 0;
+    margin-right: 2px;
+}
+
+.tri-list__header-size {
+    width: 48px;
+    margin: 0 2px;
+}
+
+.tri-list__header-button {
+    width: 24px;
+    height: 20px;
+    -unity-text-align: middle-center;
+    font-size: 20px;
+    border-left-width: 1px;
+    border-color: var(--tri-color-border);
+}
+
+.tri-list__header-button:hover {
+    background-color: var(--tri-color-hover);
+}
+
+.tri-list__header-button:disabled {
+    opacity: 0.5;
+}
+
+.tri-list__element {
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+.tri-list__element-content {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.tri-list__element-remove {
+    align-self: stretch;
+    width: 24px;
+    margin: 0 -5px 0 4px;
+    -unity-text-align: middle-center;
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0);
+    border-left-width: 1px;
+    border-color: var(--tri-color-border);
+}
+
+.tri-list__element-remove:hover {
+    background-color: var(--tri-color-hover);
+}
+
+/* ---- Table list ---- */
+
+.tri-table__header-remove-spacer {
+    margin-left: 5px;
+    width: 25px;
+    flex-shrink: 0;
+    border-left-width: 1px;
+    border-color: var(--tri-color-border);
+}
+
+.tri-table__header-columns {
+    flex-direction: row;
+    flex-shrink: 0;
+    background-color: var(--tri-color-header-background-inactive);
+    border-bottom-width: 1px;
+    border-color: var(--tri-color-border);
+}
+
+.tri-table__header--reorderable {
+    margin-left: 18px;
+}
+
+.tri-table__header-cell {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 1;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    padding: 2px 4px;
+    border-left-width: 1px;
+    border-color: var(--tri-color-border);
+}
+
+.tri-table__row {
+    flex-direction: row;
+}
+
+.tri-table__cell {
+    flex-grow: 1;
+    flex-basis: 0;
+    flex-shrink: 1;
+    justify-content: center;
+    padding: 2px 4px;
+    border-left-width: 1px;
+    border-color: var(--tri-color-border);
+}
+
+/* ---- Info box ---- */
+
+.tri-info-box {
+    flex-direction: row;
+    align-items: center;
+    padding: 2px;
+    margin: 1px -2px 1px 3px;
+    border-width: 1px;
+    border-radius: 3px;
+}
+
+.tri-info-box__icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+
+.tri-info-box__label {
+    font-size: 11px;
+    /* flex-basis: 0 keeps the (possibly huge) text from driving the row width and shoving the
+       fixed-width action button off-screen; the label wraps within the remaining width instead. */
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    min-width: 0;
+    white-space: normal;
+    -unity-text-align: middle-left;
+}
+
+.tri-info-box__action {
+    width: 100px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-left: 5px;
+    white-space: normal;
+}
+
+.tri-info-box--info {
+    background-color: var(--tri-color-info-background);
+    border-color: var(--tri-color-info-border);
+}
+
+.tri-info-box--warning {
+    background-color: var(--tri-color-warning-background);
+    border-color: var(--tri-color-warning-border);
+}
+
+.tri-info-box--error {
+    background-color: var(--tri-color-error-background);
+    border-color: var(--tri-color-error-border);
+}
+
+/* ---- No drawer ---- */
+
+.tri-no-drawer__label {
+    flex-grow: 1;
+    -unity-text-align: middle-left;
+}
+
+/* ---- Reference ---- */
+
+.tri-reference__type-overlay {
+    position: absolute;
+    left: 2px;
+    right: 4px;
+    top: 0;
+    bottom: 0;
+}

@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using TriInspector.VisualElements;
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -31,6 +32,9 @@ namespace TriInspector.Editors
 
             var container = new VisualElement();
 
+            TriStyleSheet.ApplyTo(container);
+            container.AddToClassList(EditorGUIUtility.isProSkin ? "tri-dark" : "tri-light");
+
             if (serializedObject.targetObjects.Length == 0 || serializedObject.targetObject == null)
             {
                 container.Add(new HelpBox("Script is missing", HelpBoxMessageType.Warning));
@@ -57,19 +61,12 @@ namespace TriInspector.Editors
             serializedObject.UpdateIfRequiredOrScript();
             _inspector.Update();
 
-            container.Add(_inspector.GetRootElement().CreateVisualElement(_inspector.RootProperty));
+            container.Add(_inspector.GetRootElement());
 
             container.schedule.Execute(() =>
             {
-                serializedObject.UpdateIfRequiredOrScript();
-
                 _inspector.Update();
                 _inspector.RunValidationIfRequired();
-
-                if (serializedObject.ApplyModifiedProperties())
-                {
-                    _inspector.RequestValidation();
-                }
             }).Every(0);
 
             return container;

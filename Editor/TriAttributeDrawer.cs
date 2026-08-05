@@ -15,24 +15,19 @@ namespace TriInspector
         [PublicAPI]
         public TAttribute Attribute => (TAttribute) RawAttribute;
 
-        public sealed override TriElement CreateElementInternal(TriProperty property, TriElement next)
-        {
-            return CreateElement(property, next);
-        }
-
-        [PublicAPI]
+        [Obsolete("Use CreateVisualElement instead")]
         public virtual TriElement CreateElement(TriProperty property, TriElement next)
         {
             return new DefaultAttributeDrawerElement(this, property, next);
         }
 
-        [PublicAPI]
+        [Obsolete("Use CreateVisualElement instead")]
         public virtual float GetHeight(float width, TriProperty property, TriElement next)
         {
             return next.GetHeight(width);
         }
 
-        [PublicAPI]
+        [Obsolete("Use CreateVisualElement instead")]
         public virtual void OnGUI(Rect position, TriProperty property, TriElement next)
         {
             next.OnGUI(position);

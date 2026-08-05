@@ -2,10 +2,11 @@
 using System.Linq;
 using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Elements;
 using TriInspector.Utilities;
+using TriInspector.VisualElements;
 using UnityEditor;
-using UnityEngine;
+using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 [assembly: RegisterTriAttributeDrawer(typeof(AssetDropdownDrawer<>), TriDrawerOrder.Decorator,
     ApplyOnArrayElement = true)]
@@ -14,7 +15,7 @@ namespace TriInspector.Drawers
 {
     public class AssetDropdownDrawer<T> : TriAttributeDrawer<AssetDropdownAttribute>
     {
-        private bool showNoneElement;
+        private bool _showNoneElement;
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
@@ -24,23 +25,25 @@ namespace TriInspector.Drawers
                 return "AssetDropdown attribute can only be used on field with UnityEngine.Object type";
             }
 
-            showNoneElement = !propertyDefinition.Attributes.TryGet<RequiredAttribute>(out _);
+            _showNoneElement = !propertyDefinition.Attributes.TryGet<RequiredAttribute>(out _);
 
             return base.Initialize(propertyDefinition);
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var dropdownElement = new TriDropdownElement(property, EnumerateAssets, Attribute.Advanced);
+            var dropdownElement = new TriDropdownVisualElement(property, EnumerateAssets, Attribute.Advanced);
 
             if (Attribute.HideNextDrawer)
             {
                 return dropdownElement;
             }
 
-            var line = new TriHorizontalGroupElement();
-            line.AddChild(dropdownElement);
-            line.AddChild(base.CreateElement(property, next));
+            var line = new VisualElement();
+            line.style.flexDirection = FlexDirection.Row;
+            dropdownElement.style.flexGrow = 1;
+            line.Add(dropdownElement);
+            line.Add(next);
             return line;
         }
 
@@ -56,7 +59,7 @@ namespace TriInspector.Drawers
                     Value = (T) (object) asset,
                 });
 
-            if (showNoneElement)
+            if (_showNoneElement)
             {
                 assets = assets.Prepend(new TriDropdownItem<T> {Text = "None", Value = default,});
             }
