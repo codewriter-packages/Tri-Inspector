@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TriInspector
 {
-    [AttributeUsage(AttributeTargets.Field|AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = true)]
     [Conditional("UNITY_EDITOR")]
     public class InlineButtonAttribute : Attribute
     {

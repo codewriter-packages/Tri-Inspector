@@ -32,9 +32,6 @@ namespace TriInspector.Editors
 
             var container = new VisualElement();
 
-            TriStyleSheet.ApplyTo(container);
-            container.AddToClassList(EditorGUIUtility.isProSkin ? "tri-dark" : "tri-light");
-
             if (serializedObject.targetObjects.Length == 0 || serializedObject.targetObject == null)
             {
                 container.Add(new HelpBox("Script is missing", HelpBoxMessageType.Warning));

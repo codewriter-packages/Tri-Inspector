@@ -1,27 +1,41 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
-using UnityEditor;
-using UnityEngine;
+using TriInspector.VisualElements;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DisplayAsStringDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly:
+    RegisterTriAttributeDrawer(typeof(DisplayAsStringDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {
     public class DisplayAsStringDrawer : TriAttributeDrawer<DisplayAsStringAttribute>
     {
-        public override float GetHeight(float width, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return EditorGUIUtility.singleLineHeight;
+            return new TriAlignedLabelVisualElement(property, new TriDisplayAsString(property));
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        private class TriDisplayAsString : Label
         {
-            var value = property.Value;
-            var text = value != null ? value.ToString() : "Null";
+            public TriDisplayAsString(TriProperty property)
+            {
+                void Sync()
+                {
+                    text = property.Value?.ToString() ?? "Null";
+                }
 
-            var controlId = GUIUtility.GetControlID(FocusType.Passive);
-            position = EditorGUI.PrefixLabel(position, controlId, property.DisplayNameContent);
-            GUI.Label(position, text);
+                if (property.TryGetSerializedProperty(out var serializedProperty))
+                {
+                    this.TrackPropertyValue(serializedProperty, _ => Sync());
+                }
+                else
+                {
+                    this.PeriodicRun(Sync);
+                }
+
+                Sync();
+            }
         }
     }
 }

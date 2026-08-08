@@ -1,8 +1,9 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(GUIColorDrawer), TriDrawerOrder.Decorator)]
 
@@ -27,18 +28,23 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var oldColor = GUI.color;
-            var newColor = _colorResolver?.GetValue(property, Color.white) ?? Attribute.Color;
+            void SetColor(Color value)
+            {
+                next.style.backgroundColor = value;
+            }
 
-            GUI.color = Attribute.Multiply ? oldColor * newColor : newColor;
-            GUI.contentColor = newColor;
+            if (_colorResolver != null)
+            {
+                next.TrackResolvedValue(property, _colorResolver, Attribute.Color, SetColor);
+            }
+            else
+            {
+                SetColor(Attribute.Color);
+            }
 
-            next.OnGUI(position);
-
-            GUI.color = oldColor;
-            GUI.contentColor = oldColor;
+            return next;
         }
     }
 }

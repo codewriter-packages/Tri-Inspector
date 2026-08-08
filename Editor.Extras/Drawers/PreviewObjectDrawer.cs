@@ -2,6 +2,7 @@
 using TriInspector.Drawers;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(PreviewObjectDrawer), TriDrawerOrder.Decorator,
     ApplyOnArrayElement = true)]
@@ -20,54 +21,45 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override float GetHeight(float width, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
             var previewSize = GetPreviewSize();
 
-            if (!Attribute.DrawDefaultField)
+            var preview = new IMGUIContainer
             {
-                return previewSize;
-            }
-
-            var contentWidth = width - previewSize;
-            var contentHeight = base.GetHeight(contentWidth, property, next);
-
-            return Mathf.Max(contentHeight, previewSize);
-        }
-
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
-        {
-            var previewSize = GetPreviewSize();
-
-            if (Attribute.DrawDefaultField)
-            {
-                var contentRect = new Rect(position)
-                {
-                    xMax = position.xMax - previewSize,
-                    height = base.GetHeight(position.width - previewSize, property, next),
-                };
-                var previewRect = new Rect(position)
-                {
-                    xMin = contentRect.xMax,
-                    height = previewSize,
-                };
-
-                base.OnGUI(contentRect, property, next);
-                DrawPreview(previewRect, property);
-            }
-            else
-            {
-                var previewRect = new Rect(position)
+                style =
                 {
                     width = previewSize,
                     height = previewSize,
-                };
+                    flexShrink = 0,
+                },
+            };
 
-                DrawPreview(previewRect, property);
+            preview.onGUIHandler = () => DrawPreview(new Rect(0, 0, previewSize, previewSize), property, preview);
+
+            if (!Attribute.DrawDefaultField)
+            {
+                return preview;
             }
+
+            var row = new VisualElement
+            {
+                style =
+                {
+                    flexDirection = FlexDirection.Row,
+                },
+            };
+
+            next.style.flexGrow = 1;
+            next.style.flexShrink = 1;
+
+            row.Add(next);
+            row.Add(preview);
+
+            return row;
         }
 
-        private void DrawPreview(Rect previewRect, TriProperty property)
+        private void DrawPreview(Rect previewRect, TriProperty property, IMGUIContainer preview)
         {
             var assetToPreview = (Object) property.Value;
 
@@ -97,10 +89,10 @@ namespace TriInspector.Drawers
                 return;
             }
 
-            DrawAssetPreview(previewContentRect, assetToPreview, property);
+            DrawAssetPreview(previewContentRect, assetToPreview, preview);
         }
 
-        private void DrawAssetPreview(Rect position, Object assetToPreview, TriProperty property)
+        private void DrawAssetPreview(Rect position, Object assetToPreview, IMGUIContainer preview)
         {
             var previewTexture = AssetPreview.GetAssetPreview(assetToPreview);
 
@@ -115,7 +107,7 @@ namespace TriInspector.Drawers
             if (AssetPreview.IsLoadingAssetPreview(assetToPreview.GetInstanceID()))
 #endif
             {
-                property.PropertyTree.RequestRepaint();
+                preview.MarkDirtyRepaint();
             }
         }
 

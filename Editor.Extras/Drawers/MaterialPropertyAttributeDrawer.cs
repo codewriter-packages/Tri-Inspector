@@ -4,9 +4,11 @@ using System.Linq;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
+using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(MaterialPropertyAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
@@ -30,17 +32,20 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
+        {
+            var imgui = new IMGUIContainer(() => DrawImgui(property));
+            return new TriAlignedLabelVisualElement(property, imgui);
+        }
+
+        private void DrawImgui(TriProperty property)
         {
             var material = _resolvedParams.MaterialResolver.GetValue(property);
-            var label = property.DisplayNameContent;
             var (allProperties, filteredProperties) = MaterialPropertyHelper.GetProperties(material, Attribute.PropertyType);
 
             if (property.ValueType == typeof(string))
             {
                 DrawPopup(
-                    position,
-                    label,
                     property,
                     material,
                     (string)property.Value,
@@ -54,8 +59,6 @@ namespace TriInspector.Drawers
             else if (property.ValueType == typeof(int))
             {
                 DrawPopup(
-                    position,
-                    label,
                     property,
                     material,
                     (int)property.Value,
@@ -69,8 +72,6 @@ namespace TriInspector.Drawers
         }
 
         private void DrawPopup<T>(
-            Rect position,
-            GUIContent label,
             TriProperty property,
             Material material,
             T currentValue,
@@ -103,7 +104,7 @@ namespace TriInspector.Drawers
             }
 
             EditorGUI.BeginChangeCheck();
-            int newIndex = EditorGUI.Popup(position, label, currentIndex, displayList.ToArray());
+            int newIndex = EditorGUILayout.Popup(currentIndex, displayList.ToArray());
 
             if (EditorGUI.EndChangeCheck())
             {

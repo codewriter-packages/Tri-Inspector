@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using TriInspector.VisualElements;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UIElements;
@@ -68,6 +69,9 @@ namespace TriInspector
                 {
                     forceInline = !RootProperty.TryGetMemberInfo(out _),
                 });
+                
+                TriStyleSheet.ApplyTo(_rootPropertyElement);
+                _rootPropertyElement.AddToClassList(EditorGUIUtility.isProSkin ? "tri-dark" : "tri-light");
             }
 
             return _rootPropertyElement;

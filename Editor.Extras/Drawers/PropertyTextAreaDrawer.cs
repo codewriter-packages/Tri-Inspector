@@ -1,7 +1,7 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
-using UnityEditor;
-using UnityEngine;
+using TriInspector.VisualElements;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(PropertyTextAreaDrawer), TriDrawerOrder.Decorator,
     ApplyOnArrayElement = true)]
@@ -21,35 +21,16 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TextAreaElement(property);
-        }
-
-        private class TextAreaElement : TriElement
-        {
-            private readonly TriProperty _property;
-
-            public TextAreaElement(TriProperty property)
+            var field = new TextField
             {
-                _property = property;
-            }
+                multiline = true,
+            };
 
-            public override float GetHeight(float width)
-            {
-                var text = _property.Value as string ?? "";
-                return GUI.skin.textArea.CalcHeight(EditorGUIUtility.TrTempContent(text), width);
-            }
-
-            public override void OnGUI(Rect position)
-            {
-                var text = _property.Value as string ?? "";
-
-                var controlId = GUIUtility.GetControlID(FocusType.Passive);
-                position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);
-
-                EditorGUI.TextArea(position, text);
-            }
+            return TriBuiltinFieldFactory.CreateForProperty(property, field,
+                () => (string) property.Value ?? "",
+                value => property.SetValue(value));
         }
     }
 }

@@ -1,7 +1,10 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
+using TriInspector.VisualElements;
 using UnityEditor;
-using UnityEngine;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 [assembly: RegisterTriAttributeDrawer(typeof(SceneDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
@@ -20,66 +23,17 @@ namespace TriInspector.Drawers
             return base.Initialize(propertyDefinition);
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new SceneElement(property);
-        }
-
-        private class SceneElement : TriElement
-        {
-            private readonly TriProperty _property;
-
-            private SceneAsset _sceneAsset;
-
-            public SceneElement(TriProperty property)
+            var field = new ObjectField
             {
-                _property = property;
-            }
+                objectType = typeof(SceneAsset),
+                allowSceneObjects = false,
+            };
 
-            protected override void OnAttachToPanel()
-            {
-                base.OnAttachToPanel();
-
-                _property.ValueChanged += OnValueChanged;
-
-                RefreshSceneAsset();
-            }
-
-            protected override void OnDetachFromPanel()
-            {
-                _property.ValueChanged -= OnValueChanged;
-
-                base.OnDetachFromPanel();
-            }
-
-            public override float GetHeight(float width)
-            {
-                return EditorGUIUtility.singleLineHeight;
-            }
-
-            public override void OnGUI(Rect position)
-            {
-                EditorGUI.BeginChangeCheck();
-
-                var asset = EditorGUI.ObjectField(position, _property.DisplayName, _sceneAsset,
-                    typeof(SceneAsset), false);
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    var path = AssetDatabase.GetAssetPath(asset);
-                    _property.SetValue(path);
-                }
-            }
-
-            private void OnValueChanged(TriProperty property)
-            {
-                RefreshSceneAsset();
-            }
-
-            private void RefreshSceneAsset()
-            {
-                _sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(_property.Value as string);
-            }
+            return TriBuiltinFieldFactory.CreateForProperty(property, field,
+                () => AssetDatabase.LoadAssetAtPath<SceneAsset>(property.Value as string),
+                asset => property.SetValue(AssetDatabase.GetAssetPath(asset)));
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using JetBrains.Annotations;
-using UnityEngine;
 
 namespace TriInspector
 {
@@ -14,50 +13,5 @@ namespace TriInspector
     {
         [PublicAPI]
         public TAttribute Attribute => (TAttribute) RawAttribute;
-
-        [Obsolete("Use CreateVisualElement instead")]
-        public virtual TriElement CreateElement(TriProperty property, TriElement next)
-        {
-            return new DefaultAttributeDrawerElement(this, property, next);
-        }
-
-        [Obsolete("Use CreateVisualElement instead")]
-        public virtual float GetHeight(float width, TriProperty property, TriElement next)
-        {
-            return next.GetHeight(width);
-        }
-
-        [Obsolete("Use CreateVisualElement instead")]
-        public virtual void OnGUI(Rect position, TriProperty property, TriElement next)
-        {
-            next.OnGUI(position);
-        }
-
-        internal class DefaultAttributeDrawerElement : TriElement
-        {
-            private readonly TriAttributeDrawer<TAttribute> _drawer;
-            private readonly TriElement _next;
-            private readonly TriProperty _property;
-
-            public DefaultAttributeDrawerElement(TriAttributeDrawer<TAttribute> drawer, TriProperty property,
-                TriElement next)
-            {
-                _drawer = drawer;
-                _property = property;
-                _next = next;
-
-                AddChild(next);
-            }
-
-            public override float GetHeight(float width)
-            {
-                return _drawer.GetHeight(width, _property, _next);
-            }
-
-            public override void OnGUI(Rect position)
-            {
-                _drawer.OnGUI(position, _property, _next);
-            }
-        }
     }
 }

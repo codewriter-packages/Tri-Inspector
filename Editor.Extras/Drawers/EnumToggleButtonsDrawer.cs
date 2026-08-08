@@ -1,11 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TriInspector;
 using TriInspector.Drawers;
+using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(EnumToggleButtonsDrawer), TriDrawerOrder.Drawer,
     ApplyOnArrayElement = true)]
@@ -24,26 +26,27 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new EnumToggleButtonsElement(property);
+            var buttons = new EnumToggleButtonsVisualElement(property);
+            return new TriAlignedLabelVisualElement(property, buttons);
         }
 
-        private sealed class EnumToggleButtonsElement : TriElement
+        private sealed class EnumToggleButtonsVisualElement : ToggleButtonGroup
         {
             private readonly TriProperty _property;
             private readonly List<EnumEntry> _enumValues;
             private readonly bool _isFlags;
 
-            public EnumToggleButtonsElement(TriProperty property)
+            public EnumToggleButtonsVisualElement(TriProperty property)
             {
                 _property = property;
                 _enumValues = Enum.GetNames(property.FieldType)
-                    .Zip(Enum.GetValues(property.FieldType).OfType<Enum>(), (name, value) => new EnumEntry
+                    .Zip(Enum.GetValues(property.FieldType).OfType<Enum>(), (key, val) => new EnumEntry
                     {
-                        name = name,
-                        value = value,
-                        displayName = ObjectNames.NicifyVariableName(name),
+                        name = key,
+                        value = val,
+                        displayName = ObjectNames.NicifyVariableName(key),
                     })
                     .ToList();
                 _isFlags = property.FieldType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
@@ -61,80 +64,74 @@ namespace TriInspector.Drawers
                 }
 
                 _enumValues.Sort(new DeclarationOrderComparer(enumFields));
+
+                isMultipleSelection = _isFlags;
+                allowEmptySelection = _isFlags;
+
+                foreach (var entry in _enumValues)
+                {
+                    Add(new Button {text = entry.displayName});
+                }
+
+                this.RegisterValueChangedCallback(OnValueChanged);
+                this.PeriodicRun(RefreshFromProperty);
             }
 
-            public override float GetHeight(float width)
+            private Enum GetCurrentValue()
             {
-                return EditorGUIUtility.singleLineHeight;
-            }
-
-            public override void OnGUI(Rect position)
-            {
-                var value = _property.TryGetSerializedProperty(out var serializedProperty)
+                return _property.TryGetSerializedProperty(out var serializedProperty)
                     ? (Enum) Enum.ToObject(_property.FieldType, serializedProperty.longValue)
                     : (Enum) _property.Value;
+            }
 
-                var controlId = GUIUtility.GetControlID(FocusType.Passive);
-                position = EditorGUI.PrefixLabel(position, controlId, _property.DisplayNameContent);
+            private void RefreshFromProperty()
+            {
+                showMixedValue = _property.IsValueMixed;
+                if (_property.IsValueMixed)
+                {
+                    return;
+                }
 
+                var current = GetCurrentValue();
+
+                var state = new ToggleButtonGroupState(0UL, _enumValues.Count);
                 for (var i = 0; i < _enumValues.Count; i++)
                 {
-                    var itemRect = SplitRectWidth(position, _enumValues.Count, i);
-                    var itemStyle = GetButtonStyle(_enumValues.Count, i);
-                    var itemDisplayName = _enumValues[i].displayName;
                     var itemValue = _enumValues[i].value;
+                    state[i] = current != null && (_isFlags ? current.HasFlag(itemValue) : current.Equals(itemValue));
+                }
 
-                    var oldSelected = value != null && (_isFlags ? value.HasFlag(itemValue) : value.Equals(itemValue));
-                    var newSelected = GUI.Toggle(itemRect, oldSelected, itemDisplayName, itemStyle);
+                SetValueWithoutNotify(state);
+            }
 
-                    if (oldSelected != newSelected)
+            private void OnValueChanged(ChangeEvent<ToggleButtonGroupState> evt)
+            {
+                var state = evt.newValue;
+
+                if (_isFlags)
+                {
+                    long newValue = 0;
+                    for (var i = 0; i < _enumValues.Count; i++)
                     {
-                        if (_isFlags)
+                        if (state[i])
                         {
-                            var newValue = newSelected
-                                ? (Convert.ToInt64(value) | Convert.ToInt64(itemValue))
-                                : (Convert.ToInt64(value) & ~Convert.ToInt64(itemValue));
-
-                            _property.SetValue((Enum) Enum.ToObject(_property.FieldType, newValue));
+                            newValue |= Convert.ToInt64(_enumValues[i].value);
                         }
-                        else
+                    }
+
+                    _property.SetValue((Enum) Enum.ToObject(_property.FieldType, newValue));
+                }
+                else
+                {
+                    for (var i = 0; i < _enumValues.Count; i++)
+                    {
+                        if (state[i])
                         {
-                            _property.SetValue(itemValue);
+                            _property.SetValue(_enumValues[i].value);
+                            break;
                         }
                     }
                 }
-            }
-
-            private static GUIStyle GetButtonStyle(int total, int current)
-            {
-                if (total <= 1)
-                {
-                    return EditorStyles.miniButton;
-                }
-
-                if (current == 0)
-                {
-                    return EditorStyles.miniButtonLeft;
-                }
-
-                if (current == total - 1)
-                {
-                    return EditorStyles.miniButtonRight;
-                }
-
-                return EditorStyles.miniButtonMid;
-            }
-
-            private static Rect SplitRectWidth(Rect rect, int total, int current)
-            {
-                if (total == 0)
-                {
-                    return rect;
-                }
-
-                rect.width /= total;
-                rect.x += rect.width * current;
-                return rect;
             }
 
             private class EnumEntry

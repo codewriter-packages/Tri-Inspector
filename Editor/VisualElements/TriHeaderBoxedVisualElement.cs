@@ -45,7 +45,7 @@ namespace TriInspector.VisualElements
             }
             else if (headerControl != null)
             {
-                Add(headerControl);
+                Add(new TriAlignedLabelVisualElement(property, headerControl));
             }
 
             Add(_content);

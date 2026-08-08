@@ -68,8 +68,6 @@ namespace TriInspector.Drawers
                     button.style.height = attribute.ButtonSize;
                 }
 
-                Add(button);
-
                 if (parameters.Length == 0)
                 {
                     Add(button);

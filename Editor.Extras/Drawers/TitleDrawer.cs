@@ -1,8 +1,7 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
-using UnityEditor;
-using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(TitleDrawer), TriDrawerOrder.Inspector)]
 
@@ -10,11 +9,6 @@ namespace TriInspector.Drawers
 {
     public class TitleDrawer : TriAttributeDrawer<TitleAttribute>
     {
-        private const int SpaceBeforeTitle = 9;
-        private const int SpaceBeforeLine = 2;
-        private const int LineHeight = 2;
-        private const int SpaceBeforeContent = 3;
-
         private ValueResolver<string> _titleResolver;
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
@@ -31,45 +25,37 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override float GetHeight(float width, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var extraHeight = SpaceBeforeTitle +
-                              EditorGUIUtility.singleLineHeight +
-                              SpaceBeforeLine +
-                              LineHeight
-                              + SpaceBeforeContent;
-
-            return next.GetHeight(width) + extraHeight;
+            return new TriTitle(property, next, Attribute, _titleResolver);
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        private class TriTitle : VisualElement
         {
-            var titleRect = new Rect(position)
+            public TriTitle(TriProperty property, VisualElement next,
+                TitleAttribute attribute, ValueResolver<string> titleResolver)
             {
-                y = position.y + SpaceBeforeTitle,
-                height = EditorGUIUtility.singleLineHeight,
-            };
+                var title = new Label();
+                title.AddToClassList(Styles.Title);
+                Add(title);
 
-            var lineRect = new Rect(position)
-            {
-                y = titleRect.yMax + SpaceBeforeLine,
-                height = LineHeight,
-            };
+                if (attribute.HorizontalLine)
+                {
+                    var line = new VisualElement();
+                    line.AddToClassList(Styles.Line);
+                    Add(line);
+                }
 
-            var contentRect = new Rect(position)
-            {
-                yMin = lineRect.yMax + SpaceBeforeContent,
-            };
+                Add(next);
 
-            var title = _titleResolver.GetValue(property, "Error");
-            GUI.Label(titleRect, title, EditorStyles.boldLabel);
-
-            if (Attribute.HorizontalLine)
-            {
-                EditorGUI.DrawRect(lineRect, Color.gray);
+                this.TrackResolvedValue(property, titleResolver, "", value => title.text = value);
             }
+        }
 
-            next.OnGUI(contentRect);
+        private static class Styles
+        {
+            public const string Title = "tri-title";
+            public const string Line = "tri-title__line";
         }
     }
 }

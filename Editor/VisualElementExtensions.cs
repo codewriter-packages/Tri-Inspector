@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using TriInspector.Resolvers;
 using UnityEditor.UIElements;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace TriInspector
@@ -27,6 +29,22 @@ namespace TriInspector
             element.schedule.Execute(action).Every(PollIntervalMs);
         }
 
+        public static void TrackResolvedValue<T>(this VisualElement el,
+            TriProperty property, ValueResolver<T> resolver, T defaultValue, Action<T> callback)
+        {
+            el.PeriodicRun(() =>
+            {
+                try
+                {
+                    callback(resolver.GetValue(property, defaultValue));
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            });
+        }
+
         public static void AutoSyncLabelFromProperty(this Foldout foldout, TriProperty property)
         {
             AutoSyncLabelFromProperty(foldout, property, text => foldout.text = text);
@@ -47,11 +65,17 @@ namespace TriInspector
             void Sync()
             {
                 var name = property.DisplayNameContent;
-                setText(name.text);
+                try
+                {
+                    setText(name.text);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
             }
 
             PeriodicRun(el, Sync);
-            Sync();
         }
 
         public static void AutoSyncValueFromProperty<T>(this BaseField<T> field, TriProperty property)

@@ -1,0 +1,11 @@
+.tri-title {
+    -unity-font-style: bold;
+    margin: 10px -2px 2px 3px;
+    font-size: 13px;
+}
+
+.tri-title__line {
+    height: 2px;
+    margin: 0 -2px 2px 1px;
+    background-color: gray;
+}

@@ -1,0 +1,15 @@
+.tri-inline-button__row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.tri-inline-button__field {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.tri-inline-button__button {
+    margin-left: 4px;
+    margin-right: -2px;
+    flex-shrink: 0;
+}

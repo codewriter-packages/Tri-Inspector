@@ -8,6 +8,9 @@ namespace TriInspector.VisualElements
 
         public const string Foldout = "tri-foldout";
 
+        public const string TriAlignedLabel = "tri-aligned-label";
+        public const string TriAlignedLabelContent = "tri-aligned-label__content";
+
         public const string List = "tri-list";
         public const string ListHeader = "tri-list__header";
         public const string ListHeaderFoldout = "tri-list__header-foldout";

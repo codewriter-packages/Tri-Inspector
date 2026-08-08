@@ -1,9 +1,8 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
-using TriInspector.Utilities;
-using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(UnitDrawer), TriDrawerOrder.Decorator)]
 
@@ -11,11 +10,6 @@ namespace TriInspector.Drawers
 {
     public class UnitDrawer : TriAttributeDrawer<UnitAttribute>
     {
-        /// <summary>
-        /// Defines the padding to the right of the unit label towards the editable input field
-        /// </summary>
-        private const int PaddingRight = 5;
-
         private ValueResolver<string> _unitResolver;
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
@@ -32,32 +26,35 @@ namespace TriInspector.Drawers
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var unit = _unitResolver.GetValue(property, "");
-            var size = Styles.UnitStyle.CalcSize(TriGuiHelper.TempContent(unit));
-
-            var unitRect = new Rect(position.xMax - size.x - PaddingRight, position.y, size.x, position.height);
-
-            // Render the editable input field
-            next.OnGUI(position);
-
-            //Change color to grey
-            using (TriGuiHelper.PushColor(Color.grey))
+            var container = new VisualElement
             {
-                // Render the unit as a suffix in the unitRect
-                EditorGUI.LabelField(unitRect, unit);
-            }
-        }
+                style =
+                {
+                    position = Position.Relative,
+                },
+            };
+            container.Add(next);
 
-        private static class Styles
-        {
-            public static readonly GUIStyle UnitStyle;
-
-            static Styles()
+            var unitLabel = new Label
             {
-                UnitStyle = new GUIStyle(EditorStyles.label);
-            }
+                pickingMode = PickingMode.Ignore,
+                style =
+                {
+                    position = Position.Absolute,
+                    right = 0,
+                    top = 0,
+                    bottom = 0,
+                    unityTextAlign = TextAnchor.MiddleRight,
+                    color = Color.grey,
+                },
+            };
+            container.Add(unitLabel);
+
+            container.TrackResolvedValue(property, _unitResolver, "", value => unitLabel.text = value);
+
+            return container;
         }
     }
 }

@@ -1,6 +1,6 @@
-﻿using TriInspector;
+using TriInspector;
 using TriInspector.Drawers;
-using UnityEngine;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(PropertySpaceDrawer), TriDrawerOrder.Inspector)]
 
@@ -8,22 +8,24 @@ namespace TriInspector.Drawers
 {
     public class PropertySpaceDrawer : TriAttributeDrawer<PropertySpaceAttribute>
     {
-        public override float GetHeight(float width, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var totalSpace = Attribute.SpaceBefore + Attribute.SpaceAfter;
-
-            return next.GetHeight(width) + totalSpace;
+            return new TriPropertySpace(next)
+            {
+                style =
+                {
+                    marginTop = Attribute.SpaceBefore,
+                    marginBottom = Attribute.SpaceAfter,
+                },
+            };
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        private class TriPropertySpace : VisualElement
         {
-            var contentPosition = new Rect(position)
+            public TriPropertySpace(VisualElement next)
             {
-                yMin = position.yMin + Attribute.SpaceBefore,
-                yMax = position.yMax - Attribute.SpaceAfter,
-            };
-
-            next.OnGUI(contentPosition);
+                Add(next);
+            }
         }
     }
 }

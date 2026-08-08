@@ -1,7 +1,8 @@
 using TriInspector;
 using TriInspector.Drawers;
-using UnityEditor;
-using UnityEngine;
+using TriInspector.VisualElements;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(LayerDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
@@ -20,38 +21,13 @@ namespace TriInspector.Drawers
             return base.Initialize(propertyDefinition);
         }
 
-        public override TriElement CreateElement(TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new LayerElement(property);
-        }
+            var field = new LayerField();
 
-        private class LayerElement : TriElement
-        {
-            private readonly TriProperty _property;
-
-            public LayerElement(TriProperty property)
-            {
-                _property = property;
-            }
-
-            public override float GetHeight(float width)
-            {
-                return EditorGUIUtility.singleLineHeight;
-            }
-
-            public override void OnGUI(Rect position)
-            {
-                EditorGUI.BeginChangeCheck();
-
-                var currentValue = (int)_property.Value;
-                var newValue = EditorGUI.LayerField(position, _property.DisplayName, currentValue);
-
-                if (EditorGUI.EndChangeCheck())
-                {
-                    _property.SetValue(newValue);
-                }
-            }
+            return TriBuiltinFieldFactory.CreateForProperty(property, field,
+                () => (int) property.Value,
+                value => property.SetValue(value));
         }
     }
 }
-

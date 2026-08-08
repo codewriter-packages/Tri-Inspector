@@ -58,16 +58,11 @@ namespace TriInspector.VisualElements
 
         private static ObjectField BuildObjectField(TriProperty property)
         {
-            var allowSceneObjects = property.PropertyTree.TargetIsPersistent == false;
-
             var field = new ObjectField
             {
                 objectType = property.FieldType,
-                allowSceneObjects = allowSceneObjects,
-                value = (Object) property.Value,
-                showMixedValue = property.IsValueMixed,
+                allowSceneObjects = property.PropertyTree.TargetIsPersistent == false,
             };
-            field.AddToClassList(BaseField<Object>.alignedFieldUssClassName);
             field.RegisterValueChangedCallback(evt => property.SetValue(evt.newValue));
             field.AutoSyncValueFromProperty(property);
 

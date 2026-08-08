@@ -1,5 +1,6 @@
 ﻿using System;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.OdinInspector.Editor.Internal.UIToolkitIntegration;
 using Sirenix.Utilities.Editor;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace TriInspector.Editor.Integrations.Odin
         private bool _initialized;
         private TriPropertyTree _propertyTree;
         private LabelOverrideContext _labelOverrideContext;
+        private OdinImGuiElement _element;
 
         public override bool CanDrawTypeFilter(Type type)
         {
@@ -73,6 +75,8 @@ namespace TriInspector.Editor.Integrations.Odin
 
                 // Scoped to the root property, so it is safe to keep registered for the tree's whole lifetime.
                 _propertyTree.AddPropertyOverride(_labelOverrideContext);
+
+                _element = new OdinImGuiElement(_propertyTree.GetRootElement());
             }
 
             _propertyTree.Update();
@@ -80,12 +84,9 @@ namespace TriInspector.Editor.Integrations.Odin
 
             _labelOverrideContext.Label = label ?? GUIContent.none;
 
-            _propertyTree.Draw();
-
-            if (_propertyTree.RepaintRequired)
-            {
-                GUIHelper.RequestRepaint();
-            }
+            GUILayout.BeginVertical();
+            ImguiElementUtils.EmbedVisualElementAndDrawItHere(_element);
+            GUILayout.EndVertical();
         }
 
         private class LabelOverrideContext : TriPropertyOverrideContext

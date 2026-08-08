@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
-using UnityEditor;
+using TriInspector.VisualElements;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(SliderAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly:
+    RegisterTriAttributeDrawer(typeof(SliderAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {
     public class SliderAttributeDrawer : TriAttributeDrawer<SliderAttribute>
     {
         private SliderAttributeHelpers.SliderResolvers _resolvers;
-
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
@@ -24,46 +25,79 @@ namespace TriInspector.Drawers
             {
                 return TriExtensionInitializationResult.Skip;
             }
+
             return TriExtensionInitializationResult.Ok;
         }
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var label = property.DisplayNameContent;
-            double currentValue;
-            try
+            return new TriAlignedLabelVisualElement(property, new TriSlider(property, Attribute, _resolvers)
             {
-                currentValue = Convert.ToDouble(property.Value);
-            }
-            catch (Exception)
-            {
-                EditorGUI.LabelField(position, label.text, "Cannot convert value to a number.");
-                return;
-            }
-
-            var (minLimit, maxLimit) = SliderAttributeHelpers.GetLimits(property, Attribute, _resolvers);
-
-            if (Attribute.AutoClamp)
-            {
-                double clampedValue = Math.Clamp(currentValue, minLimit, maxLimit);
-                const double epsilon = 1e-9;
-                if (Math.Abs(clampedValue - currentValue) > epsilon)
-                {
-                    property.SetValue(Convert.ChangeType(clampedValue, property.ValueType));
-                    currentValue = clampedValue;
-                }
-            }
-
-            EditorGUI.BeginChangeCheck();
-            float sliderValue = EditorGUI.Slider(position, label, (float) currentValue, (float) minLimit, (float) maxLimit);
-            if (EditorGUI.EndChangeCheck())
-            {
-                var finalValue = Convert.ChangeType(sliderValue, property.ValueType);
-                property.SetValue(finalValue);
-            }
+                showInputField = true,
+            });
         }
-        public override float GetHeight(float width, TriProperty property, TriElement next)
+
+        private class TriSlider : Slider
         {
-            return EditorGUIUtility.singleLineHeight;
+            private readonly TriProperty _property;
+            private readonly SliderAttribute _attribute;
+            private readonly SliderAttributeHelpers.SliderResolvers _resolvers;
+
+            public TriSlider(TriProperty property, SliderAttribute attribute,
+                SliderAttributeHelpers.SliderResolvers resolvers)
+            {
+                _property = property;
+                _attribute = attribute;
+                _resolvers = resolvers;
+
+                this.RegisterValueChangedCallback(evt => ApplyValue(evt.newValue));
+
+                this.PeriodicRun(RefreshFromProperty);
+            }
+
+            private void ApplyValue(double sliderValue)
+            {
+                var finalValue = Convert.ChangeType(sliderValue, _property.Definition.FieldType);
+                _property.SetValue(finalValue);
+            }
+
+            private void RefreshFromProperty()
+            {
+                var (minLimit, maxLimit) = SliderAttributeHelpers.GetLimits(_property, _attribute, _resolvers);
+
+                lowValue = (float) minLimit;
+                highValue = (float) maxLimit;
+                showMixedValue = _property.IsValueMixed;
+
+                if (_property.IsValueMixed)
+                {
+                    return;
+                }
+
+                double currentValue;
+                try
+                {
+                    currentValue = Convert.ToDouble(_property.Value);
+                }
+                catch (Exception)
+                {
+                    return;
+                }
+
+                if (_attribute.AutoClamp)
+                {
+                    var clampedValue = Math.Clamp(currentValue, minLimit, maxLimit);
+
+                    const double epsilon = 1e-9;
+                    if (Math.Abs(clampedValue - currentValue) > epsilon)
+                    {
+                        ApplyValue(clampedValue);
+                        currentValue = clampedValue;
+                    }
+                }
+
+                SetValueWithoutNotify((float) currentValue);
+            }
         }
     }
 
@@ -78,14 +112,16 @@ namespace TriInspector.Drawers
             public ValueResolver<Vector2> minMaxVector2Resolver;
             public ValueResolver<Vector2Int> minMaxVector2IntResolver;
 
-            internal SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition, SliderAttribute attribute)
-                : this(ref errors, propertyDefinition, attribute.MinMemberName, attribute.MaxMemberName, attribute.MinMaxMemberName)
+            internal SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition,
+                SliderAttribute attribute)
+                : this(ref errors, propertyDefinition, attribute.MinMemberName, attribute.MaxMemberName,
+                    attribute.MinMaxMemberName)
             {
             }
-            protected SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition, string minMemberName, string maxMemberName, string minMaxMemberName)
-            {
-                var resolverErrors = new HashSet<string>();
 
+            protected SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition,
+                string minMemberName, string maxMemberName, string minMaxMemberName)
+            {
                 bool hasMinMaxMember = !string.IsNullOrEmpty(minMaxMemberName);
                 if (hasMinMaxMember)
                 {
@@ -93,7 +129,8 @@ namespace TriInspector.Drawers
                     if (minMaxVector2Resolver.TryGetErrorString(out var vector2Error))
                     {
                         minMaxVector2Resolver = null;
-                        minMaxVector2IntResolver = ValueResolver.Resolve<Vector2Int>(propertyDefinition, minMaxMemberName);
+                        minMaxVector2IntResolver =
+                            ValueResolver.Resolve<Vector2Int>(propertyDefinition, minMaxMemberName);
                         if (minMaxVector2IntResolver.TryGetErrorString(out var vector2IntError))
                         {
                             errors.Add(vector2Error);
@@ -135,6 +172,7 @@ namespace TriInspector.Drawers
                 }
             }
         }
+
         private static bool IsNumericType(Type type)
         {
             if (type == null) return false;
@@ -143,6 +181,7 @@ namespace TriInspector.Drawers
                    type != typeof(bool) &&
                    type != typeof(char);
         }
+
         public static SliderResolvers Initialize(SliderAttribute attribute,
             TriPropertyDefinition propertyDefinition, out TriExtensionInitializationResult errorResult)
         {
@@ -164,11 +203,15 @@ namespace TriInspector.Drawers
             errorResult = TriExtensionInitializationResult.Ok;
             return resolvers;
         }
-        public static (double min, double max) GetLimits(TriProperty property, SliderAttribute attribute, SliderResolvers resolvers)
+
+        public static (double min, double max) GetLimits(TriProperty property, SliderAttribute attribute,
+            SliderResolvers resolvers)
         {
             return GetLimits(property, attribute.MinFixed, attribute.MaxFixed, resolvers);
         }
-        public static (double min, double max) GetLimits(TriProperty property, float minFixed, float maxFixed, SliderResolvers resolvers)
+
+        public static (double min, double max) GetLimits(TriProperty property, float minFixed, float maxFixed,
+            SliderResolvers resolvers)
         {
             double minLimit = resolvers.minMaxVector2Resolver?.GetValue(property, Vector2.zero).x ??
                               resolvers.minMaxVector2IntResolver?.GetValue(property, Vector2Int.zero).x ??

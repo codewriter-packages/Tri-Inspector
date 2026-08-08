@@ -6,14 +6,15 @@ using TriInspector.VisualElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(MinMaxSliderAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly:
+    RegisterTriAttributeDrawer(typeof(MinMaxSliderAttributeDrawer), TriDrawerOrder.Decorator,
+        ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {
     public class MinMaxSliderAttributeDrawer : TriAttributeDrawer<MinMaxSliderAttribute>
     {
         private MinMaxSliderAttributeHelpers.SliderResolvers _resolvers;
-
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
@@ -24,11 +25,14 @@ namespace TriInspector.Drawers
             {
                 return TriExtensionInitializationResult.Skip;
             }
+
             return TriExtensionInitializationResult.Ok;
         }
+
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new MinMaxSliderVisualElement(property, Attribute, _resolvers);
+            var slider = new MinMaxSliderVisualElement(property, Attribute, _resolvers);
+            return new TriAlignedLabelVisualElement(property, slider);
         }
 
         private class MinMaxSliderVisualElement : VisualElement
@@ -48,8 +52,7 @@ namespace TriInspector.Drawers
                 _attribute = attribute;
                 _resolvers = resolvers;
 
-                var row = new VisualElement();
-                row.AddToClassList(Styles.Root);
+                AddToClassList(Styles.Root);
 
                 _minField = new FloatField();
                 _minField.AddToClassList(Styles.Field);
@@ -63,13 +66,10 @@ namespace TriInspector.Drawers
                 _maxField.AddToClassList(Styles.Field);
                 _maxField.RegisterValueChangedCallback(evt => ApplyValue(CurrentValue().x, evt.newValue));
 
-                row.Add(_minField);
-                row.Add(_slider);
-                row.Add(_maxField);
+                Add(_minField);
+                Add(_slider);
+                Add(_maxField);
 
-                Add(new TriAlignedLabelVisualElement(property, row));
-
-                RefreshFromProperty();
                 this.PeriodicRun(RefreshFromProperty);
             }
 
@@ -92,7 +92,6 @@ namespace TriInspector.Drawers
             {
                 var (minLimit, maxLimit) = GetLimits();
 
-                // Mirror the IMGUI validation: min can't exceed max and both stay within the limits.
                 x = Mathf.Clamp(x, (float) minLimit, Mathf.Min((float) maxLimit, y));
                 y = Mathf.Clamp(y, Mathf.Max((float) minLimit, x), (float) maxLimit);
 
@@ -156,11 +155,14 @@ namespace TriInspector.Drawers
     {
         internal class SliderResolvers : SliderAttributeHelpers.SliderResolvers
         {
-            internal SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition, MinMaxSliderAttribute attribute)
-                : base(ref errors, propertyDefinition, attribute.MinMemberName, attribute.MaxMemberName, attribute.MinMaxMemberName)
+            internal SliderResolvers(ref HashSet<string> errors, TriPropertyDefinition propertyDefinition,
+                MinMaxSliderAttribute attribute)
+                : base(ref errors, propertyDefinition, attribute.MinMemberName, attribute.MaxMemberName,
+                    attribute.MinMaxMemberName)
             {
             }
         }
+
         public static SliderResolvers Initialize(MinMaxSliderAttribute attribute,
             TriPropertyDefinition propertyDefinition, out TriExtensionInitializationResult errorResult)
         {
@@ -182,10 +184,13 @@ namespace TriInspector.Drawers
             errorResult = TriExtensionInitializationResult.Ok;
             return resolvers;
         }
-        public static (double min, double max) GetLimits(TriProperty property, MinMaxSliderAttribute attribute, SliderResolvers resolvers)
+
+        public static (double min, double max) GetLimits(TriProperty property, MinMaxSliderAttribute attribute,
+            SliderResolvers resolvers)
         {
             return SliderAttributeHelpers.GetLimits(property, attribute.MinFixed, attribute.MaxFixed, resolvers);
         }
+
         public static void SetValue(TriProperty property, float x, float y)
         {
             if (property.ValueType == typeof(Vector2Int))

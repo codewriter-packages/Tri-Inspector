@@ -1,6 +1,7 @@
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.VisualElements;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -17,7 +18,19 @@ namespace TriInspector.Drawers
                 return next;
             }
 
-            return new TriObjectReferenceVisualElement(value);
+            return new TriAlignedLabelVisualElement(value.Property, new TriObjectReference(value));
+        }
+
+        private class TriObjectReference : ObjectField
+        {
+            public TriObjectReference(TriValue<Object> value)
+            {
+                objectType = value.Property.FieldType;
+                allowSceneObjects = value.Property.PropertyTree.TargetIsPersistent == false;
+
+                this.RegisterValueChangedCallback(evt => value.SetValue(evt.newValue));
+                this.AutoSyncValueFromProperty(value.Property);
+            }
         }
     }
 }

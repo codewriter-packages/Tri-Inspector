@@ -1,8 +1,7 @@
-using System;
-using System.Reflection;
 using TriInspector;
 using TriInspector.Drawers;
-using UnityEngine;
+using TriInspector.Resolvers;
+using UnityEngine.UIElements;
 
 [assembly: RegisterTriAttributeDrawer(typeof(InlineButtonDrawer), TriDrawerOrder.Drawer)]
 
@@ -10,92 +9,58 @@ namespace TriInspector.Drawers
 {
     public class InlineButtonDrawer : TriAttributeDrawer<InlineButtonAttribute>
     {
-        private const float MinButtonWidth = 28f;
-        private const float ButtonSpacing = 4f;
-        private const float ButtonPadding = 12f;
-        private const float MaxButtonWidthRatio = 0.25f;
+        private ActionResolver _actionResolver;
 
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)
         {
-            if (string.IsNullOrEmpty(Attribute.Name))
+            _actionResolver = ActionResolver.Resolve(propertyDefinition, Attribute.Name);
+            if (_actionResolver.TryGetErrorString(out var error))
             {
-                return "[InlineButton] method name cannot be empty";
+                return error;
             }
 
             return TriExtensionInitializationResult.Ok;
         }
 
-        public override float GetHeight(float width, TriProperty property, TriElement next)
+        public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return next.GetHeight(width);
+            return new TriInlineButtonRow(property, next, Attribute, _actionResolver);
         }
 
-        public override void OnGUI(Rect position, TriProperty property, TriElement next)
+        private class TriInlineButtonRow : VisualElement
         {
-            var buttonText = !string.IsNullOrEmpty(Attribute.ButtonLabel)
-                ? Attribute.ButtonLabel
-                : Attribute.Name;
-
-            var buttonContent = new GUIContent(buttonText);
-            var maxButtonWidth = position.width * MaxButtonWidthRatio;
-            var buttonWidth = Attribute.ButtonWidth > 0f
-                ? Attribute.ButtonWidth
-                : Mathf.Clamp(GUI.skin.button.CalcSize(buttonContent).x + ButtonPadding, MinButtonWidth, maxButtonWidth);
-
-            var propertyRect = new Rect(position)
+            public TriInlineButtonRow(TriProperty property, VisualElement next,
+                InlineButtonAttribute attribute, ActionResolver actionResolver)
             {
-                width = position.width - buttonWidth - ButtonSpacing,
-            };
+                var buttonText = !string.IsNullOrEmpty(attribute.ButtonLabel)
+                    ? attribute.ButtonLabel
+                    : attribute.Name;
 
-            var buttonRect = new Rect(position)
-            {
-                x = position.x + position.width - buttonWidth,
-                width = buttonWidth,
-            };
+                AddToClassList(Styles.Row);
 
-            next.OnGUI(propertyRect);
+                next.AddToClassList(Styles.Field);
+                Add(next);
 
-            if (GUI.Button(buttonRect, buttonContent))
-            {
-                InvokeMethod(property);
+                var button = new Button(() => actionResolver.InvokeForAllTargets(property))
+                {
+                    text = buttonText,
+                };
+                button.AddToClassList(Styles.Button);
+
+                if (attribute.ButtonWidth > 0f)
+                {
+                    button.style.width = attribute.ButtonWidth;
+                }
+
+                Add(button);
             }
         }
 
-        private void InvokeMethod(TriProperty property)
+        private static class Styles
         {
-            var methodName = Attribute.Name;
-
-            property.ModifyAndRecordForUndo(targetIndex =>
-            {
-                try
-                {
-                    var parentValue = property.Parent.GetValue(targetIndex);
-                    var targetType = parentValue?.GetType() ?? property.Parent.FieldType;
-
-                    var methodInfo = targetType.GetMethod(
-                        methodName,
-                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-                    if (methodInfo == null)
-                    {
-                        Debug.LogError($"[InlineButton] Method '{methodName}' not found on type '{targetType.Name}'");
-                        return;
-                    }
-
-                    var parameters = methodInfo.GetParameters();
-                    if (parameters.Length > 0)
-                    {
-                        Debug.LogError($"[InlineButton] Method '{methodName}' must have no parameters");
-                        return;
-                    }
-
-                    methodInfo.Invoke(parentValue, null);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogException(e);
-                }
-            });
+            public const string Row = "tri-inline-button__row";
+            public const string Field = "tri-inline-button__field";
+            public const string Button = "tri-inline-button__button";
         }
     }
 }

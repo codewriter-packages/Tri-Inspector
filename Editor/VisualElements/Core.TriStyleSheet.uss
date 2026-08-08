@@ -37,6 +37,13 @@
     --unity-property-field-label-width-ratio: 0.1;
 }
 
+.tri-aligned-label {
+}
+
+.tri-aligned-label__content {
+    margin-left: 0; /* Fix default 3px margin */
+}
+
 /* ---- Foldout ---- */
 
 .tri-foldout > .unity-foldout__toggle {
@@ -181,7 +188,7 @@
     flex-direction: row;
     align-items: center;
     background-color: var(--tri-color-header-background);
-    border-top-left-radius:3px;
+    border-top-left-radius: 3px;
     border-top-right-radius: 3px;
 }
 
@@ -298,6 +305,10 @@
     padding: 2px 4px;
     border-left-width: 1px;
     border-color: var(--tri-color-border);
+}
+
+.tri-table__cell .unity-base-field__label {
+    min-width: 0;
 }
 
 /* ---- Info box ---- */

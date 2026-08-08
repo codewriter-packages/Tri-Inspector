@@ -18,17 +18,26 @@ namespace TriInspector.VisualElements
         {
             var property = propertyValue.Property;
 
-            field.AddToClassList(BaseField<TField>.alignedFieldUssClassName);
-
-            field.SetValueWithoutNotify(toField(propertyValue.SmartValue));
-            field.showMixedValue = property.IsValueMixed;
-
             field.RegisterValueChangedCallback(evt => propertyValue.SetValue(fromField(evt.newValue)));
-
-            field.AutoSyncLabelFromProperty(property);
             field.AutoSyncValueFromProperty(property, () => toField(propertyValue.SmartValue));
 
-            return field;
+            return new TriAlignedLabelVisualElement(property, field);
+        }
+
+        /// <summary>
+        /// Builds a two-way bound aligned field for an attribute drawer that only has a
+        /// <see cref="TriProperty"/> (no <see cref="TriValue{T}"/>), with custom value conversion.
+        /// </summary>
+        public static VisualElement CreateForProperty<TField>(
+            TriProperty property,
+            BaseField<TField> field,
+            Func<TField> getValue,
+            Action<TField> setValue)
+        {
+            field.RegisterValueChangedCallback(evt => setValue(evt.newValue));
+            field.AutoSyncValueFromProperty(property, getValue);
+
+            return new TriAlignedLabelVisualElement(property, field);
         }
     }
 }

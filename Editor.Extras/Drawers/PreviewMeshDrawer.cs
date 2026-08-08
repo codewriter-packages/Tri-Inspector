@@ -25,7 +25,7 @@ namespace TriInspector.Drawers
             private readonly MeshPreviewVisualElement _preview;
 
             public PreviewMeshVisualElement(TriProperty property, PreviewMeshAttribute attribute)
-                : base(property, attribute.UseFoldout, BuildObjectField(property, attribute.UseFoldout))
+                : base(property, attribute.UseFoldout, BuildObjectField(property))
             {
                 _preview = new MeshPreviewVisualElement(property, attribute.Height, attribute.Width,
                     attribute.UseFoldout, attribute.RotationMethod);
@@ -38,23 +38,14 @@ namespace TriInspector.Drawers
                 _preview.RefreshVisibility();
             }
 
-            private static ObjectField BuildObjectField(TriProperty property, bool useFoldout)
+            private static ObjectField BuildObjectField(TriProperty property)
             {
-                var allowSceneObjects = property.PropertyTree.TargetIsPersistent == false;
-
                 var field = new ObjectField
                 {
                     objectType = typeof(GameObject),
-                    allowSceneObjects = allowSceneObjects,
-                    value = property.Value as Object,
-                    showMixedValue = property.IsValueMixed,
+                    allowSceneObjects = property.PropertyTree.TargetIsPersistent == false,
                 };
-                if (!useFoldout)
-                {
-                    field.AutoSyncLabelFromProperty(property);
-                }
 
-                field.AddToClassList(BaseField<Object>.alignedFieldUssClassName);
                 field.RegisterValueChangedCallback(evt => property.SetValue(evt.newValue));
                 field.AutoSyncValueFromProperty(property);
 
@@ -73,6 +64,7 @@ namespace TriInspector.Drawers
 
             private PreviewRenderUtility _previewUtility;
             private static Material _mat;
+
             private Material GetMat
             {
                 get
@@ -94,6 +86,7 @@ namespace TriInspector.Drawers
                             color = new Color(0.4f, 0.7f, 0.4f),
                         };
                     }
+
                     return _mat;
                 }
             }
@@ -112,7 +105,9 @@ namespace TriInspector.Drawers
             private Vector2 _previewDir = new(-20f, 0f);
 
             #region Initialization
-            public MeshPreviewVisualElement(TriProperty property, int height, int width, bool useFoldout, PreviewMeshRotationMethod rotationMethod)
+
+            public MeshPreviewVisualElement(TriProperty property, int height, int width, bool useFoldout,
+                PreviewMeshRotationMethod rotationMethod)
             {
                 _property = property;
                 _height = height;
@@ -191,7 +186,8 @@ namespace TriInspector.Drawers
 
                 var position = new Rect(0f, 0f, currentWidth, _height);
                 _previewUtility.BeginPreview(position, GUIStyle.none);
-                _previewUtility.DrawMesh(_sharedMesh, Matrix4x4.TRS(Vector3.zero, _previewQuaternion, Vector3.one), GetMat, 0);
+                _previewUtility.DrawMesh(_sharedMesh, Matrix4x4.TRS(Vector3.zero, _previewQuaternion, Vector3.one),
+                    GetMat, 0);
                 _previewUtility.camera.Render();
 
                 Texture result = _previewUtility.EndPreview();
@@ -200,6 +196,7 @@ namespace TriInspector.Drawers
                 {
                     GUI.DrawTexture(position, result, ScaleMode.ScaleToFit, false);
                 }
+
                 if (position.Contains(Event.current.mousePosition))
                 {
                     HandleMouseEvent(Event.current);
@@ -277,13 +274,15 @@ namespace TriInspector.Drawers
                         break;
 
                     case EventType.ScrollWheel:
-                        _distance = Mathf.Clamp(_distance + mouseEvent.delta.x * _c_ZOOM_SENSITIVITY, _c_ZOOM_SENSITIVITY_MIN, _c_ZOOM_SENSITIVITY_MAX);
+                        _distance = Mathf.Clamp(_distance + mouseEvent.delta.x * _c_ZOOM_SENSITIVITY,
+                            _c_ZOOM_SENSITIVITY_MIN, _c_ZOOM_SENSITIVITY_MAX);
                         if (shift)
                         {
                             UpdatePreviewCamera();
                             mouseEvent.Use();
                             _imgui.MarkDirtyRepaint();
                         }
+
                         break;
 
                     default:
@@ -301,12 +300,14 @@ namespace TriInspector.Drawers
                     case PreviewMeshRotationMethod.Clamped:
                         _previewDir.x = Mathf.Clamp(pitch + _previewDir.x, -90f, 90);
                         _previewDir.y += yaw;
-                        _previewQuaternion = Quaternion.Euler(_previewDir.x, 0, 0) * Quaternion.Euler(0, _previewDir.y, 0);
+                        _previewQuaternion = Quaternion.Euler(_previewDir.x, 0, 0) *
+                                             Quaternion.Euler(0, _previewDir.y, 0);
                         break;
                     case PreviewMeshRotationMethod.Freeform:
                         _previewQuaternion = Quaternion.Euler(pitch, yaw, 0) * _previewQuaternion;
                         break;
                 }
+
                 _previewQuaternion = Quaternion.Normalize(_previewQuaternion);
             }
 

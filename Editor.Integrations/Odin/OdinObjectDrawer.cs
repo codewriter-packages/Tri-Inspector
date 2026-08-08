@@ -1,6 +1,7 @@
 ﻿using System;
 using Sirenix.Utilities;
 using Sirenix.OdinInspector.Editor;
+using Sirenix.OdinInspector.Editor.Internal.UIToolkitIntegration;
 using Sirenix.Utilities.Editor;
 using TriInspector.Utilities;
 using UnityEngine;
@@ -13,6 +14,7 @@ namespace TriInspector.Editor.Integrations.Odin
     {
         private bool _initialized;
         private TriPropertyTree _propertyTree;
+        private OdinImGuiElement _element;
 
         public override bool CanDrawTypeFilter(Type type)
         {
@@ -51,31 +53,20 @@ namespace TriInspector.Editor.Integrations.Odin
 
         protected override void DrawPropertyLayout(GUIContent label)
         {
-            if (TriGuiHelper.IsEditorTargetPushed(ValueEntry.SmartValue))
-            {
-                GUILayout.Label("Recursive inline editors not supported");
-                return;
-            }
-
             if (!_initialized)
             {
                 _initialized = true;
                 var serializedObject = Property.Tree.UnitySerializedObject;
                 _propertyTree = new TriPropertyTreeForSerializedObject(serializedObject);
+                _element = new OdinImGuiElement(_propertyTree.GetRootElement());
             }
 
             _propertyTree.Update();
             _propertyTree.RunValidationIfRequired();
 
-            using (TriGuiHelper.PushEditorTarget(ValueEntry.SmartValue))
-            {
-                _propertyTree.Draw();
-            }
-
-            if (_propertyTree.RepaintRequired)
-            {
-                GUIHelper.RequestRepaint();
-            }
+            GUILayout.BeginVertical();
+            ImguiElementUtils.EmbedVisualElementAndDrawItHere(_element);
+            GUILayout.EndVertical();
         }
     }
 }

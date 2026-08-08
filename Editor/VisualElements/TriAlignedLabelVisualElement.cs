@@ -5,14 +5,18 @@ namespace TriInspector.VisualElements
 {
     public class TriAlignedLabelVisualElement : BaseField<object>
     {
-        public TriAlignedLabelVisualElement(TriProperty property, VisualElement content) : this(string.Empty, content)
+        public TriAlignedLabelVisualElement(TriProperty property, VisualElement content)
+            : this(property.DisplayName, content)
         {
             this.AutoSyncLabelFromProperty(property);
         }
 
-        public TriAlignedLabelVisualElement(string label, VisualElement content) : base(label, content)
+        public TriAlignedLabelVisualElement(string label, VisualElement content)
+            : base(label, content)
         {
             AddToClassList(alignedFieldUssClassName);
+            AddToClassList(TriStyles.TriAlignedLabel);
+            content.AddToClassList(TriStyles.TriAlignedLabelContent);
         }
 
         /// <summary>
