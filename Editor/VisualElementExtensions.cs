@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using TriInspector.Resolvers;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -9,11 +10,21 @@ namespace TriInspector
 {
     public static class VisualElementExtensions
     {
+        private static readonly FieldInfo ToggleClickable;
+        private static readonly PropertyInfo ClickableSetAcceptClicksIfDisabled;
+
         public const int PollIntervalMs = 100;
+
+        static VisualElementExtensions()
+        {
+            ToggleClickable = typeof(Toggle).GetField("m_Clickable", BindingFlags.Instance | BindingFlags.NonPublic);
+            ClickableSetAcceptClicksIfDisabled = typeof(Clickable).GetProperty("acceptClicksIfDisabled",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+        }
 
         public static T FindAncestor<T>(this VisualElement element) where T : VisualElement
         {
-            for (var current = element.parent; current != null; current = current.parent)
+            for (var current = element; current != null; current = current.parent)
             {
                 if (current is T result)
                 {
@@ -118,6 +129,31 @@ namespace TriInspector
         {
             var focused = field.focusController?.focusedElement as VisualElement;
             return focused != null && (focused == field || field.Contains(focused));
+        }
+
+
+        public static void SetAcceptClicksIfDisabled(this Foldout foldout, bool value)
+        {
+            if (foldout != null)
+            {
+                SetAcceptClicksIfDisabled(foldout.Q<Toggle>(), value);
+            }
+        }
+
+        public static void SetAcceptClicksIfDisabled(this Toggle toggle, bool value)
+        {
+            if (toggle != null)
+            {
+                SetAcceptClicksIfDisabled(ToggleClickable.GetValue(toggle) as Clickable, value);
+            }
+        }
+
+        public static void SetAcceptClicksIfDisabled(this Clickable clickable, bool value)
+        {
+            if (clickable != null)
+            {
+                ClickableSetAcceptClicksIfDisabled?.SetValue(clickable, value);
+            }
         }
     }
 }

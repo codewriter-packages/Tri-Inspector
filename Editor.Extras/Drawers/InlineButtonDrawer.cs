@@ -3,7 +3,7 @@ using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(InlineButtonDrawer), TriDrawerOrder.Drawer)]
+[assembly: RegisterTriAttributeDrawer(typeof(InlineButtonDrawer), TriDrawerOrder.Decorator - 100)]
 
 namespace TriInspector.Drawers
 {

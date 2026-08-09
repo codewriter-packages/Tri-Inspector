@@ -70,7 +70,14 @@ namespace TriInspector.Drawers
 
                 foreach (var entry in _enumValues)
                 {
-                    Add(new Button {text = entry.displayName});
+                    Add(new Button
+                    {
+                        text = entry.displayName,
+                        style =
+                        {
+                            flexGrow = 1,
+                        },
+                    });
                 }
 
                 this.RegisterValueChangedCallback(OnValueChanged);

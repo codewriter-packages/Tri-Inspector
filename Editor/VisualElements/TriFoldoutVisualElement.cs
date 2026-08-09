@@ -11,6 +11,7 @@ namespace TriInspector.VisualElements
                 value = property.IsExpanded,
             };
 
+            foldout.SetAcceptClicksIfDisabled(true);
             foldout.AutoSyncLabelFromProperty(property);
             foldout.AddToClassList(TriStyles.Foldout);
 

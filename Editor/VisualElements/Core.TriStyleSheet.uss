@@ -2,42 +2,79 @@
 
 .tri-dark {
     --tri-color-border: #141414;
-    --tri-color-header-background-inactive: #2A2A2A;
     --tri-color-header-background: #353535;
     --tri-color-content-background: #464646;
     --tri-color-hover: #585858;
     --tri-color-foldout-line: #6C6C6C;
-    --tri-color-info-background: rgba(72, 72, 72, 0.65);
-    --tri-color-info-border: rgba(31, 31, 31, 0.65);
-    --tri-color-warning-background: rgba(122, 97, 25, 0.7);
-    --tri-color-warning-border: rgba(31, 24, 6, 0.65);
-    --tri-color-error-background: rgba(126, 40, 40, 0.8);
-    --tri-color-error-border: rgba(31, 12, 12, 0.65);
+
+    --tri-color-validation-background: #2A2A2A;
+
+    --tri-color-validation-info-background: rgba(92, 92, 92, 0.3);
+    --tri-color-validation-warning-background: rgba(108, 86, 18, 0.3);
+    --tri-color-validation-error-background: rgba(122, 35, 35, 0.4);
+
+    --tri-color-validation-info-icon: #D2D2D2;
+    --tri-color-validation-warning-icon: #FFC107;
+    --tri-color-validation-error-icon: #FF534A;
+
+    --tri-color-validation-info-text: #D2D2D2;
+    --tri-color-validation-warning-text: #FFC107;
+    --tri-color-validation-error-text: #FF534A;
 }
 
 .tri-light {
     --tri-color-border: #7E7E7E;
-    --tri-color-header-background-inactive: #F0F0F0;
     --tri-color-header-background: #B6B6B6;
     --tri-color-content-background: #DCDCDC;
     --tri-color-hover: #ECECEC;
     --tri-color-foldout-line: #929292;
-    --tri-color-info-background: rgba(230, 230, 230, 0.5);
-    --tri-color-info-border: rgba(153, 153, 153, 0.5);
-    --tri-color-warning-background: rgba(230, 184, 46, 0.6);
-    --tri-color-warning-border: rgba(153, 122, 31, 0.5);
-    --tri-color-error-background: rgba(230, 92, 92, 0.6);
-    --tri-color-error-border: rgba(153, 61, 61, 0.5);
+
+    --tri-color-validation-background: #ECECEC;
+
+    --tri-color-validation-info-background: rgba(255, 255, 255, 0.3);
+    --tri-color-validation-warning-background: rgba(230, 184, 46, 0.3);
+    --tri-color-validation-error-background: rgba(230, 92, 92, 0.3);
+
+    --tri-color-validation-info-icon: #F0F0F0;
+    --tri-color-validation-warning-icon: #C99700;
+    --tri-color-validation-error-icon: #B10C0C;
+
+    --tri-color-validation-info-text: #090909;
+    --tri-color-validation-warning-text: #333308;
+    --tri-color-validation-error-text: #5A0000;
 }
 
-.unity-inspector-main-container {
-    min-width: 10px;
-    --unity-property-field-label-base-min-width: 0;
-    --unity-property-field-label-extra-padding: 0;
-    --unity-property-field-label-width-ratio: 0.1;
+/*
+unity-label
+  padding: 0 2px 0 1px
+
+unity-base-field
+  margin: 3px 1px
+  
+unity-base-field__inspector-field
+  margin-right: -2px
+  
+unity-base-field__label
+  margin-right: 2px
+  padding-left: 2px
+  padding-top: 2px
+  
+unity-property-field__label
+  padding-left: 1px  
+ */
+
+.tri-inspector-element {
+    overflow: visible;
+
+    /* We need to reset the minimum size, sometimes it looks bad, 
+       but it's the only way I found to make the content fit correctly, 
+       especially in a horizontal group */
+    min-width: 0;
 }
 
-.tri-aligned-label {
+.tri-aligned-label--contains-inlined {
+    overflow: visible;
+    margin-right: 0; /* Fix default -2px margin */
 }
 
 .tri-aligned-label__content {
@@ -47,33 +84,35 @@
 /* ---- Foldout ---- */
 
 .tri-foldout > .unity-foldout__toggle {
-    margin-left: 2px;
+    margin-left: 3px; /* Fix default -12px, we want the arrow to be aligned with the text and not moved outward to the left. */
+    margin-bottom: 1px; /* Fix default 3px, we make the foldout look like a regular field. */
 }
 
 .tri-foldout > .unity-foldout__content {
     border-left-width: 1px;
     border-left-color: var(--tri-color-foldout-line);
-    margin-left: 8px;
-    padding-left: 5px;
-    margin-bottom: 2px;
-}
 
+    margin-bottom: 3px; /* Additional indentation so that it is clearly visible where the foldout ends */
+
+    margin-left: 8px; /* Move the margin to the left and the padding to the right.. */
+    padding-left: 6px; /* ..so that our foldout line is centered under the arrow */
+}
 
 /* ---- Box group ---- */
 
 .tri-box-group {
-    margin: 2px -2px 2px 3px;
+    margin: 1px -2px 1px 3px;
     border-width: 1px;
     border-color: var(--tri-color-border);
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
-    overflow: hidden;
+    background-color: var(--tri-color-content-background);
 }
 
 .tri-box-group__header {
     flex-direction: row;
     align-items: center;
-    padding: 4px 5px;
+    padding: 3px 5px;
     background-color: var(--tri-color-header-background);
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -87,17 +126,13 @@
 }
 
 .tri-box-group__content {
-    margin: 0;
-    padding: 2px 5px 2px 0;
-    background-color: var(--tri-color-content-background);
+    padding: 0;
+    margin: 2px 5px 2px 0;
 }
 
 .tri-box-group > .unity-foldout > .unity-foldout__toggle {
-    margin-left: 0;
-    padding-left: 4px;
-    padding-top: 3px;
-    padding-bottom: 3px;
-    margin-bottom: 0;
+    margin: 0;
+    padding: 2px 0 3px 4px;
     background-color: var(--tri-color-header-background);
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -110,7 +145,12 @@
 /* ---- Tab group ---- */
 
 .tri-tab-group {
-    margin: 2px -2px 2px 3px;
+    margin: 1px -2px 1px 3px;
+    background-color: var(--tri-color-content-background);
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-width: 1px;
+    border-color: var(--tri-color-border);
 }
 
 .tri-tab-group__row {
@@ -120,36 +160,36 @@
 .tri-tab-group__button {
     flex-grow: 1;
     margin: 0;
-    padding: 4px 4px;
+    padding: 3px 4px 2px 4px;
     border-radius: 0;
-    border-width: 1px 0 0 1px;
-    border-bottom-width: 0;
+    border-width: 0 1px 1px 0;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
     border-color: var(--tri-color-border);
-    background-color: var(--tri-color-header-background-inactive);
+    background-color: var(--tri-color-header-background);
 }
 
 .tri-tab-group__button--non-active:hover {
+    border-bottom-width: 0;
     background-color: var(--tri-color-hover);
 }
 
 .tri-tab-group__button--active {
-    background-color: var(--tri-color-header-background);
+    padding-bottom: 3px;
+    border-width: 0 1px 0 0;
+    background-color: var(--tri-color-content-background);
 }
 
 .tri-tab-group__button--first {
-    border-top-left-radius: 3px;
 }
 
 .tri-tab-group__button--last {
-    border-top-right-radius: 3px;
-    border-width: 1px 1px 0 1px;
+    border-right-width: 0;
 }
 
 .tri-tab-group__content {
-    border-width: 0 1px 1px 1px;
-    border-color: var(--tri-color-border);
-    background-color: var(--tri-color-content-background);
-    padding: 2px 5px 2px 0;
+    padding: 0;
+    margin: 2px 5px 2px 0;
 }
 
 /* ---- Horizontal group ---- */
@@ -159,19 +199,19 @@
 }
 
 .tri-horizontal-group__column {
-    flex-shrink: 1;
+    overflow: visible;
 }
 
 /* ---- List ---- */
 
 .tri-list,
 .tri-table {
-    margin: 2px -2px 2px 3px;
+    margin: 1px -2px 1px 3px;
     border-width: 1px;
     border-color: var(--tri-color-border);
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
-    overflow: hidden;
+    align-self: stretch;
 }
 
 .tri-list .unity-list-view__reorderable-item__container {
@@ -181,7 +221,8 @@
 .tri-list .unity-list-view__reorderable-handle {
     justify-content: center;
     align-items: center;
-    min-width: 18px;
+    min-width: 20px;
+    padding-right: 2px;
 }
 
 .tri-list__header {
@@ -197,9 +238,9 @@
 }
 
 .tri-list__header-foldout {
-    padding: 4px;
-    flex-grow: 1;
     margin: 0;
+    padding: 2px 0 3px 4px;
+    flex-grow: 1;
 }
 
 .tri-list__header-foldout-collapsible:hover {
@@ -209,13 +250,12 @@
 .tri-list__header-foldout-non-collapsible .unity-foldout__checkmark {
     opacity: 0;
     width: 0;
-    margin-left: 0;
-    margin-right: 2px;
+    margin-right: 4px;
 }
 
 .tri-list__header-size {
     width: 48px;
-    margin: 0 2px;
+    margin: 0 1px;
 }
 
 .tri-list__header-button {
@@ -262,24 +302,25 @@
 
 /* ---- Table list ---- */
 
+.tri-table .unity-inspector-main-container {
+    min-width: 10px;
+}
+
 .tri-table__header-remove-spacer {
-    margin-left: 5px;
-    width: 25px;
-    flex-shrink: 0;
+    width: 24px;
     border-left-width: 1px;
     border-color: var(--tri-color-border);
 }
 
 .tri-table__header-columns {
     flex-direction: row;
-    flex-shrink: 0;
-    background-color: var(--tri-color-header-background-inactive);
+    background-color: var(--tri-color-content-background);
     border-bottom-width: 1px;
     border-color: var(--tri-color-border);
 }
 
 .tri-table__header--reorderable {
-    margin-left: 18px;
+    margin-left: 20px;
 }
 
 .tri-table__header-cell {
@@ -302,9 +343,10 @@
     flex-basis: 0;
     flex-shrink: 1;
     justify-content: center;
-    padding: 2px 4px;
+    padding: 0 5px 0 0;
     border-left-width: 1px;
     border-color: var(--tri-color-border);
+    overflow: visible;
 }
 
 .tri-table__cell .unity-base-field__label {
@@ -313,27 +355,42 @@
 
 /* ---- Info box ---- */
 
+.tri-validation-results {
+    margin: 3px 0 1px 0;
+}
+
+.tri-validation-results__bg {
+    position: absolute;
+    left: 1px;
+    right: -3px;
+    top: 0;
+    bottom: 0;
+    border-width: 1px 0 0 2px;
+    border-radius: 5px 5px 4px 4px;
+}
+
 .tri-info-box {
     flex-direction: row;
     align-items: center;
-    padding: 2px;
-    margin: 1px -2px 1px 3px;
-    border-width: 1px;
-    border-radius: 3px;
+    margin: 0 -2px 0 2px;
+    padding: 3px 3px 3px 2px;
+    border-left-width: 1px;
+    background-color: var(--tri-color-validation-background);
+}
+
+.tri-info-box--first {
+    border-top-left-radius: 5px;
 }
 
 .tri-info-box__icon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     flex-shrink: 0;
-    margin-right: 2px;
-    margin-left: 2px;
+    margin-left: 1px;
 }
 
 .tri-info-box__label {
-    font-size: 11px;
-    /* flex-basis: 0 keeps the (possibly huge) text from driving the row width and shoving the
-       fixed-width action button off-screen; the label wraps within the remaining width instead. */
+    margin-left: 1px;
     flex-grow: 1;
     flex-shrink: 1;
     flex-basis: 0;
@@ -343,7 +400,11 @@
 }
 
 .tri-info-box__action {
-    width: 100px;
+    font-size: var(--unity-metrics-default-font_semi_small_size);
+    padding: 1px 6px;
+    margin: 1px;
+    min-width: 70px;
+    max-width: 150px;
     flex-grow: 0;
     flex-shrink: 0;
     margin-left: 5px;
@@ -351,18 +412,39 @@
 }
 
 .tri-info-box--info {
-    background-color: var(--tri-color-info-background);
-    border-color: var(--tri-color-info-border);
+    border-color: var(--tri-color-validation-info-icon);
 }
 
 .tri-info-box--warning {
-    background-color: var(--tri-color-warning-background);
-    border-color: var(--tri-color-warning-border);
+    border-color: var(--tri-color-validation-warning-icon);
 }
 
 .tri-info-box--error {
-    background-color: var(--tri-color-error-background);
-    border-color: var(--tri-color-error-border);
+    border-color: var(--tri-color-validation-error-icon);
+}
+
+.tri-info-box.tri-info-box--info {
+    background-color: var(--tri-color-validation-info-background);
+}
+
+.tri-info-box.tri-info-box--warning {
+    background-color: var(--tri-color-validation-warning-background);
+}
+
+.tri-info-box.tri-info-box--error {
+    background-color: var(--tri-color-validation-error-background);
+}
+
+.tri-info-box--info > .tri-info-box__label {
+    color: var(--tri-color-validation-info-text);
+}
+
+.tri-info-box--warning > .tri-info-box__label {
+    color: var(--tri-color-validation-warning-text);
+}
+
+.tri-info-box--error > .tri-info-box__label {
+    color: var(--tri-color-validation-error-text);
 }
 
 /* ---- No drawer ---- */

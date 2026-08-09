@@ -14,6 +14,7 @@ namespace TriInspector.VisualElements.Groups
                 text = title,
                 value = expandedByDefault,
             };
+            _foldout.SetAcceptClicksIfDisabled(true);
 
             Add(_foldout);
             UseContent(_foldout.contentContainer);

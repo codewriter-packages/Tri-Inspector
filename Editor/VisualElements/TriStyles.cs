@@ -5,11 +5,18 @@ namespace TriInspector.VisualElements
         // Unity built-in class marking an alignment root: aligned fields size their label column to the
         // nearest ancestor with this class instead of the whole inspector.
         public const string UnityInspectorMainContainer = "unity-inspector-main-container";
+        public const string UnityInspectorElement = "unity-inspector-element";
 
         public const string Foldout = "tri-foldout";
 
+        public const string TriInspectorElement = "tri-inspector-element";
+
         public const string TriAlignedLabel = "tri-aligned-label";
+        public const string TriAlignedLabelContainsInlined = "tri-aligned-label--contains-inlined";
         public const string TriAlignedLabelContent = "tri-aligned-label__content";
+
+        public const string TriValidationResults = "tri-validation-results";
+        public const string TriValidationResultsBg = "tri-validation-results__bg";
 
         public const string List = "tri-list";
         public const string ListHeader = "tri-list__header";
@@ -23,6 +30,7 @@ namespace TriInspector.VisualElements
         public const string ListElementRemove = "tri-list__element-remove";
 
         public const string InfoBox = "tri-info-box";
+        public const string InfoBoxFirst = "tri-info-box--first";
         public const string InfoBoxInfo = "tri-info-box--info";
         public const string InfoBoxWarning = "tri-info-box--warning";
         public const string InfoBoxError = "tri-info-box--error";

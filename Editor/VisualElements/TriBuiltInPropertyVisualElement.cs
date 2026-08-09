@@ -1,6 +1,5 @@
 ﻿using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
@@ -28,13 +27,8 @@ namespace TriInspector.VisualElements
             if (childChanged)
             {
                 _child = this[0];
-                OnChildChanged();
+                TrySetWidth();
             }
-        }
-
-        private void OnChildChanged()
-        {
-            TrySetWidth();
         }
 
         private void TrySetWidth()
@@ -44,31 +38,15 @@ namespace TriInspector.VisualElements
                 return;
             }
 
-            if (this.FindAncestor<TriLabelWidthContextVisualElement>() is not { } labelContext)
+            if (childCount == 0)
             {
                 return;
             }
 
-            if (labelContext.LabelWidth is not { } customLabelWidth)
+            if (TriLabelWidthContextVisualElement.ApplyWidthFromAncestorToPrefixLabel(this[0]))
             {
                 _labelWidthSet = true;
-                return;
             }
-
-            if (this.Q<Label>(className: BaseField<object>.labelUssClassName) is not { } childLabel)
-            {
-                return;
-            }
-
-            if (_child.ClassListContains(BaseField<object>.alignedFieldUssClassName))
-            {
-                _child.RemoveFromClassList(BaseField<object>.alignedFieldUssClassName);
-                childLabel.style.width = childLabel.style.minWidth = customLabelWidth;
-            }
-            // else
-            // {
-            //     _labelWidthSet = true;
-            // }
         }
     }
 }

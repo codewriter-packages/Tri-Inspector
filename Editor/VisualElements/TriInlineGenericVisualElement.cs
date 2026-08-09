@@ -20,9 +20,12 @@ namespace TriInspector.VisualElements
 
             if (props.drawPrefixLabel)
             {
+                content.AddToClassList(TriStyles.UnityInspectorElement);
                 content.AddToClassList(TriStyles.UnityInspectorMainContainer);
+                content.AddToClassList(TriStyles.TriInspectorElement);
 
-                content = new TriAlignedLabelVisualElement(property, content);
+                content = new TriAlignedLabelVisualElement(property, content, containsInlinedProperties: true);
+                
             }
 
             Add(content);

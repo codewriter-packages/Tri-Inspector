@@ -85,10 +85,12 @@ namespace TriInspector.VisualElements.Groups
                     _activeTab = SessionState.GetString(_activeTabKey, null);
                 }
 
-                if (string.IsNullOrEmpty(_activeTab) || _activeTab == tabName)
+                if (string.IsNullOrEmpty(_activeTab))
                 {
-                    SetActiveTab(tabName);
+                    _activeTab = tabName;
                 }
+
+                SetActiveTab(_activeTab);
             }
 
             tabContent.Add(child);

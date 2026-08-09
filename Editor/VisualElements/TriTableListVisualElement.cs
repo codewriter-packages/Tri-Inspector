@@ -112,7 +112,9 @@ namespace TriInspector.VisualElements
         {
             var cell = new VisualElement();
             cell.AddToClassList(TriStyles.TableCell);
+            cell.AddToClassList(TriStyles.UnityInspectorElement);
             cell.AddToClassList(TriStyles.UnityInspectorMainContainer);
+            cell.AddToClassList(TriStyles.TriInspectorElement);
             cell.Add(new TriPropertyVisualElement(property, new TriPropertyVisualElement.Props
             {
                 forceInline = true,

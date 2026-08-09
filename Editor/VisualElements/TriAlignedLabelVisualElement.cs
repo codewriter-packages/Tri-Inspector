@@ -5,10 +5,16 @@ namespace TriInspector.VisualElements
 {
     public class TriAlignedLabelVisualElement : BaseField<object>
     {
-        public TriAlignedLabelVisualElement(TriProperty property, VisualElement content)
+        public TriAlignedLabelVisualElement(TriProperty property, VisualElement content,
+            bool containsInlinedProperties = false)
             : this(property.DisplayName, content)
         {
             this.AutoSyncLabelFromProperty(property);
+
+            if (containsInlinedProperties)
+            {
+                AddToClassList(TriStyles.TriAlignedLabelContainsInlined);
+            }
         }
 
         public TriAlignedLabelVisualElement(string label, VisualElement content)
@@ -17,6 +23,9 @@ namespace TriInspector.VisualElements
             AddToClassList(alignedFieldUssClassName);
             AddToClassList(TriStyles.TriAlignedLabel);
             content.AddToClassList(TriStyles.TriAlignedLabelContent);
+
+            RegisterCallback<AttachToPanelEvent>(_ =>
+                TriLabelWidthContextVisualElement.ApplyWidthFromAncestorToPrefixLabel(this));
         }
 
         /// <summary>

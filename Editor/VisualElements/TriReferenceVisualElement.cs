@@ -84,6 +84,7 @@ namespace TriInspector.VisualElements
                 value = property.IsExpanded,
             };
 
+            foldout.SetAcceptClicksIfDisabled(true);
             foldout.AutoSyncLabelFromProperty(property);
 
             if (showReferencePicker)

@@ -22,6 +22,7 @@ namespace TriInspector.VisualElements
 
                 foldout.AutoSyncLabelFromProperty(property);
                 foldout.AddToClassList(TriStyles.Foldout);
+                foldout.SetAcceptClicksIfDisabled(true);
 
                 if (headerControl != null)
                 {

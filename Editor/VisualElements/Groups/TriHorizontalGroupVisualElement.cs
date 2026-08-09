@@ -21,10 +21,13 @@ namespace TriInspector.VisualElements.Groups
 
             var wrapper = new VisualElement();
             wrapper.AddToClassList(TriStyles.HorizontalGroupColumn);
+            wrapper.AddToClassList(TriStyles.UnityInspectorElement);
             wrapper.AddToClassList(TriStyles.UnityInspectorMainContainer);
+            wrapper.AddToClassList(TriStyles.TriInspectorElement);
 
             if (index < _sizes.Length && _sizes[index] > 0f)
             {
+                wrapper.style.minWidth = _sizes[index];
                 wrapper.style.width = _sizes[index];
                 wrapper.style.flexGrow = 0;
                 wrapper.style.flexShrink = 0;

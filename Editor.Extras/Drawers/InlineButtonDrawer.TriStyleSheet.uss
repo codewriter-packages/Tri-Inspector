@@ -5,7 +5,7 @@
 
 .tri-inline-button__field {
     flex-grow: 1;
-    flex-shrink: 1;
+    flex-shrink: 0;
 }
 
 .tri-inline-button__button {

@@ -31,6 +31,7 @@ namespace TriInspector.VisualElements
             {
                 value = props.expanded,
             };
+            foldout.SetAcceptClicksIfDisabled(true);
             foldout.AutoSyncLabelFromProperty(property);
             foldout.AddToClassList(TriStyles.ListHeaderFoldout);
             foldout.EnableInClassList(TriStyles.ListHeaderFoldoutCollapsible, props.collapsible);
