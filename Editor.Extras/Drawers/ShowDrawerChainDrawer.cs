@@ -29,7 +29,7 @@ namespace TriInspector.Drawers
             {
                 var drawer = drawers[i];
                 info.AppendLine();
-                info.Append(i).Append(": ").Append(drawer.GetType().Name);
+                info.Append(i).Append(": ").Append(drawer.GetType().Name).Append(" - ").Append(drawer.Order);
             }
 
             return info.ToString();
