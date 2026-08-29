@@ -31,10 +31,10 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriAlignedLabelVisualElement(property, new TriSlider(property, Attribute, _resolvers)
+            return new TriSlider(property, Attribute, _resolvers)
             {
                 showInputField = true,
-            });
+            };
         }
 
         private class TriSlider : Slider
@@ -50,15 +50,14 @@ namespace TriInspector.Drawers
                 _attribute = attribute;
                 _resolvers = resolvers;
 
-                this.RegisterValueChangedCallback(evt => ApplyValue(evt.newValue));
+                this.BindTri(property, v => (float) Convert.ToDouble(v), v => ToPropertyTyped(v));
 
                 this.PeriodicRun(RefreshFromProperty);
             }
 
-            private void ApplyValue(double sliderValue)
+            private object ToPropertyTyped(double v)
             {
-                var finalValue = Convert.ChangeType(sliderValue, _property.Definition.FieldType);
-                _property.SetValue(finalValue);
+                return Convert.ChangeType(v, _property.Definition.FieldType);
             }
 
             private void RefreshFromProperty()
@@ -91,7 +90,7 @@ namespace TriInspector.Drawers
                     const double epsilon = 1e-9;
                     if (Math.Abs(clampedValue - currentValue) > epsilon)
                     {
-                        ApplyValue(clampedValue);
+                        _property.SetValue(ToPropertyTyped(clampedValue));
                         currentValue = clampedValue;
                     }
                 }

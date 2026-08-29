@@ -13,7 +13,7 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriAlignedLabelVisualElement(property, new TriDisplayAsString(property));
+            return new TriAlignedLabelVisualElement<object>(property, new TriDisplayAsString(property));
         }
 
         private class TriDisplayAsString : Label

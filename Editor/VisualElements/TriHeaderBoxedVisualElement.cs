@@ -26,7 +26,7 @@ namespace TriInspector.VisualElements
 
                 if (headerControl != null)
                 {
-                    TriAlignedLabelVisualElement.InjectAlignedLabelFieldIntoFoldout(foldout, headerControl);
+                    TriAlignedSpacerVisualElement.InjectAlignedLabelFieldIntoFoldout(foldout, headerControl);
                 }
 
                 foldout.RegisterValueChangedCallback(evt =>
@@ -46,7 +46,7 @@ namespace TriInspector.VisualElements
             }
             else if (headerControl != null)
             {
-                Add(new TriAlignedLabelVisualElement(property, headerControl));
+                Add(headerControl);
             }
 
             Add(_content);

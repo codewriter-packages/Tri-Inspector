@@ -32,7 +32,7 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var dropdownElement = new TriDropdownVisualElement(property, EnumerateAssets, Attribute.Advanced);
+            var dropdownElement = new TriDropdownVisualElement<Object>(property, EnumerateAssets, Attribute.Advanced);
 
             if (Attribute.HideNextDrawer)
             {

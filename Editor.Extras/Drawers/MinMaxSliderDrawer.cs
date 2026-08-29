@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.VisualElements;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -32,7 +33,7 @@ namespace TriInspector.Drawers
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
             var slider = new MinMaxSliderVisualElement(property, Attribute, _resolvers);
-            return new TriAlignedLabelVisualElement(property, slider);
+            return new TriAlignedLabelForGenericVisualElement(property, slider);
         }
 
         private class MinMaxSliderVisualElement : VisualElement

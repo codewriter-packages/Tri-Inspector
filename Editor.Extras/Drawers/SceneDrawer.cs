@@ -4,7 +4,6 @@ using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
-using Object = UnityEngine.Object;
 
 [assembly: RegisterTriAttributeDrawer(typeof(SceneDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
 
@@ -31,9 +30,12 @@ namespace TriInspector.Drawers
                 allowSceneObjects = false,
             };
 
-            return TriBuiltinFieldFactory.CreateForProperty(property, field,
-                () => AssetDatabase.LoadAssetAtPath<SceneAsset>(property.Value as string),
-                asset => property.SetValue(AssetDatabase.GetAssetPath(asset)));
+            field.BindTri(property,
+                v => AssetDatabase.LoadAssetAtPath<SceneAsset>(v),
+                asset => AssetDatabase.GetAssetPath(asset),
+                hideLabel: true);
+
+            return new TriAlignedLabelVisualElement<string>(property, field);
         }
     }
 }

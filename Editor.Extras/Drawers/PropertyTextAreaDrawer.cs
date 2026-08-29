@@ -28,9 +28,8 @@ namespace TriInspector.Drawers
                 multiline = true,
             };
 
-            return TriBuiltinFieldFactory.CreateForProperty(property, field,
-                () => (string) property.Value ?? "",
-                value => property.SetValue(value));
+            field.BindTri(property, v => v ?? "", v => v);
+            return field;
         }
     }
 }

@@ -1,12 +1,12 @@
 .tri-min-max-slider {
     flex-direction: row;
     flex-grow: 1;
+    margin-right: -2px;
 }
 
 .tri-min-max-slider__field {
-    width: 48px;
-    margin-left: 0;
-    margin-right: 0;
+    width: 50px;
+    margin: 0;
 }
 
 .tri-min-max-slider__slider {

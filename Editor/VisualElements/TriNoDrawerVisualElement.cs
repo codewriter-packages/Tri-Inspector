@@ -8,7 +8,7 @@ namespace TriInspector.VisualElements
         {
             var label = new Label($"No drawer for {property.FieldType}");
             label.AddToClassList(TriStyles.NoDrawerLabel);
-            Add(new TriAlignedLabelVisualElement(property, label));
+            Add(new TriAlignedLabelVisualElement<object>(property, label));
         }
     }
 }

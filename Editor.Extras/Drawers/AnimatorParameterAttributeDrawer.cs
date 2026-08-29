@@ -39,7 +39,9 @@ namespace TriInspector.Drawers
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
             var imgui = new IMGUIContainer(() => DrawImgui(property));
-            return new TriAlignedLabelVisualElement(property, imgui);
+            return property.Definition.FieldType == typeof(int)
+                ? new TriAlignedLabelVisualElement<int>(property, imgui)
+                : new TriAlignedLabelVisualElement<string>(property, imgui);
         }
 
         private void DrawImgui(TriProperty property)

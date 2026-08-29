@@ -72,9 +72,20 @@ unity-property-field__label
     min-width: 0;
 }
 
-.tri-aligned-label--contains-inlined {
+.tri-aligned-generic {
     overflow: visible;
     margin-right: 0; /* Fix default -2px margin */
+}
+
+.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle,
+.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle > .unity-foldout__input > .unity-foldout__text {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle > .unity-foldout__input > .unity-foldout__checkmark,
+.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__content {
+    display: none !important;
 }
 
 .tri-aligned-label__content {

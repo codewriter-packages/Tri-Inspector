@@ -42,13 +42,11 @@ namespace TriInspector.Drawers
             {
                 var field = new ObjectField
                 {
-                    objectType = typeof(GameObject),
+                    objectType = property.FieldType,
                     allowSceneObjects = property.PropertyTree.TargetIsPersistent == false,
                 };
 
-                field.RegisterValueChangedCallback(evt => property.SetValue(evt.newValue));
-                field.AutoSyncValueFromProperty(property);
-
+                field.BindTri(property);
                 return field;
             }
         }

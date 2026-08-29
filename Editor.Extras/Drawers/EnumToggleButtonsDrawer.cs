@@ -28,8 +28,14 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var buttons = new EnumToggleButtonsVisualElement(property);
-            return new TriAlignedLabelVisualElement(property, buttons);
+            var buttons = new EnumToggleButtonsVisualElement(property)
+            {
+                style =
+                {
+                    marginRight = -3,
+                },
+            };
+            return new TriAlignedLabelVisualElement<int>(property, buttons);
         }
 
         private sealed class EnumToggleButtonsVisualElement : ToggleButtonGroup
@@ -80,27 +86,11 @@ namespace TriInspector.Drawers
                     });
                 }
 
-                this.RegisterValueChangedCallback(OnValueChanged);
-                this.PeriodicRun(RefreshFromProperty);
+                this.BindTri(_property, StateFromEnum, EnumFromState, hideLabel: true);
             }
 
-            private Enum GetCurrentValue()
+            private ToggleButtonGroupState StateFromEnum(Enum current)
             {
-                return _property.TryGetSerializedProperty(out var serializedProperty)
-                    ? (Enum) Enum.ToObject(_property.FieldType, serializedProperty.longValue)
-                    : (Enum) _property.Value;
-            }
-
-            private void RefreshFromProperty()
-            {
-                showMixedValue = _property.IsValueMixed;
-                if (_property.IsValueMixed)
-                {
-                    return;
-                }
-
-                var current = GetCurrentValue();
-
                 var state = new ToggleButtonGroupState(0UL, _enumValues.Count);
                 for (var i = 0; i < _enumValues.Count; i++)
                 {
@@ -108,13 +98,11 @@ namespace TriInspector.Drawers
                     state[i] = current != null && (_isFlags ? current.HasFlag(itemValue) : current.Equals(itemValue));
                 }
 
-                SetValueWithoutNotify(state);
+                return state;
             }
 
-            private void OnValueChanged(ChangeEvent<ToggleButtonGroupState> evt)
+            private Enum EnumFromState(ToggleButtonGroupState state)
             {
-                var state = evt.newValue;
-
                 if (_isFlags)
                 {
                     long newValue = 0;
@@ -126,19 +114,19 @@ namespace TriInspector.Drawers
                         }
                     }
 
-                    _property.SetValue((Enum) Enum.ToObject(_property.FieldType, newValue));
+                    return (Enum) Enum.ToObject(_property.FieldType, newValue);
                 }
-                else
+
+                for (var i = 0; i < _enumValues.Count; i++)
                 {
-                    for (var i = 0; i < _enumValues.Count; i++)
+                    if (state[i])
                     {
-                        if (state[i])
-                        {
-                            _property.SetValue(_enumValues[i].value);
-                            break;
-                        }
+                        return _enumValues[i].value;
                     }
                 }
+
+                // No selection — keep the current value.
+                return (Enum) _property.Value;
             }
 
             private class EnumEntry

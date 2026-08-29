@@ -1,4 +1,5 @@
 using System;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -43,6 +44,11 @@ namespace TriInspector.VisualElements
                     props.expandedChanged?.Invoke(evt.newValue);
                 }
             });
+
+            if (property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                foldout.BindProperty(serializedProperty);
+            }
 
             if (!props.collapsible)
             {

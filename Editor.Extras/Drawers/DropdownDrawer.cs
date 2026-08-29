@@ -26,7 +26,7 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriDropdownVisualElement(property, _valuesResolver.GetDropdownItems, Attribute.Advanced);
+            return new TriDropdownVisualElement<T>(property, _valuesResolver.GetDropdownItems, Attribute.Advanced);
         }
     }
 }

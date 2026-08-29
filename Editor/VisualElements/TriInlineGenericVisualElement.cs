@@ -24,8 +24,9 @@ namespace TriInspector.VisualElements
                 content.AddToClassList(TriStyles.UnityInspectorMainContainer);
                 content.AddToClassList(TriStyles.TriInspectorElement);
 
-                content = new TriAlignedLabelVisualElement(property, content, containsInlinedProperties: true);
-                
+                content.style.marginLeft = -3;
+
+                content = new TriAlignedLabelForGenericVisualElement(property, content);
             }
 
             Add(content);

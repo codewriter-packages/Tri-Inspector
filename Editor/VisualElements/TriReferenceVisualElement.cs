@@ -1,6 +1,7 @@
 ﻿using System;
 using TriInspector.Utilities;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
@@ -49,12 +50,7 @@ namespace TriInspector.VisualElements
 
             void BindLifecycle(VisualElement root)
             {
-                root.RegisterCallback<AttachToPanelEvent>(_ =>
-                {
-                    property.ValueChanged += OnValueChanged;
-                    OnValueChanged(property);
-                });
-                root.RegisterCallback<DetachFromPanelEvent>(_ => property.ValueChanged -= OnValueChanged);
+                root.TrackPropertyValueChanged(property, OnValueChanged);
             }
 
             if (props.inline)
@@ -71,7 +67,7 @@ namespace TriInspector.VisualElements
 
                 if (props.drawPrefixLabel)
                 {
-                    inlineRoot = new TriAlignedLabelVisualElement(property, inlineRoot);
+                    inlineRoot = new TriAlignedLabelForGenericVisualElement(property, inlineRoot);
                 }
 
                 BindLifecycle(inlineRoot);
@@ -87,9 +83,14 @@ namespace TriInspector.VisualElements
             foldout.SetAcceptClicksIfDisabled(true);
             foldout.AutoSyncLabelFromProperty(property);
 
+            if (property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                foldout.BindProperty(serializedProperty);
+            }
+
             if (showReferencePicker)
             {
-                TriAlignedLabelVisualElement.InjectAlignedLabelFieldIntoFoldout(foldout, CreateTypeSelectorIsland());
+                TriAlignedSpacerVisualElement.InjectAlignedLabelFieldIntoFoldout(foldout, CreateTypeSelectorIsland());
             }
 
             if (property.IsExpanded)

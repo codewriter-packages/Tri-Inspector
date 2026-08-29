@@ -2,9 +2,7 @@
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.VisualElements;
-using UnityEditor;
 using UnityEditor.UIElements;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -70,7 +68,9 @@ namespace TriInspector.Drawers
                 return next;
             }
 
-            return TriBuiltinFieldFactory.Create(propertyValue, new ColorField(), v => v, v => v);
+            var field = new ColorField();
+            field.BindTri(propertyValue, v => v, v => v);
+            return field;
         }
     }
 
@@ -83,7 +83,9 @@ namespace TriInspector.Drawers
                 return next;
             }
 
-            return TriBuiltinFieldFactory.Create(propertyValue, new LayerMaskField(), v => v.value, v => v);
+            var field = new LayerMaskField();
+            field.BindTri(propertyValue, v => v.value, v => v);
+            return field;
         }
     }
 
@@ -103,7 +105,8 @@ namespace TriInspector.Drawers
                 ? new EnumFlagsField(current)
                 : new EnumField(current);
 
-            return TriBuiltinFieldFactory.Create(propertyValue, field);
+            field.BindTri(propertyValue);
+            return field;
         }
     }
 

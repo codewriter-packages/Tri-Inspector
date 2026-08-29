@@ -56,6 +56,17 @@ namespace TriInspector
             });
         }
 
+        public static void TrackPropertyValueChanged(this VisualElement element,
+            TriProperty property, Action<TriProperty> callback)
+        {
+            element.RegisterCallback<AttachToPanelEvent>(_ =>
+            {
+                property.ValueChanged += callback;
+                callback(property);
+            });
+            element.RegisterCallback<DetachFromPanelEvent>(_ => property.ValueChanged -= callback);
+        }
+
         public static void AutoSyncLabelFromProperty(this Foldout foldout, TriProperty property)
         {
             AutoSyncLabelFromProperty(foldout, property, text => foldout.text = text);
@@ -89,16 +100,20 @@ namespace TriInspector
             PeriodicRun(el, Sync);
         }
 
-        public static void AutoSyncValueFromProperty<T>(this BaseField<T> field, TriProperty property)
-        {
-            field.AutoSyncValueFromProperty(property, () => (T) property.Value);
-        }
-
-        public static void AutoSyncValueFromProperty<T>(this BaseField<T> field, TriProperty property, Func<T> getValue)
+        public static void AutoSyncValueFromProperty<T>(this BaseField<T> field, TriProperty property,
+            Func<object, T> castValue)
         {
             void Sync(TriProperty _)
             {
                 field.showMixedValue = property.IsValueMixed;
+
+                // Don't paint a concrete value over a mixed selection: showMixedValue already renders
+                // the mixed placeholder, and controls that ignore it (e.g. ToggleButtonGroup) would
+                // otherwise misleadingly display the first target's value as if it were shared.
+                if (property.IsValueMixed)
+                {
+                    return;
+                }
 
                 // Don't clobber the value while the user is editing it.
                 if (field.IsBeingEdited())
@@ -106,23 +121,14 @@ namespace TriInspector
                     return;
                 }
 
-                var current = getValue();
+                var current = castValue(property.Value);
                 if (!EqualityComparer<T>.Default.Equals(field.value, current))
                 {
                     field.SetValueWithoutNotify(current);
                 }
             }
 
-            field.RegisterCallback<AttachToPanelEvent>(_ =>
-            {
-                property.ValueChanged += Sync;
-                Sync(property);
-            });
-
-            field.RegisterCallback<DetachFromPanelEvent>(_ =>
-            {
-                property.ValueChanged -= Sync;
-            });
+            field.TrackPropertyValueChanged(property, Sync);
         }
 
         private static bool IsBeingEdited(this VisualElement field)

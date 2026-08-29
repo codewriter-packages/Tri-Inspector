@@ -18,7 +18,8 @@ namespace TriInspector.Drawers
                 return next;
             }
 
-            return TriBuiltinFieldFactory.Create(propertyValue, field);
+            field.BindTri(propertyValue);
+            return field;
         }
 
         protected virtual BaseField<T> CreateField()

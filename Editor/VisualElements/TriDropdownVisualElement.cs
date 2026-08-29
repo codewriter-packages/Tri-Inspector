@@ -8,13 +8,14 @@ using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
 {
-    public class TriDropdownVisualElement : VisualElement
+    public class TriDropdownVisualElement<T> : VisualElement
     {
         private readonly TriProperty _property;
         private readonly Func<TriProperty, IEnumerable<ITriDropdownItem>> _valuesGetter;
         private readonly bool _useAdvancedDropdown;
         private readonly AdvancedDropdownState _dropdownState;
-        private readonly IMGUIContainer _popup;
+        private readonly VisualElement _input;
+        private readonly TextElement _text;
 
         private object _currentValue;
         private string _currentText;
@@ -29,18 +30,34 @@ namespace TriInspector.VisualElements
             _useAdvancedDropdown = useAdvancedDropdown;
             _dropdownState = new AdvancedDropdownState();
 
-            // The prefix label is native (so it aligns with sibling fields), but the popup button and the
-            // GenericMenu/AdvancedDropdown it opens have no native UI Toolkit equivalent, so they stay IMGUI.
-            _popup = new IMGUIContainer(OnPopupGUI);
-            _popup.style.flexGrow = 1;
+            _input = new VisualElement();
+            _input.AddToClassList("unity-base-field__input");
+            _input.AddToClassList("unity-base-popup-field__input");
+            _input.style.flexGrow = 1;
+            _input.style.flexDirection = FlexDirection.Row;
 
-            Add(new TriAlignedLabelVisualElement(_property, _popup));
+            _text = new TextElement();
+            _text.AddToClassList("unity-base-popup-field__text");
+            _input.Add(_text);
+
+            var arrow = new VisualElement();
+            arrow.AddToClassList("unity-base-popup-field__arrow");
+            _input.Add(arrow);
+
+            _input.RegisterCallback<ClickEvent>(_ => OnClick());
+
+            this.TrackPropertyValueChanged(_property, _ => UpdateText());
+
+            // Enum serialized properties are backed by an int,
+            // so binding the aligned label as int for enums.
+            VisualElement labeled = typeof(T).IsEnum
+                ? new TriAlignedLabelVisualElement<int>(_property, _input)
+                : new TriAlignedLabelVisualElement<T>(_property, _input);
+            Add(labeled);
         }
 
-        private void OnPopupGUI()
+        private void UpdateText()
         {
-            var position = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
-
             if (!_hasCurrent || !_property.Comparer.Equals(_currentValue, _property.Value))
             {
                 _currentValue = _property.Value;
@@ -50,18 +67,20 @@ namespace TriInspector.VisualElements
                     ?.Text ?? (_property.Value?.ToString() ?? string.Empty);
             }
 
-            var text = _property.IsValueMixed ? "—" : _currentText;
+            _text.text = _property.IsValueMixed ? "—" : _currentText;
+        }
 
-            if (GUI.Button(position, text, EditorStyles.popup))
+        private void OnClick()
+        {
+            var position = _input.worldBound;
+
+            if (_useAdvancedDropdown)
             {
-                if (_useAdvancedDropdown)
-                {
-                    ShowAdvancedDropdown(position);
-                }
-                else
-                {
-                    ShowDropdown(position);
-                }
+                ShowAdvancedDropdown(position);
+            }
+            else
+            {
+                ShowDropdown(position);
             }
         }
 
@@ -89,8 +108,7 @@ namespace TriInspector.VisualElements
         private void ChangeValue(object v)
         {
             _property.SetValue(v);
-            _hasCurrent = false;
-            _popup.MarkDirtyRepaint();
+            UpdateText();
         }
 
         private class TriAdvancedDropdown : AdvancedDropdown

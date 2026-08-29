@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+﻿using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
 {
@@ -14,6 +15,11 @@ namespace TriInspector.VisualElements
             foldout.SetAcceptClicksIfDisabled(true);
             foldout.AutoSyncLabelFromProperty(property);
             foldout.AddToClassList(TriStyles.Foldout);
+
+            if (property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                foldout.BindProperty(serializedProperty);
+            }
 
             var built = false;
 

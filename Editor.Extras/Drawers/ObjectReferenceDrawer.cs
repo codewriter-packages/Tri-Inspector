@@ -18,7 +18,7 @@ namespace TriInspector.Drawers
                 return next;
             }
 
-            return new TriAlignedLabelVisualElement(value.Property, new TriObjectReference(value));
+            return new TriObjectReference(value);
         }
 
         private class TriObjectReference : ObjectField
@@ -28,8 +28,7 @@ namespace TriInspector.Drawers
                 objectType = value.Property.FieldType;
                 allowSceneObjects = value.Property.PropertyTree.TargetIsPersistent == false;
 
-                this.RegisterValueChangedCallback(evt => value.SetValue(evt.newValue));
-                this.AutoSyncValueFromProperty(value.Property);
+                this.BindTri(value.Property);
             }
         }
     }

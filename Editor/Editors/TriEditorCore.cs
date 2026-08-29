@@ -1,5 +1,4 @@
-﻿using TriInspector.VisualElements;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -42,6 +41,10 @@ namespace TriInspector.Editors
             {
                 _inspector = new TriPropertyTreeForSerializedObject(serializedObject);
             }
+            
+            serializedObject.UpdateIfRequiredOrScript();
+            _inspector.Update();
+            _inspector.RunValidation();
 
             if (!_inspector.RootProperty.TryGetAttribute(out HideMonoScriptAttribute _))
             {
@@ -54,9 +57,6 @@ namespace TriInspector.Editors
                     container.Add(scriptField);
                 }
             }
-
-            serializedObject.UpdateIfRequiredOrScript();
-            _inspector.Update();
 
             container.Add(_inspector.GetRootElement());
 

@@ -24,10 +24,8 @@ namespace TriInspector.Drawers
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
             var field = new LayerField();
-
-            return TriBuiltinFieldFactory.CreateForProperty(property, field,
-                () => (int) property.Value,
-                value => property.SetValue(value));
+            field.BindTri(property);
+            return field;
         }
     }
 }
