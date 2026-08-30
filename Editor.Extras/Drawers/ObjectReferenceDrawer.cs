@@ -13,7 +13,7 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriValue<Object> value, VisualElement next)
         {
-            if (value.Property.IsRootProperty || value.Property.TryGetSerializedProperty(out _))
+            if (value.Property.IsRootProperty)
             {
                 return next;
             }

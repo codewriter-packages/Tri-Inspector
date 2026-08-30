@@ -90,6 +90,7 @@ namespace TriInspector
                 try
                 {
                     setText(name.text);
+                    el.tooltip = name.tooltip;
                 }
                 catch (Exception ex)
                 {

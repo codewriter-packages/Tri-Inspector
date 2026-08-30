@@ -11,11 +11,6 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            if (property.TryGetSerializedProperty(out _))
-            {
-                return next;
-            }
-
             return new TriHeader(next, Attribute);
         }
 

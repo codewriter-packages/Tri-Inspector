@@ -7,11 +7,6 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriValue<T> propertyValue, VisualElement next)
         {
-            if (propertyValue.Property.TryGetSerializedProperty(out _))
-            {
-                return next;
-            }
-
             var field = CreateField();
             if (field == null)
             {

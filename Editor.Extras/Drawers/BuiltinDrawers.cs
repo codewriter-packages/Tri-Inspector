@@ -8,8 +8,11 @@ using UnityEngine.UIElements;
 
 [assembly: RegisterTriValueDrawer(typeof(IntegerDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(LongDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(UnsignedIntegerDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(UnsignedLongDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(BooleanDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(FloatDrawer), TriDrawerOrder.Fallback)]
+[assembly: RegisterTriValueDrawer(typeof(DoubleDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(StringDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(ColorDrawer), TriDrawerOrder.Fallback)]
 [assembly: RegisterTriValueDrawer(typeof(Color32Drawer), TriDrawerOrder.Fallback)]
@@ -49,9 +52,24 @@ namespace TriInspector.Drawers
         protected override BaseField<long> CreateField() => new LongField();
     }
 
+    public class UnsignedIntegerDrawer : BuiltinDrawerBase<uint>
+    {
+        protected override BaseField<uint> CreateField() => new UnsignedIntegerField();
+    }
+
+    public class UnsignedLongDrawer : BuiltinDrawerBase<ulong>
+    {
+        protected override BaseField<ulong> CreateField() => new UnsignedLongField();
+    }
+
     public class FloatDrawer : BuiltinDrawerBase<float>
     {
         protected override BaseField<float> CreateField() => new FloatField();
+    }
+
+    public class DoubleDrawer : BuiltinDrawerBase<double>
+    {
+        protected override BaseField<double> CreateField() => new DoubleField();
     }
 
     public class ColorDrawer : BuiltinDrawerBase<Color>
@@ -63,11 +81,6 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriValue<Color32> propertyValue, VisualElement next)
         {
-            if (propertyValue.Property.TryGetSerializedProperty(out _))
-            {
-                return next;
-            }
-
             var field = new ColorField();
             field.BindTri(propertyValue, v => v, v => v);
             return field;
@@ -78,11 +91,6 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriValue<LayerMask> propertyValue, VisualElement next)
         {
-            if (propertyValue.Property.TryGetSerializedProperty(out _))
-            {
-                return next;
-            }
-
             var field = new LayerMaskField();
             field.BindTri(propertyValue, v => v.value, v => v);
             return field;
@@ -93,11 +101,6 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriValue<Enum> propertyValue, VisualElement next)
         {
-            if (propertyValue.Property.TryGetSerializedProperty(out _))
-            {
-                return next;
-            }
-
             var enumType = propertyValue.Property.FieldType;
             var current = propertyValue.SmartValue ?? (Enum) Enum.ToObject(enumType, 0);
 
