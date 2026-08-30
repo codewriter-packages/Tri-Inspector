@@ -83,8 +83,12 @@ unity-property-field__label
     padding: 0 !important;
 }
 
-.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle > .unity-foldout__input > .unity-foldout__checkmark,
 .tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__content {
+    display: none !important;
+}
+
+/* Always-open header: hide the arrow so only the label shows */
+.tri-aligned-generic--non-collapsible > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle > .unity-foldout__input > .unity-foldout__checkmark {
     display: none !important;
 }
 
@@ -99,7 +103,8 @@ unity-property-field__label
     margin-bottom: 1px; /* Fix default 3px, we make the foldout look like a regular field. */
 }
 
-.tri-foldout > .unity-foldout__content {
+.tri-foldout > .unity-foldout__content,
+.tri-reference__content {
     border-left-width: 1px;
     border-left-color: var(--tri-color-foldout-line);
 

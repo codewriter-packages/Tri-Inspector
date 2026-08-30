@@ -11,24 +11,14 @@ namespace TriInspector.Utilities
 {
     internal static class TriManagedReferenceGui
     {
-        public static void DrawTypeSelector(Rect rect, TriProperty property)
+        public static void ShowTypeDropdown(Rect position, TriProperty property)
         {
-            var typeName = property.ValueType != null
-                ? TriTypeUtilities.GetTypeNiceName(property.ValueType)
-                : "[None]";
-            var typeNameContent = new GUIContent(typeName);
+            var dropdown = new ReferenceTypeDropDown(property, new AdvancedDropdownState());
+            dropdown.Show(position);
 
-            if (EditorGUI.DropdownButton(rect, typeNameContent, FocusType.Passive))
+            if (dropdown.CanHideHeader)
             {
-                var dropdown = new ReferenceTypeDropDown(property, new AdvancedDropdownState());
-                dropdown.Show(rect);
-
-                if (dropdown.CanHideHeader)
-                {
-                    AdvancedDropdownProxy.SetShowHeader(dropdown, false);
-                }
-
-                Event.current.Use();
+                AdvancedDropdownProxy.SetShowHeader(dropdown, false);
             }
         }
 

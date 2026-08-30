@@ -14,6 +14,7 @@ namespace TriInspector.VisualElements
         public const string TriAlignedLabelContent = "tri-aligned-label__content";
 
         public const string TriAlignedGeneric = "tri-aligned-generic";
+        public const string TriAlignedGenericNonCollapsible = "tri-aligned-generic--non-collapsible";
 
         public const string TriValidationResults = "tri-validation-results";
         public const string TriValidationResultsBg = "tri-validation-results__bg";
@@ -41,6 +42,7 @@ namespace TriInspector.VisualElements
         public const string NoDrawerLabel = "tri-no-drawer__label";
 
         public const string ReferenceTypeOverlay = "tri-reference__type-overlay";
+        public const string ReferenceContent = "tri-reference__content";
 
         public const string BoxGroup = "tri-box-group";
         public const string BoxGroupHeader = "tri-box-group__header";

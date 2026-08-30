@@ -1,7 +1,4 @@
 ﻿using System;
-using TriInspector.Utilities;
-using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
@@ -59,7 +56,7 @@ namespace TriInspector.VisualElements
 
                 if (showReferencePicker)
                 {
-                    inlineRoot.Add(CreateTypeSelectorIsland());
+                    inlineRoot.Add(CreateTypeSelector());
                 }
 
                 RebuildContent();
@@ -75,22 +72,14 @@ namespace TriInspector.VisualElements
                 return;
             }
 
-            var foldout = new Foldout
-            {
-                value = property.IsExpanded,
-            };
+            var header = new TriAlignedLabelForGenericVisualElement(
+                property, showReferencePicker ? CreateTypeSelector() : new VisualElement(), collapsible: true);
 
-            foldout.SetAcceptClicksIfDisabled(true);
-            foldout.AutoSyncLabelFromProperty(property);
+            content.AddToClassList(TriStyles.ReferenceContent);
 
-            if (property.TryGetSerializedProperty(out var serializedProperty))
+            void SetContentVisible(bool contentVisible)
             {
-                foldout.BindProperty(serializedProperty);
-            }
-
-            if (showReferencePicker)
-            {
-                TriAlignedSpacerVisualElement.InjectAlignedLabelFieldIntoFoldout(foldout, CreateTypeSelectorIsland());
+                content.style.display = contentVisible ? DisplayStyle.Flex : DisplayStyle.None;
             }
 
             if (property.IsExpanded)
@@ -98,10 +87,12 @@ namespace TriInspector.VisualElements
                 RebuildContent();
             }
 
-            foldout.RegisterValueChangedCallback(evt =>
+            SetContentVisible(property.IsExpanded);
+
+            header.Foldout.RegisterValueChangedCallback(evt =>
             {
                 // Foldout also bubbles ChangeEvent<bool> from child toggles; only react to its own.
-                if (evt.target != foldout)
+                if (evt.target != header.Foldout)
                 {
                     return;
                 }
@@ -112,21 +103,24 @@ namespace TriInspector.VisualElements
                 {
                     RebuildContent();
                 }
+
+                SetContentVisible(evt.newValue);
             });
 
-            foldout.Add(content);
-            BindLifecycle(foldout);
-            Add(foldout);
+            Add(header);
+            Add(content);
+            BindLifecycle(this);
         }
 
-        private IMGUIContainer CreateTypeSelectorIsland()
+        private VisualElement CreateTypeSelector()
         {
-            // The managed-reference picker is an IMGUI AdvancedDropdown with no native equivalent
-            return new IMGUIContainer(() =>
+            return new TriReferenceTypeSelectorVisualElement(_property)
             {
-                var rect = EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight);
-                TriManagedReferenceGui.DrawTypeSelector(rect, _property);
-            });
+                style =
+                {
+                    marginRight = -2,
+                }
+            };
         }
     }
 }

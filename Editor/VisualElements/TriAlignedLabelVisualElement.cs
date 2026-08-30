@@ -6,25 +6,37 @@ namespace TriInspector.VisualElements
 {
     public class TriAlignedLabelForGenericVisualElement : TriAlignedLabelVisualElement<object>
     {
-        public TriAlignedLabelForGenericVisualElement(TriProperty property, VisualElement content)
+        public Foldout Foldout { get; }
+
+        public TriAlignedLabelForGenericVisualElement(TriProperty property, VisualElement content,
+            bool collapsible = false)
             : base(string.IsNullOrEmpty(property.DisplayName) ? null : " ", content)
         {
             AddToClassList(TriStyles.TriAlignedGeneric);
 
-            var foldout = new Foldout
+            Foldout = new Foldout
             {
-                toggleOnLabelClick = false,
-                value = true,
+                toggleOnLabelClick = collapsible,
+                value = !collapsible || property.IsExpanded,
             };
 
-            foldout.AutoSyncLabelFromProperty(property);
+            if (collapsible)
+            {
+                Foldout.SetAcceptClicksIfDisabled(true);
+            }
+            else
+            {
+                AddToClassList(TriStyles.TriAlignedGenericNonCollapsible);
+            }
+
+            Foldout.AutoSyncLabelFromProperty(property);
 
             if (property.TryGetSerializedProperty(out var serializedProperty))
             {
-                foldout.BindProperty(serializedProperty);
+                Foldout.BindProperty(serializedProperty);
             }
-            
-            labelElement.Add(foldout);
+
+            labelElement.Add(Foldout);
         }
     }
 
