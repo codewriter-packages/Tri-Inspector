@@ -7,7 +7,7 @@ namespace TriInspector.VisualElements
     public class TriAlignedLabelForGenericVisualElement : TriAlignedLabelVisualElement<object>
     {
         public TriAlignedLabelForGenericVisualElement(TriProperty property, VisualElement content)
-            : base(" ", content)
+            : base(string.IsNullOrEmpty(property.DisplayName) ? null : " ", content)
         {
             AddToClassList(TriStyles.TriAlignedGeneric);
 
@@ -47,11 +47,9 @@ namespace TriInspector.VisualElements
         protected TriAlignedLabelVisualElement(string label, VisualElement content)
             : base(label, content)
         {
-            AddToClassList(alignedFieldUssClassName);
             content.AddToClassList(TriStyles.TriAlignedLabelContent);
 
-            RegisterCallback<AttachToPanelEvent>(_ =>
-                TriLabelWidthContextVisualElement.ApplyWidthFromAncestorToPrefixLabel(this));
+            TriLabelWidthContextVisualElement.SetupAlignedLabel(this);
         }
     }
 

@@ -98,6 +98,7 @@ namespace TriInspector
             }
 
             PeriodicRun(el, Sync);
+            Sync(); // It is important to setup label synchronously or label aligning will fail
         }
 
         public static void AutoSyncValueFromProperty<T>(this BaseField<T> field, TriProperty property,

@@ -66,10 +66,7 @@ namespace TriInspector.VisualElements
             else
             {
                 field.AutoSyncLabelFromProperty(property);
-                field.AddToClassList(BaseField<int>.alignedFieldUssClassName);
-
-                field.RegisterCallback<AttachToPanelEvent>(_ =>
-                    TriLabelWidthContextVisualElement.ApplyWidthFromAncestorToPrefixLabel(field));
+                TriLabelWidthContextVisualElement.SetupAlignedLabel(field);
             }
         }
     }

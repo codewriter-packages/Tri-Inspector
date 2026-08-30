@@ -1,4 +1,5 @@
-﻿using UnityEngine.UIElements;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
 {
@@ -16,34 +17,101 @@ namespace TriInspector.VisualElements
             }
         }
 
-        public static bool ApplyWidthFromAncestorToPrefixLabel(VisualElement el)
+        public static void SetupAlignedLabel(VisualElement field)
         {
-            if (el.FindAncestor<TriLabelWidthContextVisualElement>() is not { } labelContext)
+            VisualElement inspectorElement = null;
+            VisualElement contextWidthElement = null;
+            var explicitWidth = false;
+
+            void Align()
+            {
+                AlignLabel(field, inspectorElement, contextWidthElement, explicitWidth);
+            }
+
+            field.RegisterCallback<AttachToPanelEvent>(_ =>
+            {
+                inspectorElement = null;
+                contextWidthElement = null;
+
+                for (var current = field.parent; current != null; current = current.parent)
+                {
+                    if (current.ClassListContains(TriStyles.UnityInspectorElement))
+                    {
+                        inspectorElement = current;
+                    }
+
+                    if (current.ClassListContains(TriStyles.UnityInspectorMainContainer))
+                    {
+                        contextWidthElement = current;
+                        break;
+                    }
+                }
+
+                explicitWidth = TryApplyExplicitWidth(field);
+
+                Align();
+            });
+
+            field.RegisterCallback<CustomStyleResolvedEvent>(_ => Align());
+            field.RegisterCallback<GeometryChangedEvent>(_ => Align());
+        }
+
+        private static bool TryApplyExplicitWidth(VisualElement field)
+        {
+            if (field.FindAncestor<TriLabelWidthContextVisualElement>() is not { } context)
             {
                 return false;
             }
 
-            if (labelContext.LabelWidth is not { } customLabelWidth)
-            {
-                return true;
-            }
-
-            if (el.Q<Label>(className: BaseField<object>.labelUssClassName) is not { } childLabel)
+            if (context.LabelWidth is not { } customLabelWidth)
             {
                 return false;
             }
 
-            if (el.ClassListContains(BaseField<object>.alignedFieldUssClassName))
+            if (field.Q<Label>(className: BaseField<object>.labelUssClassName) is not { } label)
             {
-                el.RemoveFromClassList(BaseField<object>.alignedFieldUssClassName);
-                childLabel.style.width = childLabel.style.minWidth = customLabelWidth;
-            }
-            else
-            {
-                return true;
+                return false;
             }
 
-            return false;
+            label.style.width = label.style.minWidth = customLabelWidth;
+            return true;
+        }
+
+        private static void AlignLabel(VisualElement field, VisualElement inspectorElement,
+            VisualElement contextWidthElement, bool explicitWidth)
+        {
+            if (explicitWidth || inspectorElement == null)
+            {
+                return;
+            }
+
+            if (field.Q<Label>(className: BaseField<object>.labelUssClassName) is not { } label)
+            {
+                return;
+            }
+
+            const float labelExtraPadding = 37.0f;
+            const float labelBaseMinWidth = 123.0f;
+            const float labelExtraContextWidth = 1.0f;
+            const float labelWidthRatio = 0.45f;
+
+            var spacing = field.worldBound.x - inspectorElement.worldBound.x -
+                          inspectorElement.resolvedStyle.paddingLeft;
+
+            if (float.IsNaN(spacing))
+            {
+                return;
+            }
+
+            var totalPadding = labelExtraPadding + spacing + field.resolvedStyle.paddingLeft;
+            var minWidth = labelBaseMinWidth - spacing - field.resolvedStyle.paddingLeft;
+            var widthElement = contextWidthElement ?? inspectorElement;
+
+            label.style.minWidth = Mathf.Max(minWidth, 0);
+            
+            var newWidth = (widthElement.resolvedStyle.width + labelExtraContextWidth) * labelWidthRatio -
+                           totalPadding;
+            label.style.width = Mathf.Max(0f, newWidth);
         }
     }
 }
