@@ -4,7 +4,7 @@ using TriInspector.Resolvers;
 using TriInspector.VisualElements;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {

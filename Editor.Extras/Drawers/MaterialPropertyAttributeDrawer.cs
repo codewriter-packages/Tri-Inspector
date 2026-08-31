@@ -10,7 +10,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(MaterialPropertyAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly: RegisterTriAttributeDrawer(typeof(MaterialPropertyAttributeDrawer), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {

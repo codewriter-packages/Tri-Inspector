@@ -11,7 +11,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(AnimatorParameterAttributeDrawer), TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
+[assembly: RegisterTriAttributeDrawer(typeof(AnimatorParameterAttributeDrawer), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
 {

@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 [assembly:
-    RegisterTriAttributeDrawer(typeof(MinMaxSliderAttributeDrawer), TriDrawerOrder.Decorator,
+    RegisterTriAttributeDrawer(typeof(MinMaxSliderAttributeDrawer), TriDrawerOrder.Drawer,
         ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers

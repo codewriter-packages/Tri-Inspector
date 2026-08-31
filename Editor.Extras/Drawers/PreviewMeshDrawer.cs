@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-[assembly: RegisterTriAttributeDrawer(typeof(PreviewMeshDrawer), TriDrawerOrder.Decorator,
+[assembly: RegisterTriAttributeDrawer(typeof(PreviewMeshDrawer), TriDrawerOrder.Drawer,
     ApplyOnArrayElement = true)]
 
 namespace TriInspector.Drawers
