@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using TriInspector;
 using TriInspector.Drawers;
 using TriInspector.Resolvers;
@@ -64,6 +65,8 @@ namespace TriInspector.Drawers
             {
                 var (minLimit, maxLimit) = SliderAttributeHelpers.GetLimits(_property, _attribute, _resolvers);
 
+                this.SetClamped(false);
+
                 lowValue = (float) minLimit;
                 highValue = (float) maxLimit;
                 showMixedValue = _property.IsValueMixed;
@@ -83,6 +86,8 @@ namespace TriInspector.Drawers
                     return;
                 }
 
+                this.SetClamped(currentValue >= minLimit && currentValue <= maxLimit);
+
                 if (_attribute.AutoClamp)
                 {
                     var clampedValue = Math.Clamp(currentValue, minLimit, maxLimit);
@@ -97,6 +102,28 @@ namespace TriInspector.Drawers
 
                 SetValueWithoutNotify((float) currentValue);
             }
+        }
+    }
+
+    public static class SliderExtensions
+    {
+        private static readonly PropertyInfo Clamped;
+
+        static SliderExtensions()
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            Clamped = typeof(Slider).GetProperty("clamped", flags);
+
+            if (Clamped == null)
+            {
+                Debug.LogError("TriInspector failed to access clamped property on Slider. " +
+                               $"Please open a bug report. Unity version {Application.unityVersion}");
+            }
+        }
+
+        public static void SetClamped(this Slider slider, bool value)
+        {
+            Clamped?.SetValue(slider, value);
         }
     }
 
