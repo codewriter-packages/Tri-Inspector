@@ -2,13 +2,28 @@
 
 _Advanced inspector attributes for Unity_
 
-<img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/381f65f4-2e0c-4419-9739-ad16fdd4cbfc" />
-
+- [What's New in 2.0](#whats-new-in-20)
 - [Samples](#Samples)
 - [Attributes](#Attributes)
 - [Integrations](#Integrations) ([Odin Inspector](#Odin-Inspector), [Odin Validator](#Odin-Validator))
 - [How to Install](#How-to-Install)
 - [License](#License)
+
+## What's New in 2.0-preview
+
+> [!WARNING]
+> **2.0 is currently a preview release** and may contain bugs. If you run into any issues, please [report them](https://github.com/codewriter-packages/Tri-Inspector/issues). If you need a stable experience, install the latest **1.x.x** release from the [`1.x.x` branch](https://github.com/codewriter-packages/Tri-Inspector/tree/1.x.x).
+
+> Tri Inspector 2.0 is a significant milestone — rebuilt from the ground up on Unity's **UI Toolkit**, bringing a modern foundation, polished visuals, and long-requested features.
+
+- 🎯 **Unity 6 and above** — minimum supported version is now Unity 6, allowing the project to adopt modern editor APIs without legacy baggage.
+- 🖼️ **UI Toolkit based** — the entire rendering pipeline has been rewritten using UI Toolkit, replacing the old IMGUI backend.
+- 📦 **Prefab workflow support** — Tri Inspector fully respects Unity's prefab override system, so modified properties are highlighted, revertable, and apply correctly across prefab instances and variants.
+- ✨ **New styles for UI elements** — lists, groups, info boxes now have polished, consistent visual styles that not only integrate with Unity 6's editor theme, but redefine what an editor inspector can look like.
+- 🛠️ **Overall improvements and bug fixes** — a wide range of edge-case bugs have been resolved and internal systems have been hardened, resulting in a more stable and predictable inspector experience.
+- ↕️ **TableList is now reorderable** — rows in `[TableList]` can be dragged and reordered directly in the inspector, making list management significantly faster.
+
+<img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/381f65f4-2e0c-4419-9739-ad16fdd4cbfc" />
 
 ## Samples
 
@@ -61,6 +76,7 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
                 <li>Preview Object</li>
                 <li>Preview Mesh</li>
                 <li>Layer</li>
+                <li>Property Text Area</li>
             </ul>
         </td>
         <td valign="top">
@@ -99,6 +115,8 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
                 <li>Enable/Disable If</li>
                 <li>Show/Hide In Play Mode</li>
                 <li>Enable/Disable In Play Mode</li>
+                <li>Show/Hide In Edit Mode</li>
+                <li>Enable/Disable In Edit Mode</li>
             </ul>
         </td>
         <td valign="top">
@@ -111,8 +129,30 @@ TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
             <ul>
                 <li>Button</li>
                 <li>Enum Toggle Buttons</li>
+                <li>Inline Button</li>
             </ul>
         </td>
+    </tr>
+    <tr>
+        <td><a href="#Others"><b>Others →</b></a></td>
+        <td><a href="#Debug"><b>Debug →</b></a></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td valign="top">
+            <ul>
+                <li>Draw With Tri Inspector</li>
+                <li>Draw With Unity</li>
+            </ul>
+        </td>
+        <td valign="top">
+            <ul>
+                <li>Show Drawer Chain</li>
+            </ul>
+        </td>
+        <td></td>
+        <td></td>
     </tr>
 </table>
 
@@ -807,6 +847,18 @@ public enum SomeEnum { One, Two, Three }
     AB = A | B,
     BC = B | C,
 }
+```
+
+#### InlineButton
+
+```csharp
+[InlineButton(nameof(Ping))]
+[InlineButton("Null", nameof(SetNull), isChecked: nameof(IsNull))]
+public Material material;
+
+private void Ping() => Debug.Log("Clicked!");
+private bool IsNull => material == null;
+private void SetNull() { material = null; }
 ```
 
 ### Debug
