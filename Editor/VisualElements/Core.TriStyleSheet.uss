@@ -77,12 +77,24 @@ unity-property-field__label
     margin-right: 0; /* Fix default -2px margin */
 }
 
-.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle,
-.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle > .unity-foldout__input > .unity-foldout__text {
+/* We want the arrow to be aligned with the text and not moved outward to the left. */
+.tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle {
     margin: 0 !important;
     padding: 0 !important;
 }
 
+/* For non collapsible we hide arrow, so cleanup text offsets so it looks good without arrow */
+.tri-aligned-generic--non-collapsible > .unity-base-field__label > .unity-foldout > .unity-foldout__toggle > .unity-foldout__input > .unity-foldout__text {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* For collapsible we show Foldout in/instead label , so cleanup extra offsets here, and Foldout will exact match label */
+.tri-aligned-generic--collapsible > .unity-base-field__label {
+    padding: 0 !important;
+}
+
+/* We use Foldout for nice label only, so hide it content */
 .tri-aligned-generic > .unity-base-field__label > .unity-foldout > .unity-foldout__content {
     display: none !important;
 }

@@ -23,6 +23,7 @@ namespace TriInspector.VisualElements
             if (collapsible)
             {
                 Foldout.SetAcceptClicksIfDisabled(true);
+                AddToClassList(TriStyles.TriAlignedGenericCollapsible);
             }
             else
             {

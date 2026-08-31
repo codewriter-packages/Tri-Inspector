@@ -14,6 +14,7 @@ namespace TriInspector.VisualElements
         public const string TriAlignedLabelContent = "tri-aligned-label__content";
 
         public const string TriAlignedGeneric = "tri-aligned-generic";
+        public const string TriAlignedGenericCollapsible = "tri-aligned-generic--collapsible";
         public const string TriAlignedGenericNonCollapsible = "tri-aligned-generic--non-collapsible";
 
         public const string TriValidationResults = "tri-validation-results";
