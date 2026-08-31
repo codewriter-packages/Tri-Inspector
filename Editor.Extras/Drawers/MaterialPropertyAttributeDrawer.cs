@@ -23,109 +23,117 @@ namespace TriInspector.Drawers
             _resolvedParams = MaterialPropertyHelper.Initialize(propertyDefinition, Attribute);
 
             if (_resolvedParams.ErrorResult.IsError)
+            {
                 return TriExtensionInitializationResult.Skip;
+            }
 
             if (propertyDefinition.FieldType != typeof(string) &&
                 propertyDefinition.FieldType != typeof(int))
+            {
                 return "[MaterialProperty] can only be used on 'string' or 'int' fields.";
+            }
 
             return TriExtensionInitializationResult.Ok;
         }
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var imgui = new IMGUIContainer(() => DrawImgui(property));
-            return property.FieldType == typeof(int)
-                ? new TriAlignedLabelVisualElement<int>(property, imgui)
-                : new TriAlignedLabelVisualElement<string>(property, imgui);
+            VisualElement dropdown = property.FieldType == typeof(int)
+                ? new TriDropdownVisualElement<int>(property, GetIntItems, useAdvancedDropdown: true)
+                : new TriDropdownVisualElement<string>(property, GetStringItems, useAdvancedDropdown: true);
+
+            dropdown.TrackPropertyValueChanged(property, CacheSelectedProperty);
+            return dropdown;
         }
 
-        private void DrawImgui(TriProperty property)
+        private IEnumerable<ITriDropdownItem> GetStringItems(TriProperty property)
         {
             var material = _resolvedParams.MaterialResolver.GetValue(property);
-            var (allProperties, filteredProperties) = MaterialPropertyHelper.GetProperties(material, Attribute.PropertyType);
-
-            if (property.ValueType == typeof(string))
-            {
-                DrawPopup(
-                    property,
-                    material,
-                    (string)property.Value,
-                    allProperties.Names,
-                    filteredProperties.Names,
-                    filteredProperties.DisplayNames,
-                    filteredProperties.Types,
-                    MaterialPropertyHelper.GetInvalidPropertyLabel
-                );
-            }
-            else if (property.ValueType == typeof(int))
-            {
-                DrawPopup(
-                    property,
-                    material,
-                    (int)property.Value,
-                    allProperties.Hashes,
-                    filteredProperties.Hashes,
-                    filteredProperties.DisplayNames,
-                    filteredProperties.Types,
-                    MaterialPropertyHelper.GetInvalidPropertyLabel
-                );
-            }
+            var (all, filtered) = MaterialPropertyHelper.GetProperties(material, Attribute.PropertyType);
+            return BuildItems(material, (string) property.Value,
+                all.Names, filtered.Names, filtered.DisplayNames,
+                MaterialPropertyHelper.GetInvalidPropertyLabel);
         }
 
-        private void DrawPopup<T>(
-            TriProperty property,
+        private IEnumerable<ITriDropdownItem> GetIntItems(TriProperty property)
+        {
+            var material = _resolvedParams.MaterialResolver.GetValue(property);
+            var (all, filtered) = MaterialPropertyHelper.GetProperties(material, Attribute.PropertyType);
+            return BuildItems(material, (int) property.Value!,
+                all.Hashes, filtered.Hashes, filtered.DisplayNames,
+                MaterialPropertyHelper.GetInvalidPropertyLabel);
+        }
+
+        private static IEnumerable<ITriDropdownItem> BuildItems<T>(
             Material material,
             T currentValue,
             T[] allValues,
             T[] filteredValues,
             GUIContent[] displayNames,
-            ShaderPropertyType[] types,
             Func<Material, T, string> invalidLabelFunc)
         {
-            bool isEmpty = EqualityComparer<T>.Default.Equals(currentValue, default);
-            bool exists = allValues.Contains(currentValue);
-            bool matchesType = filteredValues.Contains(currentValue);
-            bool isValid = isEmpty || (exists && matchesType);
+            var items = new List<ITriDropdownItem>(filteredValues.Length + 1);
+            for (var i = 0; i < filteredValues.Length; i++)
+            {
+                items.Add(new TriDropdownItem<T> {Text = displayNames[i].text, Value = filteredValues[i]});
+            }
 
-            var displayList = new List<GUIContent>(displayNames);
-            var valueList = new List<T>(filteredValues);
-
-            int currentIndex = 0;
-
+            // If the stored value isn't a live parameter of the right type (and isn't the empty/None value),
+            // append it so the closed-state label and menu still show it via GetInvalidPropertyLabel.
+            var isEmpty = EqualityComparer<T>.Default.Equals(currentValue, default);
+            var isValid = isEmpty || (allValues.Contains(currentValue) && filteredValues.Contains(currentValue));
             if (!isValid)
             {
-                displayList.Add(new GUIContent(invalidLabelFunc(material, currentValue)));
-                valueList.Add(currentValue);
-                currentIndex = valueList.Count - 1;
+                items.Add(new TriDropdownItem<T>
+                    {Text = invalidLabelFunc(material, currentValue), Value = currentValue});
+            }
+
+            return items;
+        }
+
+        private void CacheSelectedProperty(TriProperty property)
+        {
+            var material = _resolvedParams.MaterialResolver.GetValue(property);
+            if (material == null || material.shader == null)
+            {
+                return;
+            }
+
+            var (all, _) = MaterialPropertyHelper.GetProperties(material, null);
+
+            int index;
+            if (property.ValueType == typeof(string))
+            {
+                var name = (string) property.Value;
+                if (string.IsNullOrEmpty(name))
+                {
+                    return;
+                }
+
+                index = Array.IndexOf(all.Names, name);
+            }
+            else if (property.ValueType == typeof(int))
+            {
+                var id = (int) property.Value!;
+                if (id == 0)
+                {
+                    return;
+                }
+
+                index = Array.IndexOf(all.Hashes, id);
             }
             else
             {
-                currentIndex = Array.IndexOf(filteredValues, currentValue);
-                if (currentIndex < 0) currentIndex = 0;
+                return;
             }
 
-            EditorGUI.BeginChangeCheck();
-            int newIndex = EditorGUILayout.Popup(currentIndex, displayList.ToArray());
-
-            if (EditorGUI.EndChangeCheck())
+            // index 0 is the "None" entry; -1 means the value is not a live property.
+            if (index <= 0)
             {
-                if (newIndex < 0 || newIndex >= valueList.Count)
-                    return;
-
-                T selectedValue = valueList[newIndex];
-                var selectedType = types[Mathf.Min(newIndex, types.Length - 1)];
-                string selectedName = selectedValue is string s ? s : MaterialPropertyHelper.ResolvePropertyName(material, selectedValue);
-
-                property.SetValue(selectedValue);
-
-                MaterialPropertyHelper.SaveSingleProperty(
-                    material,
-                    selectedName,
-                    selectedType,
-                    Shader.PropertyToID(selectedName)
-                );
+                return;
             }
+
+            MaterialPropertyHelper.SaveSingleProperty(material, all.Names[index], all.Types[index], all.Hashes[index]);
         }
     }
 
@@ -356,25 +364,6 @@ namespace TriInspector.Drawers
             }
         }
 
-        public static string ResolvePropertyName(Material material, object value)
-        {
-            if (material == null || material.shader == null)
-                return value?.ToString();
-
-            if (value is int id)
-            {
-                int count = material.shader.GetPropertyCount();
-                for (int i = 0; i < count; i++)
-                {
-                    string propName = material.shader.GetPropertyName(i);
-                    if (Shader.PropertyToID(propName) == id)
-                        return propName;
-                }
-                return id.ToString();
-            }
-
-            return value?.ToString();
-        }
         public static string GetInvalidPropertyLabel(Material material, string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName))

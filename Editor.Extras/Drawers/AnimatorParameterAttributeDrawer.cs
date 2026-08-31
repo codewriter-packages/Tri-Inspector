@@ -36,106 +36,98 @@ namespace TriInspector.Drawers
 
             return TriExtensionInitializationResult.Ok;
         }
+
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            var imgui = new IMGUIContainer(() => DrawImgui(property));
-            return property.Definition.FieldType == typeof(int)
-                ? new TriAlignedLabelVisualElement<int>(property, imgui)
-                : new TriAlignedLabelVisualElement<string>(property, imgui);
+            VisualElement dropdown = property.Definition.FieldType == typeof(int)
+                ? new TriDropdownVisualElement<int>(property, GetIntItems, useAdvancedDropdown: true)
+                : new TriDropdownVisualElement<string>(property, GetStringItems, useAdvancedDropdown: true);
+
+            dropdown.TrackPropertyValueChanged(property, CacheSelectedParameter);
+            return dropdown;
         }
 
-        private void DrawImgui(TriProperty property)
+        private IEnumerable<ITriDropdownItem> GetStringItems(TriProperty property)
         {
             var animator = _resolvedParams.AnimatorResolver.GetValue(property);
-            var (allParameters, allFilteredParameters) = AnimatorParameterHelper.GetParameters(animator, Attribute.ParameterType);
-
-            if (property.ValueType == typeof(string))
-            {
-                DrawPopup(
-                    property,
-                    animator,
-                    (string)property.Value,
-                    allParameters.Names,
-                    allFilteredParameters.Names,
-                    allFilteredParameters.DisplayNames,
-                    allFilteredParameters.Types,
-                    AnimatorParameterHelper.GetInvalidParameterLabel
-                );
-            }
-            else if (property.ValueType == typeof(int))
-            {
-                DrawPopup(
-                    property,
-                    animator,
-                    (int)property.Value,
-                    allParameters.Hashes,
-                    allFilteredParameters.Hashes,
-                    allFilteredParameters.DisplayNames,
-                    allFilteredParameters.Types,
-                    AnimatorParameterHelper.GetInvalidParameterLabel
-                );
-            }
+            var (all, filtered) = AnimatorParameterHelper.GetParameters(animator, Attribute.ParameterType);
+            return BuildItems(animator, (string) property.Value,
+                all.Names, filtered.Names, filtered.DisplayNames,
+                AnimatorParameterHelper.GetInvalidParameterLabel);
         }
-        private void DrawPopup<T>(
-            TriProperty property,
+
+        private IEnumerable<ITriDropdownItem> GetIntItems(TriProperty property)
+        {
+            var animator = _resolvedParams.AnimatorResolver.GetValue(property);
+            var (all, filtered) = AnimatorParameterHelper.GetParameters(animator, Attribute.ParameterType);
+            return BuildItems(animator, (int) property.Value!,
+                all.Hashes, filtered.Hashes, filtered.DisplayNames,
+                AnimatorParameterHelper.GetInvalidParameterLabel);
+        }
+
+        private static IEnumerable<ITriDropdownItem> BuildItems<T>(
             Animator animator,
             T currentValue,
             T[] allValues,
             T[] filteredValues,
             GUIContent[] displayNames,
-            AnimatorControllerParameterType[] types,
             Func<Animator, T, string> invalidLabelFunc)
         {
-            bool isEmpty = EqualityComparer<T>.Default.Equals(currentValue, default);
-            bool exists = allValues.Contains(currentValue);
-            bool matchesType = filteredValues.Contains(currentValue);
-            bool isValid = isEmpty || (exists && matchesType);
+            var items = new List<ITriDropdownItem>(filteredValues.Length + 1);
+            for (var i = 0; i < filteredValues.Length; i++)
+            {
+                items.Add(new TriDropdownItem<T> {Text = displayNames[i].text, Value = filteredValues[i]});
+            }
 
-            var displayList = new List<GUIContent>(displayNames);
-            var valueList = new List<T>(filteredValues);
-
-            int currentIndex = 0;
-
+            // If the stored value isn't a live parameter of the right type (and isn't the empty/None value),
+            // append it so the closed-state label and menu still show it via GetInvalidParameterLabel.
+            var isEmpty = EqualityComparer<T>.Default.Equals(currentValue, default);
+            var isValid = isEmpty || (allValues.Contains(currentValue) && filteredValues.Contains(currentValue));
             if (!isValid)
             {
-                displayList.Add(new GUIContent(invalidLabelFunc(animator, currentValue)));
-                valueList.Add(currentValue);
-                currentIndex = valueList.Count - 1;
-            }
-            else
-            {
-                currentIndex = Array.IndexOf(filteredValues, currentValue);
-                if (currentIndex < 0) currentIndex = 0;
+                items.Add(new TriDropdownItem<T>
+                    {Text = invalidLabelFunc(animator, currentValue), Value = currentValue});
             }
 
-            EditorGUI.BeginChangeCheck();
-            int newIndex = EditorGUILayout.Popup(currentIndex, displayList.ToArray());
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                if (newIndex < 0 || newIndex >= valueList.Count)
-                    return;
-
-                T selectedValue = valueList[newIndex];
-                var selectedType = types[Mathf.Min(newIndex, types.Length - 1)];
-                string selectedName = selectedValue is string s ? s : AllParametersName(animator, selectedValue);
-
-                property.SetValue(selectedValue);
-
-                AnimatorParameterHelper.SaveSingleParameter(
-                    animator,
-                    selectedName,
-                    selectedType,
-                    Animator.StringToHash(selectedName)
-                );
-            }
+            return items;
         }
 
-        private string AllParametersName(Animator animator, object value)
+        private void CacheSelectedParameter(TriProperty property)
         {
-            if (value is int hash)
-                return animator.parameters.FirstOrDefault(p => p.nameHash == hash)?.name ?? hash.ToString();
-            return value?.ToString();
+            var animator = _resolvedParams.AnimatorResolver.GetValue(property);
+            if (animator == null || animator.runtimeAnimatorController == null)
+            {
+                return;
+            }
+
+            AnimatorControllerParameter match = null;
+            if (property.ValueType == typeof(string))
+            {
+                var name = (string) property.Value;
+                if (string.IsNullOrEmpty(name))
+                {
+                    return;
+                }
+
+                match = animator.parameters.FirstOrDefault(p => p.name == name);
+            }
+            else if (property.ValueType == typeof(int))
+            {
+                var hash = (int) property.Value!;
+                if (hash == 0)
+                {
+                    return;
+                }
+
+                match = animator.parameters.FirstOrDefault(p => p.nameHash == hash);
+            }
+
+            if (match == null)
+            {
+                return;
+            }
+
+            AnimatorParameterHelper.SaveSingleParameter(animator, match.name, match.type, match.nameHash);
         }
     }
 
