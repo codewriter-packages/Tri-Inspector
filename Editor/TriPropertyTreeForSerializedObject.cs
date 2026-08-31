@@ -77,7 +77,6 @@ namespace TriInspector
             }
 
             RequestValidation();
-            RequestRepaint();
         }
     }
 }

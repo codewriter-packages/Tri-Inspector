@@ -57,8 +57,6 @@ namespace TriInspector
             Profiler.BeginSample("TriInspector.RunValidation");
             RootProperty.RunValidation();
             Profiler.EndSample();
-
-            RequestRepaint();
         }
 
         public VisualElement GetRootElement()
@@ -80,11 +78,6 @@ namespace TriInspector
         public void EnumerateValidationResults(Action<TriProperty, TriValidationResult> call)
         {
             RootProperty.EnumerateValidationResults(call);
-        }
-
-        [Obsolete("Legacy from IMGUI")]
-        public void RequestRepaint()
-        {
         }
 
         public void RequestValidation()
