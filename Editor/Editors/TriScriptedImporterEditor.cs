@@ -1,5 +1,4 @@
 ﻿using TriInspectorUnityInternalBridge;
-using UnityEditor;
 using UnityEngine.UIElements;
 
 #if UNITY_2020_2_OR_NEWER
@@ -10,9 +9,7 @@ using UnityEditor.Experimental.AssetImporters;
 
 namespace TriInspector.Editors
 {
-    [CanEditMultipleObjects]
-    [CustomEditor(typeof(ScriptedImporter), editorForChildClasses: true)]
-    public sealed class TriScriptedImporterEditor : ScriptedImporterEditor
+    public abstract class TriScriptedImporterEditor : ScriptedImporterEditor
     {
         private TriEditorCore _core;
 
