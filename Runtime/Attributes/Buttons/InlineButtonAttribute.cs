@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TriInspector
 {
-    [AttributeUsage(AttributeTargets.Field|AttributeTargets.Property, AllowMultiple = true)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = true)]
     [Conditional("UNITY_EDITOR")]
     public class InlineButtonAttribute : Attribute
     {
@@ -11,9 +11,11 @@ namespace TriInspector
         {
             Name = name;
         }
-        public InlineButtonAttribute(string label,string name):this(name)
+
+        public InlineButtonAttribute(string label, string name, string isChecked = null) : this(name)
         {
             ButtonLabel = label;
+            IsChecked = isChecked;
         }
 
         public string Name { get; set; }
@@ -22,6 +24,11 @@ namespace TriInspector
         /// Optional custom label for the button. If not set, the method name is used.
         /// </summary>
         public string ButtonLabel { get; set; }
+
+        /// <summary>
+        /// Optional bool member that drives the button's active/checked state.
+        /// </summary>
+        public string IsChecked { get; set; }
 
         /// <summary>
         /// Width of the inline button in pixels. Default is 60.
