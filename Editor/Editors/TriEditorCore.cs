@@ -6,13 +6,18 @@ namespace TriInspector.Editors
 {
     public class TriEditorCore
     {
-        private readonly Editor _editor;
+        private readonly SerializedObject _serializedObject;
 
         private TriPropertyTreeForSerializedObject _inspector;
 
         public TriEditorCore(Editor editor)
         {
-            _editor = editor;
+            _serializedObject = editor.serializedObject;
+        }
+        
+        public TriEditorCore(SerializedObject serializedObject)
+        {
+            _serializedObject = serializedObject;
         }
 
         public void Dispose()
@@ -27,7 +32,7 @@ namespace TriInspector.Editors
 
         public VisualElement CreateVisualElement()
         {
-            var serializedObject = _editor.serializedObject;
+            var serializedObject = _serializedObject;
 
             var container = new VisualElement();
 
