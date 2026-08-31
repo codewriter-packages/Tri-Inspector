@@ -15,24 +15,13 @@ namespace TriInspector.VisualElements
 
             if (useFoldout)
             {
-                var foldout = new Foldout
-                {
-                    value = property.IsExpanded,
-                };
+                var header = new TriAlignedLabelForGenericVisualElement(
+                    property, headerControl ?? new VisualElement(), collapsible: true);
 
-                foldout.AutoSyncLabelFromProperty(property);
-                foldout.AddToClassList(TriStyles.Foldout);
-                foldout.SetAcceptClicksIfDisabled(true);
-
-                if (headerControl != null)
-                {
-                    TriAlignedSpacerVisualElement.InjectAlignedLabelFieldIntoFoldout(foldout, headerControl);
-                }
-
-                foldout.RegisterValueChangedCallback(evt =>
+                header.Foldout.RegisterValueChangedCallback(evt =>
                 {
                     // Foldout also bubbles ChangeEvent<bool> from child toggles; only react to its own.
-                    if (evt.target != foldout)
+                    if (evt.target != header.Foldout)
                     {
                         return;
                     }
@@ -42,7 +31,7 @@ namespace TriInspector.VisualElements
                     OnExpandedChanged(evt.newValue);
                 });
 
-                Add(foldout);
+                Add(header);
             }
             else if (headerControl != null)
             {

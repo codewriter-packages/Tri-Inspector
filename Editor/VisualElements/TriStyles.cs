@@ -42,7 +42,6 @@ namespace TriInspector.VisualElements
 
         public const string NoDrawerLabel = "tri-no-drawer__label";
 
-        public const string ReferenceTypeOverlay = "tri-reference__type-overlay";
         public const string ReferenceContent = "tri-reference__content";
 
         public const string BoxGroup = "tri-box-group";

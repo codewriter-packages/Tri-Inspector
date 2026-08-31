@@ -25,7 +25,7 @@ namespace TriInspector.Drawers
             private readonly MeshPreviewVisualElement _preview;
 
             public PreviewMeshVisualElement(TriProperty property, PreviewMeshAttribute attribute)
-                : base(property, attribute.UseFoldout, BuildObjectField(property))
+                : base(property, attribute.UseFoldout, BuildObjectField(property, attribute.UseFoldout))
             {
                 _preview = new MeshPreviewVisualElement(property, attribute.Height, attribute.Width,
                     attribute.UseFoldout, attribute.RotationMethod);
@@ -38,7 +38,7 @@ namespace TriInspector.Drawers
                 _preview.RefreshVisibility();
             }
 
-            private static ObjectField BuildObjectField(TriProperty property)
+            private static ObjectField BuildObjectField(TriProperty property, bool useFoldout)
             {
                 var field = new ObjectField
                 {
@@ -46,7 +46,7 @@ namespace TriInspector.Drawers
                     allowSceneObjects = property.PropertyTree.TargetIsPersistent == false,
                 };
 
-                field.BindTri(property);
+                field.BindTri(property, hideLabel: useFoldout);
                 return field;
             }
         }

@@ -63,7 +63,7 @@ namespace TriInspector.VisualElements
                 objectType = property.FieldType,
                 allowSceneObjects = property.PropertyTree.TargetIsPersistent == false,
             };
-            field.BindTri(property);
+            field.BindTri(property, hideLabel: true);
             return field;
         }
 

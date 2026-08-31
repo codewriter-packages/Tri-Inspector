@@ -1,5 +1,4 @@
 ﻿using UnityEditor.UIElements;
-using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
@@ -63,32 +62,6 @@ namespace TriInspector.VisualElements
             content.AddToClassList(TriStyles.TriAlignedLabelContent);
 
             TriLabelWidthContextVisualElement.SetupAlignedLabel(this);
-        }
-    }
-
-    public class TriAlignedSpacerVisualElement : TriAlignedLabelVisualElement<object>
-    {
-        public TriAlignedSpacerVisualElement(VisualElement content) : base(" ", content)
-        {
-        }
-
-        /// <summary>
-        /// Overlays content onto a foldout's toggle: the content sits in the value column
-        /// while the foldout arrow + title stay in the label column.
-        /// The overlay ignores picking so the arrow underneath stays clickable.
-        /// </summary>
-        public static void InjectAlignedLabelFieldIntoFoldout(Foldout foldout, VisualElement content)
-        {
-            if (foldout.Q<Toggle>() is not { } toggle)
-            {
-                Debug.LogError("Failed to inject custom content into foldout");
-                return;
-            }
-
-            var overlay = new TriAlignedSpacerVisualElement(content);
-            overlay.AddToClassList(TriStyles.ReferenceTypeOverlay);
-            overlay.pickingMode = PickingMode.Ignore;
-            toggle.Add(overlay);
         }
     }
 }
