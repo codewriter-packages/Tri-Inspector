@@ -99,6 +99,8 @@ namespace TriInspector.VisualElements
                 {
                     row.Add(CreateCell(child));
                 }
+
+                row = new TriValidationResultsVisualElement(property, row);
             }
             else
             {
