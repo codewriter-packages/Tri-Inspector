@@ -3,7 +3,7 @@
 .tri-dark {
     --tri-color-border: #141414;
     --tri-color-header-background: #353535;
-    --tri-color-content-background: #464646;
+    --tri-color-content-background: #3e3e3e;
     --tri-color-hover: #585858;
     --tri-color-foldout-line: #6C6C6C;
 
@@ -25,7 +25,7 @@
 .tri-light {
     --tri-color-border: #7E7E7E;
     --tri-color-header-background: #B6B6B6;
-    --tri-color-content-background: #DCDCDC;
+    --tri-color-content-background: #C1C1C1;
     --tri-color-hover: #ECECEC;
     --tri-color-foldout-line: #929292;
 
