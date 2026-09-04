@@ -549,14 +549,10 @@ namespace TriInspector
                 return 0;
             }
 
-            var comparer = TriEqualityComparer.Of(ArrayElementType);
-
+            // We use only the length for the hash, not the element hashes or anything similar.
+            // Otherwise, the TriList will be recreated each time,
+            // which leads to a loss of interactivity for the VisualElements.
             var hash = list.Count;
-            foreach (var element in list)
-            {
-                var elementHash = element != null ? comparer.GetHashCode(element) : 0;
-                hash = unchecked(hash * 31 + elementHash);
-            }
 
             return hash;
         }
