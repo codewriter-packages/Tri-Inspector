@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
+using UnityEngine;
 
 namespace TriInspector.Utilities
 {
@@ -13,6 +14,7 @@ namespace TriInspector.Utilities
 
         private static IReadOnlyList<Assembly> _assemblies;
         private static IReadOnlyList<Type> _allNonAbstractTypesBackingField;
+        private static ISet<Type> _makeSerializableTypes;
 
         public static IReadOnlyList<Assembly> Assemblies
         {
@@ -24,6 +26,61 @@ namespace TriInspector.Utilities
                 }
 
                 return _assemblies;
+            }
+        }
+
+        public static ISet<Type> MakeSerializableTypes
+        {
+            get
+            {
+                if (_makeSerializableTypes == null)
+                {
+                    var set = new HashSet<Type>();
+                    _makeSerializableTypes = set;
+
+                    set.Add(typeof(string));
+                    set.Add(typeof(Vector2));
+                    set.Add(typeof(Vector2Int));
+                    set.Add(typeof(Vector3));
+                    set.Add(typeof(Vector3Int));
+                    set.Add(typeof(Vector4));
+                    set.Add(typeof(Color));
+                    set.Add(typeof(Color32));
+                    set.Add(typeof(LayerMask));
+                    set.Add(typeof(Rect));
+                    set.Add(typeof(RectInt));
+                    set.Add(typeof(AnimationCurve));
+                    set.Add(typeof(Bounds));
+                    set.Add(typeof(BoundsInt));
+                    set.Add(typeof(Gradient));
+                    set.Add(typeof(Quaternion));
+                    set.Add(typeof(PropertyName));
+
+#if UNITY_6000_6
+                    var getSerializableType = typeof(MakeSerializableAttribute).GetMethod("GetSerializableType",
+                        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                    if (getSerializableType != null)
+                    {
+                        var found = Assemblies
+                            .SelectMany(asm => asm.GetCustomAttributes<MakeSerializableAttribute>())
+                            .Select(attr => (Type) getSerializableType.Invoke(attr, null));
+
+                        foreach (var type in found)
+                        {
+                            set.Add(type);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError(
+                            "TriInspector failed to access GetSerializableType method on MakeSerializableAttribute. " +
+                            $"Please open a bug report. Unity version {Application.unityVersion}");
+                    }
+#endif
+                }
+
+                return _makeSerializableTypes;
             }
         }
 

@@ -8,9 +8,14 @@ namespace TriInspector.Utilities
 {
     internal static class TriUnitySerializationUtilities
     {
-        private static readonly Assembly CoreLibAssembly = typeof(List<>).Assembly;
-        private static readonly Assembly SystemCoreAssembly = typeof(HashSet<>).Assembly;
-        private static readonly Assembly SystemAssembly = typeof(LinkedList<>).Assembly;
+        private static readonly HashSet<string> ExcludedNamespaces = new()
+        {
+            "System",
+            "System.IO",
+            "System.Net",
+            "System.Reflection",
+            "System.Threading",
+        };
 
         public static bool IsSerializableByUnity(FieldInfo fieldInfo)
         {
@@ -27,114 +32,54 @@ namespace TriInspector.Utilities
 
             if (fieldInfo.GetCustomAttribute<SerializeReference>() != null)
             {
-                // if it's a list or array, the base type should be serializable
-                if (fieldInfo.FieldType.IsArray)
-                {
-                    var type = fieldInfo.FieldType.GetElementType();
-                    if (type.IsSerializable || type.IsInterface)
-                        return true;
-                    else
-                        return false;
-                }
-                else if (fieldInfo.FieldType.IsGenericType && fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(List<>))
-                {
-                    var type = fieldInfo.FieldType.GenericTypeArguments[0];
-                    if (type.IsSerializable || type.IsInterface)
-                        return true;
-                    else
-                        return false;
-                }
-                else
-                {
-                    return true;
-                }
+                // if it's a list or array, the base type should be serializable, actually...
+                // but we'll check this in the UnitySerializationRulesAnalyzer and display a warning in the inspector
+                return true;
             }
 
             if (fieldInfo.IsPublic || fieldInfo.GetCustomAttribute<SerializeField>() != null)
             {
-                return IsTypeSerializable(fieldInfo.FieldType);
+                // [Serializable] check moved to UnitySerializationRulesAnalyzer, just skip some dangerous types
+                // Unsupported collection types check also moved to analyzer
+                return IsTypeSupportedBySerializeField(fieldInfo.FieldType);
             }
 
             return false;
         }
 
-        public static bool IsTypeSerializable(Type type, bool allowCollections = true)
+        public static bool IsTypeSupportedBySerializeField(Type type)
         {
-            if (type == typeof(object) || type.IsInterface)
+            if (type == typeof(object) ||
+                type == typeof(IntPtr) ||
+                type == typeof(UIntPtr) ||
+                type.IsInterface)
             {
                 return false;
             }
 
-            if (type.IsEnum)
-            {
-                var underlyingType = Enum.GetUnderlyingType(type);
-
-                return underlyingType != typeof(long) && underlyingType != typeof(ulong);
-            }
-
-            if (type.IsPrimitive ||
-                type == typeof(string) ||
-                type == typeof(Vector2) ||
-                type == typeof(Vector2Int) ||
-                type == typeof(Vector3) ||
-                type == typeof(Vector3Int) ||
-                type == typeof(Vector4) ||
-                type == typeof(Color) ||
-                type == typeof(Color32) ||
-                type == typeof(LayerMask) ||
-                type == typeof(Rect) ||
-                type == typeof(RectInt) ||
-                type == typeof(AnimationCurve) ||
-                type == typeof(Bounds) ||
-                type == typeof(BoundsInt) ||
-                type == typeof(Gradient) ||
-                type == typeof(Quaternion))
+            if (type.IsPrimitive || type.IsEnum || TriReflectionUtilities.MakeSerializableTypes.Contains(type))
             {
                 return true;
             }
 
-            if (typeof(Object).IsAssignableFrom(type))
+            if (ExcludedNamespaces.Contains(type.Namespace))
             {
-                return true;
+                return false;
             }
 
-            if (typeof(Delegate).IsAssignableFrom(type))
+            return true;
+        }
+
+        public static bool IsTypeSerializableByUnity(Type type)
+        {
+            if (type == null)
             {
                 return false;
             }
 
             if (type.IsArray)
             {
-                var elementType = type.GetElementType();
-
-                return type.GetArrayRank() == 1 &&
-                       allowCollections &&
-                       IsTypeSerializable(elementType, allowCollections: false);
-            }
-
-            if (type.IsGenericType)
-            {
-                var genericTypeDefinition = type.GetGenericTypeDefinition();
-
-                if (genericTypeDefinition == typeof(List<>))
-                {
-                    var elementType = type.GetGenericArguments()[0];
-
-                    return allowCollections &&
-                           IsTypeSerializable(elementType, allowCollections: false);
-                }
-
-                if (genericTypeDefinition == typeof(Dictionary<,>))
-                {
-                    return false;
-                }
-            }
-
-            if (type.Assembly == CoreLibAssembly ||
-                type.Assembly == SystemAssembly ||
-                type.Assembly == SystemCoreAssembly)
-            {
-                return false;
+                return true;
             }
 
             if (type.GetCustomAttribute<SerializableAttribute>() != null)
@@ -142,7 +87,10 @@ namespace TriInspector.Utilities
                 return true;
             }
 
-            // any other cases?
+            if (TriReflectionUtilities.MakeSerializableTypes.Contains(type))
+            {
+                return true;
+            }
 
             return false;
         }
@@ -170,7 +118,8 @@ namespace TriInspector.Utilities
                 return Activator.CreateInstance(type);
             }
 
-            if (type.IsArray && type.GetElementType() is var elementType && elementType != null)
+            if (type.IsArray && type.GetArrayRank() == 1 &&
+                type.GetElementType() is var elementType && elementType != null)
             {
                 return Array.CreateInstance(elementType, 0);
             }
