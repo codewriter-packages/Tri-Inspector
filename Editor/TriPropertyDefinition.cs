@@ -87,10 +87,23 @@ namespace TriInspector
             Order = order;
             IsReadOnly = _valueSetter == null || Attributes.TryGet(out ReadOnlyAttribute _);
 
-            if (TriReflectionUtilities.IsArrayOrList(FieldType, out var elementType))
+            if (TriReflectionUtilities.IsArrayOrListOrDictionary(FieldType, out var elementType, out var isDictionary))
             {
                 IsArray = true;
-                ArrayElementType = elementType;
+
+                if (isDictionary)
+                {
+                    IsDictionary = true;
+                    ArrayElementType = typeof(TriDictionaryEntry<,>).MakeGenericType(fieldType.GetGenericArguments());
+                    FieldType = typeof(List<>).MakeGenericType(ArrayElementType);
+                    _attributes.Add(new HideReferencePickerAttribute());
+                    (_valueGetter, _valueSetter) = ConfigureDictionaryAsListSerialization(
+                        ArrayElementType, valueGetter, valueSetter);
+                }
+                else
+                {
+                    ArrayElementType = elementType;
+                }
             }
 
             if (Attributes.TryGet(out LabelTextAttribute labelTextAttribute))
@@ -124,6 +137,7 @@ namespace TriInspector
         public Type ArrayElementType { get; }
 
         public bool IsArray { get; }
+        public bool IsDictionary { get; }
 
         [CanBeNull] public ValueResolver<string> CustomLabel { get; }
         [CanBeNull] public ValueResolver<string> CustomTooltip { get; }
@@ -334,6 +348,90 @@ namespace TriInspector
                 var parentValue = self.Parent.GetValue(targetIndex);
                 return parentValue;
             };
+        }
+
+        private static (ValueGetterDelegate, ValueSetterDelegate) ConfigureDictionaryAsListSerialization(
+            Type arrayElementType,
+            ValueGetterDelegate valueGetter, ValueSetterDelegate valueSetter)
+        {
+            var makeList = arrayElementType.GetMethod(nameof(TriDictionaryEntry<int, int>.MakeList));
+            var makeDict = arrayElementType.GetMethod(nameof(TriDictionaryEntry<int, int>.MakeDict));
+#if UNITY_6000_6_OR_NEWER
+            var makeListFromSerializedProperty = arrayElementType.GetMethod(
+                nameof(TriDictionaryEntry<int, int>.MakeListFromSerializedProperty));
+            var writeToSerializedProperty = arrayElementType.GetMethod(
+                nameof(TriDictionaryEntry<int, int>.WriteToSerializedProperty));
+#endif
+
+            object GetDictionaryAsList(TriProperty self, int targetIndex)
+            {
+                var duplicateEntryIndices = self.DictionaryDuplicateEntryIndicesBuffer;
+                var nullKeyEntryIndices = self.DictionaryNullKeyEntryIndicesBuffer;
+
+                if (self.PropertyTree.TargetsCount != 1)
+                {
+                    duplicateEntryIndices.Clear();
+                    nullKeyEntryIndices.Clear();
+                    return makeList!.Invoke(null, new object[] {null,});
+                }
+
+#if UNITY_6000_6_OR_NEWER
+                if (self.TryGetSerializedProperty(out var serializedProperty))
+                {
+                    var listFromSerialized =
+                        makeListFromSerializedProperty!.Invoke(null, new object[] {serializedProperty,});
+
+                    var ignored = serializedProperty.GetDictionaryIgnoredEntries();
+
+                    duplicateEntryIndices.Clear();
+                    duplicateEntryIndices.AddRange(ignored.duplicateEntryIndices ?? Array.Empty<int>());
+
+                    nullKeyEntryIndices.Clear();
+                    nullKeyEntryIndices.AddRange(ignored.nullKeyEntryIndices ?? Array.Empty<int>());
+
+                    return listFromSerialized;
+                }
+#endif
+
+                if (self.DictionaryListCache is { } cachedList &&
+                    (duplicateEntryIndices.Count > 0 || nullKeyEntryIndices.Count > 0))
+                {
+                    return cachedList;
+                }
+
+                var dict = (IDictionary) valueGetter(self, targetIndex);
+                var list = makeList!.Invoke(null, new object[] {dict,});
+                self.DictionaryListCache = list;
+                return list;
+            }
+
+            object SetListAsDictionary(TriProperty self, int targetIndex, object value)
+            {
+                if (self.PropertyTree.TargetsCount != 1)
+                {
+                    return self.Parent?.GetValue(targetIndex);
+                }
+
+#if UNITY_6000_6_OR_NEWER
+                if (self.TryGetSerializedProperty(out var serializedProperty))
+                {
+                    writeToSerializedProperty!.Invoke(null, new object[] {value, serializedProperty,});
+                    return self.Parent?.GetValue(targetIndex);
+                }
+#endif
+
+                var dict = makeDict!.Invoke(null,
+                    new object[]
+                    {
+                        value,
+                        self.DictionaryDuplicateEntryIndicesBuffer,
+                        self.DictionaryNullKeyEntryIndicesBuffer,
+                    });
+                self.DictionaryListCache = value;
+                return valueSetter(self, targetIndex, dict);
+            }
+
+            return (GetDictionaryAsList, valueSetter != null ? SetListAsDictionary : null);
         }
 
         private bool CanApplyExtensionOnSelf(TriPropertyExtension propertyExtension)

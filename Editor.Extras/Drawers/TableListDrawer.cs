@@ -29,6 +29,12 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
+            if (property.IsDictionary && property.PropertyTree.TargetsCount != 1)
+            {
+                return new TriInfoBoxVisualElement("Dictionary multi-object editing is not supported",
+                    TriMessageType.Info);
+            }
+
             return new TriTableListVisualElement(property);
         }
     }

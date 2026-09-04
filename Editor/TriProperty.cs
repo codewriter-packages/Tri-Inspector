@@ -37,6 +37,9 @@ namespace TriInspector
         private bool _isValueMixed;
         private int _arrayHash;
 
+        [CanBeNull] private List<int> _dictionaryDuplicateEntryIndices;
+        [CanBeNull] private List<int> _dictionaryNullKeyEntryIndices;
+
         public event Action<TriProperty> ValueChanged;
         public event Action<TriProperty> ChildValueChanged;
 
@@ -219,6 +222,26 @@ namespace TriInspector
         public int IndexInArray => IsArrayElement
             ? _propertyIndex
             : throw new InvalidOperationException("Cannot read IndexInArray for !IsArrayElement");
+
+        [PublicAPI]
+        public bool IsDictionary => _definition.IsDictionary;
+
+        internal List<int> DictionaryDuplicateEntryIndicesBuffer =>
+            _dictionaryDuplicateEntryIndices ??= new List<int>();
+
+        internal List<int> DictionaryNullKeyEntryIndicesBuffer =>
+            _dictionaryNullKeyEntryIndices ??= new List<int>();
+
+        [PublicAPI]
+        public IReadOnlyList<int> DictionaryDuplicateEntryIndices =>
+            (IReadOnlyList<int>) _dictionaryDuplicateEntryIndices ?? Array.Empty<int>();
+
+        [PublicAPI]
+        public IReadOnlyList<int> DictionaryNullKeyEntryIndices =>
+            (IReadOnlyList<int>) _dictionaryNullKeyEntryIndices ?? Array.Empty<int>();
+
+        [CanBeNull]
+        internal object DictionaryListCache { get; set; }
 
         public IReadOnlyList<TriCustomDrawer> AllDrawers => _definition.Drawers;
 

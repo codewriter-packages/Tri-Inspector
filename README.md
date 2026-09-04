@@ -22,6 +22,7 @@ _Advanced inspector attributes for Unity_
 - ✨ **New styles for UI elements** — lists, groups, info boxes now have polished, consistent visual styles that not only integrate with Unity 6's editor theme, but redefine what an editor inspector can look like.
 - 🛠️ **Overall improvements and bug fixes** — a wide range of edge-case bugs have been resolved and internal systems have been hardened, resulting in a more stable and predictable inspector experience.
 - ↕️ **TableList is now reorderable** — rows in `[TableList]` can be dragged and reordered directly in the inspector, making list management significantly faster.
+- 📖 **Dictionary support** — dictionaries can now be displayed and edited in the inspector across all supported Unity versions. Starting from Unity 6.6, dictionaries are also fully serializable by Unity itself. Dictionaries can be styled with the `[TableList]` attribute.
 
 <img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/381f65f4-2e0c-4419-9739-ad16fdd4cbfc" />
 

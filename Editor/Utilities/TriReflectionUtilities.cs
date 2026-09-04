@@ -149,21 +149,39 @@ namespace TriInspector.Utilities
             return GetAllMembersInDeclarationOrder(type, it => it.GetMethods(flags));
         }
 
-        public static bool IsArrayOrList(Type type, out Type elementType)
+        public static bool IsArrayOrListOrDictionary(Type type, out Type elementType, out bool isDictionary)
         {
-            if (type.IsArray)
+            if (type.IsArray && type.GetArrayRank() == 1)
             {
                 elementType = type.GetElementType();
+                isDictionary = false;
                 return true;
             }
 
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            if (type.IsGenericType)
             {
-                elementType = type.GetGenericArguments().Single();
-                return true;
+                var genericType = type.GetGenericTypeDefinition();
+                
+                if (genericType == typeof(List<>))
+                {
+                    elementType = type.GetGenericArguments().Single();
+                    isDictionary = false;
+                    return true;
+                }
+
+                if (genericType == typeof(Dictionary<,>))
+                {
+                    elementType = Array
+                        .Find(type.GetInterfaces(),
+                            it => it.IsGenericType && it.GetGenericTypeDefinition() == typeof(ICollection<>))
+                        .GetGenericArguments().Single();
+                    isDictionary = true;
+                    return true;
+                }
             }
 
             elementType = null;
+            isDictionary = false;
             return false;
         }
 
