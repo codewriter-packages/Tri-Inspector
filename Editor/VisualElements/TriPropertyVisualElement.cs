@@ -40,7 +40,7 @@ namespace TriInspector.VisualElements
             }
             else
             {
-                this.PeriodicRun(property.RefreshValue);
+                // this.PeriodicRun(property.RefreshValue);
             }
 
             void Sync()
