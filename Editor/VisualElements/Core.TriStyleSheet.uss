@@ -370,7 +370,7 @@ unity-property-field__label
     flex-grow: 1;
     flex-basis: 0;
     flex-shrink: 1;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 0 5px 0 0;
     border-left-width: 1px;
     border-color: var(--tri-color-border);
