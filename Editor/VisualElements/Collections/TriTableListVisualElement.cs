@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
 {
-    public class TriTableListVisualElement : TriListVisualElement
+    public class TriTableListVisualElement : TriCollectionVisualElement
     {
         private readonly TriProperty _property;
         private readonly List<string> _columnTitles = new List<string>();

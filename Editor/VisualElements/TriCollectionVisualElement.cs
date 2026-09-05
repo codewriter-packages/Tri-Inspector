@@ -10,28 +10,24 @@ using Object = UnityEngine.Object;
 
 namespace TriInspector.VisualElements
 {
-    public class TriListVisualElement : ListView
+    public abstract class TriCollectionVisualElement : ListView
     {
         private readonly TriProperty _property;
-        private readonly bool _showElementLabels;
         private readonly bool _alwaysExpanded;
         private readonly SerializedProperty _serializedProperty;
         private ScrollView _scrollView;
         private bool _headerInitialized;
 
-        public TriListVisualElement(TriProperty property)
+        public TriCollectionVisualElement(TriProperty property)
         {
             AddToClassList(TriStyles.List);
 
             _property = property;
 
-            property.TryGetAttribute(out ListDrawerSettingsAttribute settings);
-
-            _showElementLabels = settings?.ShowElementLabels ?? false;
+            property.TryGetAttribute(out CollectionDrawerSettingsAttribute settings);
 
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
             var showAlternatingBackground = settings?.ShowAlternatingBackground ?? true;
-            var elementLabelOverride = new ListPropertyOverrideContext(_property, _showElementLabels);
 
             allowAdd = settings == null || !settings.HideAddButton;
             allowRemove = settings == null || !settings.HideRemoveButton;
@@ -59,7 +55,6 @@ namespace TriInspector.VisualElements
             }
             else
             {
-                itemsSource = CreateListReadProxy(property);
                 itemsAdded += indices =>
                 {
                     foreach (var index in indices)
@@ -77,30 +72,18 @@ namespace TriInspector.VisualElements
                 itemIndexChanged += (from, to) => ReorderCallback(from, to);
             }
 
-            void OnPropertyValueChanged(TriProperty obj)
-            {
-                if (!property.TryGetSerializedProperty(out _))
-                {
-                    itemsSource = CreateListReadProxy(property);
-                }
-            }
-
             // Deferred to attach: assigning makeHeader invokes CreateHeader synchronously, and CreateHeader
             // is virtual — running it now (mid-construction) would hit uninitialized subclass state.
             RegisterCallback<AttachToPanelEvent>(OnAttachInitializeHeader);
 
             RegisterListDragAndDrop();
 
-            RegisterCallback<AttachToPanelEvent>(_ =>
+            this.TrackPropertyValueChanged(property, __ =>
             {
-                _property.ValueChanged += OnPropertyValueChanged;
-                _property.PropertyTree.AddPropertyOverride(elementLabelOverride);
-            });
-
-            RegisterCallback<DetachFromPanelEvent>(_ =>
-            {
-                _property.ValueChanged -= OnPropertyValueChanged;
-                _property.PropertyTree.RemovePropertyOverride(elementLabelOverride);
+                if (!property.TryGetSerializedProperty(out _))
+                {
+                    itemsSource = CreateListReadProxy(property);
+                }
             });
         }
 
@@ -133,13 +116,7 @@ namespace TriInspector.VisualElements
             itemRoot.Add(row);
         }
 
-        protected virtual VisualElement CreateItemElement(TriProperty property)
-        {
-            return new TriPropertyVisualElement(property, new TriPropertyVisualElement.Props
-            {
-                forceInline = !_showElementLabels,
-            });
-        }
+        protected abstract VisualElement CreateItemElement(TriProperty property);
 
         private void OnAttachInitializeHeader(AttachToPanelEvent _)
         {
@@ -489,31 +466,6 @@ namespace TriInspector.VisualElements
 
             public void RemoveAt(int index)
             {
-            }
-        }
-
-        private class ListPropertyOverrideContext : TriPropertyOverrideContext
-        {
-            private readonly TriProperty _listProperty;
-            private readonly bool _showElementLabels;
-            private readonly GUIContent _noneLabel = GUIContent.none;
-
-            public ListPropertyOverrideContext(TriProperty listProperty, bool showElementLabels)
-            {
-                _listProperty = listProperty;
-                _showElementLabels = showElementLabels;
-            }
-
-            public override bool TryGetDisplayName(TriProperty property, out GUIContent displayName)
-            {
-                if (!_showElementLabels && property.Parent == _listProperty)
-                {
-                    displayName = _noneLabel;
-                    return true;
-                }
-
-                displayName = default;
-                return false;
             }
         }
     }

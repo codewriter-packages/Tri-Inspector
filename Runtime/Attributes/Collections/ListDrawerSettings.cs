@@ -5,14 +5,8 @@ namespace TriInspector
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     [Conditional("UNITY_EDITOR")]
-    public class ListDrawerSettingsAttribute : Attribute
+    public class ListDrawerSettingsAttribute : CollectionDrawerSettingsAttribute
     {
-        public bool Draggable { get; set; } = true;
-        public bool HideAddButton { get; set; }
-        public bool HideRemoveButton { get; set; }
-        public bool AlwaysExpanded { get; set; }
         public bool ShowElementLabels { get; set; }
-        public bool ShowDefaultBackground { get; set; } = true;
-        public bool ShowAlternatingBackground { get; set; } = true;
     }
 }

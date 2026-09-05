@@ -81,10 +81,15 @@ namespace TriInspector.VisualElements
 
         private static VisualElement CreateArrayElement(TriProperty property)
         {
-            if (property.IsDictionary && property.PropertyTree.TargetsCount != 1)
+            if (property.IsDictionary)
             {
-                return new TriInfoBoxVisualElement("Dictionary multi-object editing is not supported",
-                    TriMessageType.Info);
+                if (property.PropertyTree.TargetsCount != 1)
+                {
+                    return new TriInfoBoxVisualElement("Dictionary multi-object editing is not supported",
+                        TriMessageType.Info);
+                }
+
+                return new TriTableListVisualElement(property);
             }
 
             return new TriListVisualElement(property);
