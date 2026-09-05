@@ -19,13 +19,13 @@ namespace TriInspector.TypeProcessors
             properties.AddRange(TriReflectionUtilities
                 .GetAllInstanceFieldsInDeclarationOrder(type)
                 .Where(IsSerialized)
-                .Select((it, ind) => TriPropertyDefinition.CreateForFieldInfo(ind + fieldsOffset, it)));
+                .Select((it, ind) => TriPropertyDefinition.CreateForFieldInfo(ind + fieldsOffset, it,
+                    TriPropertyOrigin.TriField)));
         }
 
         private static bool IsSerialized(FieldInfo fieldInfo)
         {
-            return fieldInfo.GetCustomAttribute<ShowInInspectorAttribute>(false) != null &&
-                   TriUnitySerializationUtilities.IsSerializableByUnity(fieldInfo) == false;
+            return fieldInfo.GetCustomAttribute<ShowInInspectorAttribute>(false) != null;
         }
     }
 }

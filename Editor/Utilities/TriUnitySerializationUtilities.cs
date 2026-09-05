@@ -17,36 +17,6 @@ namespace TriInspector.Utilities
             "System.Threading",
         };
 
-        public static bool IsSerializableByUnity(FieldInfo fieldInfo)
-        {
-            if (fieldInfo.IsInitOnly)
-            {
-                return false;
-            }
-
-            if (fieldInfo.GetCustomAttribute<NonSerializedAttribute>() != null ||
-                fieldInfo.GetCustomAttribute<HideInInspector>() != null)
-            {
-                return false;
-            }
-
-            if (fieldInfo.GetCustomAttribute<SerializeReference>() != null)
-            {
-                // if it's a list or array, the base type should be serializable, actually...
-                // but we'll check this in the UnitySerializationRulesAnalyzer and display a warning in the inspector
-                return true;
-            }
-
-            if (fieldInfo.IsPublic || fieldInfo.GetCustomAttribute<SerializeField>() != null)
-            {
-                // [Serializable] check moved to UnitySerializationRulesAnalyzer, just skip some dangerous types
-                // Unsupported collection types check also moved to analyzer
-                return IsTypeSupportedBySerializeField(fieldInfo.FieldType);
-            }
-
-            return false;
-        }
-
         public static bool IsTypeSupportedBySerializeField(Type type)
         {
             if (type == typeof(object) ||

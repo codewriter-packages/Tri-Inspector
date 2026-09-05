@@ -19,7 +19,8 @@ namespace TriInspector.TypeProcessors
             properties.AddRange(TriReflectionUtilities
                 .GetAllInstancePropertiesInDeclarationOrder(type)
                 .Where(IsSerialized)
-                .Select((it, ind) => TriPropertyDefinition.CreateForPropertyInfo(ind + propertiesOffset, it)));
+                .Select((it, ind) => TriPropertyDefinition.CreateForPropertyInfo(ind + propertiesOffset, it,
+                    TriPropertyOrigin.TriProperty)));
         }
 
         private static bool IsSerialized(PropertyInfo propertyInfo)
