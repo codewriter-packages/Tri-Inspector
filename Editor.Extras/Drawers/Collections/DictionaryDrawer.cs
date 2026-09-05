@@ -39,23 +39,29 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
+            return CreateElement(property, _headerResolvers, Attribute.Layout);
+        }
+
+        public static VisualElement CreateElement(TriProperty property,
+            ValueResolver<string>[] headerResolvers, DictionaryLayout layout)
+        {
             if (property.PropertyTree.TargetsCount != 1)
             {
                 return new TriInfoBoxVisualElement("Dictionary multi-object editing is not supported",
                     TriMessageType.Info);
             }
 
-            switch (Attribute.Layout)
+            switch (layout)
             {
                 case DictionaryLayout.OneColumnWithValueFoldout:
-                    return new TriDictionaryOneColumnVisualElement(property, valueVisible: false, _headerResolvers);
+                    return new TriDictionaryOneColumnVisualElement(property, valueVisible: false, headerResolvers);
 
                 case DictionaryLayout.OneColumnWithValueVisible:
-                    return new TriDictionaryOneColumnVisualElement(property, valueVisible: true, _headerResolvers);
+                    return new TriDictionaryOneColumnVisualElement(property, valueVisible: true, headerResolvers);
 
                 case DictionaryLayout.TwoColumns:
                 default:
-                    return new TriTableListVisualElement(property, _headerResolvers);
+                    return new TriTableListVisualElement(property, headerResolvers);
             }
         }
 
