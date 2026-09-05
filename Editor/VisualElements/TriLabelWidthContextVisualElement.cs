@@ -17,7 +17,7 @@ namespace TriInspector.VisualElements
             }
         }
 
-        public static void SetupAlignedLabel(VisualElement field)
+        public static void SetupAlignedLabel<T>(BaseField<T> field)
         {
             VisualElement inspectorElement = null;
             VisualElement contextWidthElement = null;
@@ -56,7 +56,7 @@ namespace TriInspector.VisualElements
             field.RegisterCallback<GeometryChangedEvent>(_ => Align());
         }
 
-        private static bool TryApplyExplicitWidth(VisualElement field)
+        private static bool TryApplyExplicitWidth<T>(BaseField<T> field)
         {
             if (field.FindAncestor<TriLabelWidthContextVisualElement>() is not { } context)
             {
@@ -68,7 +68,7 @@ namespace TriInspector.VisualElements
                 return false;
             }
 
-            if (field.Q<Label>(className: BaseField<object>.labelUssClassName) is not { } label)
+            if (field.labelElement is not { } label)
             {
                 return false;
             }
@@ -77,7 +77,7 @@ namespace TriInspector.VisualElements
             return true;
         }
 
-        private static void AlignLabel(VisualElement field, VisualElement inspectorElement,
+        private static void AlignLabel<T>(BaseField<T> field, VisualElement inspectorElement,
             VisualElement contextWidthElement, bool explicitWidth)
         {
             if (explicitWidth || inspectorElement == null)
@@ -85,7 +85,7 @@ namespace TriInspector.VisualElements
                 return;
             }
 
-            if (field.Q<Label>(className: BaseField<object>.labelUssClassName) is not { } label)
+            if (field.labelElement is not { } label)
             {
                 return;
             }
