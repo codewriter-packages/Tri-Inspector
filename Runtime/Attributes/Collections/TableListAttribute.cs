@@ -7,5 +7,6 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class TableListAttribute : CollectionDrawerSettingsAttribute
     {
+        public string[] Labels { get; set; }
     }
 }

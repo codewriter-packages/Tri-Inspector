@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TriInspector.Resolvers;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,12 +10,15 @@ namespace TriInspector.VisualElements
     {
         private readonly TriProperty _property;
         private readonly List<string> _columnTitles = new List<string>();
+        private readonly ValueResolver<string>[] _headerResolvers;
 
         private VisualElement _columnsRow;
 
-        public TriTableListVisualElement(TriProperty property) : base(property)
+        public TriTableListVisualElement(TriProperty property, ValueResolver<string>[] headerResolvers = null)
+            : base(property)
         {
             _property = property;
+            _headerResolvers = headerResolvers;
 
             AddToClassList(TriStyles.Table);
 
@@ -59,10 +63,18 @@ namespace TriInspector.VisualElements
             _columnsRow.AddToClassList(TriStyles.TableHeaderColumns);
             _columnsRow.EnableInClassList(TriStyles.TableHeaderReorderable, reorderable);
 
-            foreach (var columnTitle in _columnTitles)
+            for (var i = 0; i < _columnTitles.Count; i++)
             {
-                var cell = new Label(columnTitle);
+                var title = _columnTitles[i];
+
+                var cell = new Label(title);
                 cell.AddToClassList(TriStyles.TableHeaderCell);
+
+                if (_headerResolvers != null && i < _headerResolvers.Length && _headerResolvers[i] != null)
+                {
+                    cell.TrackResolvedValue(_property, _headerResolvers[i], title, value => cell.text = value);
+                }
+
                 _columnsRow.Add(cell);
             }
 
