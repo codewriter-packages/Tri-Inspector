@@ -1,12 +1,9 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(TitleDrawer), TriDrawerOrder.Inspector)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Inspector)]
     public class TitleDrawer : TriAttributeDrawer<TitleAttribute>
     {
         private ValueResolver<string> _titleResolver;

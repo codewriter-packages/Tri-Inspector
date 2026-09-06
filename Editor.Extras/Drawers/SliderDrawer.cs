@@ -1,18 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using TriInspector.VisualElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly:
-    RegisterTriAttributeDrawer(typeof(SliderAttributeDrawer), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class SliderAttributeDrawer : TriAttributeDrawer<SliderAttribute>
     {
         private SliderAttributeHelpers.SliderResolvers _resolvers;

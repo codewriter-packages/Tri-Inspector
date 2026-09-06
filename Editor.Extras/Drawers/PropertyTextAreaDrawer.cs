@@ -1,13 +1,9 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(PropertyTextAreaDrawer), TriDrawerOrder.Drawer,
-    ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class PropertyTextAreaDrawer : TriAttributeDrawer<PropertyTextAreaAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

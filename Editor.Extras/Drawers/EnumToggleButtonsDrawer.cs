@@ -2,18 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(EnumToggleButtonsDrawer), TriDrawerOrder.Drawer,
-    ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class EnumToggleButtonsDrawer : TriAttributeDrawer<EnumToggleButtonsAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

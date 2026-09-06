@@ -10,7 +10,6 @@ using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
 [assembly: RegisterTriAttributeValidator(typeof(UnitySerializationRuleValidator))]
-[assembly: RegisterTriAttributeDrawer(typeof(UnitySerializationRuleDrawer), TriDrawerOrder.Drawer + 1)]
 
 namespace Editor.Extras.Analyzers
 {
@@ -259,6 +258,7 @@ namespace Editor.Extras.Analyzers
         }
     }
 
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer + 1)]
     internal class UnitySerializationRuleDrawer : TriAttributeDrawer<UnitySerializationRuleAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

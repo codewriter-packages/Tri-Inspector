@@ -1,12 +1,9 @@
-using TriInspector;
-using TriInspector.Drawers;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(SpaceDrawer), 8900)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(8900)]
     public class SpaceDrawer : TriAttributeDrawer<SpaceAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

@@ -1,14 +1,11 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(SceneDrawer), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class SceneDrawer : TriAttributeDrawer<SceneAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

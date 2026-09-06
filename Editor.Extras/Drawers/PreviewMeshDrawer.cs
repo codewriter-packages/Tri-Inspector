@@ -1,6 +1,4 @@
 using System.Linq;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -8,11 +6,9 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-[assembly: RegisterTriAttributeDrawer(typeof(PreviewMeshDrawer), TriDrawerOrder.Drawer,
-    ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class PreviewMeshDrawer : TriAttributeDrawer<PreviewMeshAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

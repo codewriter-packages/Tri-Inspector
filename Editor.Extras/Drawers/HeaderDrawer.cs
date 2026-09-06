@@ -1,12 +1,9 @@
-﻿using TriInspector;
-using TriInspector.Drawers;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UIElements;
-
-[assembly: RegisterTriAttributeDrawer(typeof(HeaderDrawer), 8900)]
 
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(8900)]
     public class HeaderDrawer : TriAttributeDrawer<HeaderAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

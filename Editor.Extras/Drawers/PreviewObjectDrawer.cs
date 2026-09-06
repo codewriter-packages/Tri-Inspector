@@ -1,14 +1,10 @@
-﻿using TriInspector;
-using TriInspector.Drawers;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(PreviewObjectDrawer), TriDrawerOrder.Decorator,
-    ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Decorator, ApplyOnArrayElement = true)]
     public class PreviewObjectDrawer : TriAttributeDrawer<PreviewObjectAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

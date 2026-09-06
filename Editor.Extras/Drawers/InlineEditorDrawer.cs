@@ -1,14 +1,10 @@
-﻿using TriInspector;
-using TriInspector.Drawers;
-using TriInspector.VisualElements;
+﻿using TriInspector.VisualElements;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-[assembly: RegisterTriAttributeDrawer(typeof(InlineEditorDrawer), TriDrawerOrder.Drawer,
-    ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class InlineEditorDrawer : TriAttributeDrawer<InlineEditorAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

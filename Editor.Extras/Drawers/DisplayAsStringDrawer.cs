@@ -1,14 +1,10 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
-[assembly:
-    RegisterTriAttributeDrawer(typeof(DisplayAsStringDrawer), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class DisplayAsStringDrawer : TriAttributeDrawer<DisplayAsStringAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

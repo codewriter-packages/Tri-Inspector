@@ -1,13 +1,10 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using TriInspector.VisualElements;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(TableListDrawer), TriDrawerOrder.Drawer)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer)]
     public class TableListDrawer : TriAttributeDrawer<TableListAttribute>
     {
         private ValueResolver<string>[] _headerResolvers;

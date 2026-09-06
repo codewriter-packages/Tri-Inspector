@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(ShowDrawerChainDrawer), TriDrawerOrder.System)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.System)]
     public class ShowDrawerChainDrawer : TriAttributeDrawer<ShowDrawerChainAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

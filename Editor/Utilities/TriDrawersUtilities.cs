@@ -19,7 +19,7 @@ namespace TriInspector.Utilities
         private static readonly GenericTypeMatcher DisableProcessorMatcher = typeof(TriPropertyDisableProcessor<>);
 
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
-        private static IReadOnlyList<RegisterTriAttributeDrawerAttribute> _allAttributeDrawerTypesBackingField;
+        private static IReadOnlyList<Info<RegisterTriAttributeDrawerAttribute>> _allAttributeDrawerTypesBackingField;
         private static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> _allValueDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriAttributeValidatorAttribute> _allAttributeValidatorTypesBackingField;
         private static IReadOnlyList<RegisterTriValueValidatorAttribute> _allValueValidatorTypesBackingField;
@@ -88,17 +88,17 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriAttributeDrawerAttribute> AllAttributeDrawerTypes
+        public static IReadOnlyList<Info<RegisterTriAttributeDrawerAttribute>> AllAttributeDrawerTypes
         {
             get
             {
                 if (_allAttributeDrawerTypesBackingField == null)
                 {
                     _allAttributeDrawerTypesBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriAttributeDrawerAttribute>()
-                        where AttributeDrawerMatcher.Match(attr.DrawerType)
-                        select attr
+                        from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriAttributeDrawer))
+                        let attr = drawerType.GetCustomAttribute<RegisterTriAttributeDrawerAttribute>()
+                        where attr != null && AttributeDrawerMatcher.Match(drawerType)
+                        select new Info<RegisterTriAttributeDrawerAttribute>(drawerType, attr)
                     ).ToList();
                 }
 
@@ -210,8 +210,8 @@ namespace TriInspector.Utilities
                 where AttributeDrawerMatcher.Match(drawer.DrawerType, attribute.GetType())
                 select CreateInstance<TriAttributeDrawer>(drawer.DrawerType, valueType, it =>
                 {
-                    it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
-                    it.Order = drawer.Order;
+                    it.ApplyOnArrayElement = drawer.Attr.ApplyOnArrayElement;
+                    it.Order = drawer.Attr.Order;
                     it.RawAttribute = attribute;
                 });
         }

@@ -1,12 +1,9 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(InlineButtonDrawer), TriDrawerOrder.Decorator - 100)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Decorator - 100)]
     public class InlineButtonDrawer : TriAttributeDrawer<InlineButtonAttribute>
     {
         private ActionResolver _actionResolver;

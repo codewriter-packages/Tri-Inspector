@@ -1,11 +1,8 @@
-using TriInspector;
-using TriInspector.Drawers;
 using UnityEngine.UIElements;
-
-[assembly: RegisterTriAttributeDrawer(typeof(PropertySpaceDrawer), TriDrawerOrder.Inspector)]
 
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Inspector)]
     public class PropertySpaceDrawer : TriAttributeDrawer<PropertySpaceAttribute>
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)

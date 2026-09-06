@@ -1,13 +1,10 @@
-﻿using TriInspector;
-using TriInspector.Drawers;
-using TriInspector.Resolvers;
+﻿using TriInspector.Resolvers;
 using TriInspector.VisualElements;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DropdownDrawer<>), TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class DropdownDrawer<T> : TriAttributeDrawer<DropdownAttribute>
     {
         private DropdownValuesResolver<T> _valuesResolver;

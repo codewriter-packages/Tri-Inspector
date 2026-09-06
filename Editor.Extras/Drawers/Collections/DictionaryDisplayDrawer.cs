@@ -1,15 +1,12 @@
 #if UNITY_6000_6_OR_NEWER
 
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(DictionaryDisplayDrawer), TriDrawerOrder.Drawer)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer)]
     public class DictionaryDisplayDrawer : TriAttributeDrawer<DictionaryDisplayAttribute>
     {
         private ValueResolver<string>[] _headerResolvers;

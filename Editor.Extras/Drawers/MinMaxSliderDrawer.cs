@@ -1,18 +1,12 @@
 using System;
 using System.Collections.Generic;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
-using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly:
-    RegisterTriAttributeDrawer(typeof(MinMaxSliderAttributeDrawer), TriDrawerOrder.Drawer,
-        ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class MinMaxSliderAttributeDrawer : TriAttributeDrawer<MinMaxSliderAttribute>
     {
         private MinMaxSliderAttributeHelpers.SliderResolvers _resolvers;

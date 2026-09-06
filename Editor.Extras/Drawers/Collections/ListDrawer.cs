@@ -1,12 +1,9 @@
-﻿using TriInspector;
-using TriInspector.Drawers;
-using TriInspector.VisualElements;
+﻿using TriInspector.VisualElements;
 using UnityEngine.UIElements;
-
-[assembly: RegisterTriAttributeDrawer(typeof(ListDrawer), TriDrawerOrder.Drawer)]
 
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer)]
     public class ListDrawer : TriAttributeDrawer<ListDrawerSettingsAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

@@ -16,16 +16,15 @@ namespace TriInspector
         public bool ApplyOnArrayElement { get; set; } = true;
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriAttributeDrawerAttribute : Attribute
     {
-        public RegisterTriAttributeDrawerAttribute(Type drawerType, int order)
+        public RegisterTriAttributeDrawerAttribute(int order)
         {
-            DrawerType = drawerType;
             Order = order;
         }
 
-        public Type DrawerType { get; }
         public int Order { get; }
         public bool ApplyOnArrayElement { get; set; }
     }

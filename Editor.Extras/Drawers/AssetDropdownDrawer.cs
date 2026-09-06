@@ -1,18 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Utilities;
 using TriInspector.VisualElements;
 using UnityEditor;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-[assembly: RegisterTriAttributeDrawer(typeof(AssetDropdownDrawer<>), TriDrawerOrder.Decorator,
-    ApplyOnArrayElement = true)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
     public class AssetDropdownDrawer<T> : TriAttributeDrawer<AssetDropdownAttribute>
     {
         private bool _showNoneElement;

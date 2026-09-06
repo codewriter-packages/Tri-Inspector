@@ -1,16 +1,13 @@
 using System;
 using System.Reflection;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using TriInspector.VisualElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(ButtonDrawer), TriDrawerOrder.Drawer)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer)]
     public class ButtonDrawer : TriAttributeDrawer<ButtonAttribute>
     {
         private ValueResolver<string> _nameResolver;

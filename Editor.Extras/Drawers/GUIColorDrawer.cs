@@ -1,14 +1,11 @@
 using JetBrains.Annotations;
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(GUIColorDrawer), TriDrawerOrder.Decorator)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Decorator)]
     public class GUIColorDrawer : TriAttributeDrawer<GUIColorAttribute>
     {
         [CanBeNull] private ValueResolver<Color> _colorResolver;

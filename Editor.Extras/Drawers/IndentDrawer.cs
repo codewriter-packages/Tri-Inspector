@@ -1,11 +1,8 @@
-using TriInspector;
-using TriInspector.Drawers;
 using UnityEngine.UIElements;
-
-[assembly: RegisterTriAttributeDrawer(typeof(IndentDrawer), TriDrawerOrder.Decorator)]
 
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.Decorator)]
     public class IndentDrawer : TriAttributeDrawer<IndentAttribute>
     {
         private const float IndentWidth = 15f;

@@ -1,12 +1,9 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.Resolvers;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriAttributeDrawer(typeof(OnValueChangedDrawer), TriDrawerOrder.System)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriAttributeDrawer(TriDrawerOrder.System)]
     public class OnValueChangedDrawer : TriAttributeDrawer<OnValueChangedAttribute>
     {
         private ActionResolver _actionResolver;
