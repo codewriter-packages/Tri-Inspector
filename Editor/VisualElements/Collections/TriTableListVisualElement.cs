@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TriInspector.Resolvers;
 using TriInspector.Utilities;
@@ -9,12 +10,12 @@ namespace TriInspector.VisualElements
 {
     public class TriTableListVisualElement : TriCollectionVisualElement
     {
+        private static readonly string[] SingleColumnTitles = {"Element"};
+
         private readonly TriProperty _property;
-        private readonly List<string> _columnTitles = new List<string>();
         private readonly ValueResolver<string>[] _headerResolvers;
         private readonly float[] _sizes;
-
-        private VisualElement _columnsRow;
+        private readonly VisualElement _columnsRow = new VisualElement();
 
         public TriTableListVisualElement(TriProperty property, ValueResolver<string>[] headerResolvers = null,
             float[] sizes = null)
@@ -24,57 +25,40 @@ namespace TriInspector.VisualElements
             _headerResolvers = headerResolvers;
             _sizes = sizes;
 
-            AddToClassList(TriStyles.Table);
+            _columnsRow.AddToClassList(TriStyles.TableHeaderColumns);
+            _columnsRow.EnableInClassList(TriStyles.TableHeaderReorderable, reorderable);
 
-            ResolveColumns();
+            AddToClassList(TriStyles.Table);
 
             var labelOverride = new TableListPropertyOverrideContext(property);
             RegisterCallback<AttachToPanelEvent>(_ => property.PropertyTree.AddPropertyOverride(labelOverride));
             RegisterCallback<DetachFromPanelEvent>(_ => property.PropertyTree.RemovePropertyOverride(labelOverride));
         }
 
-        private void ResolveColumns()
-        {
-            _columnTitles.Clear();
-
-            var elementType = _property.ArrayElementType;
-            if (elementType == null)
-            {
-                return;
-            }
-
-            var definition = TriTypeDefinition.GetCached(elementType);
-            if (definition.Properties.Count == 0)
-            {
-                _columnTitles.Add("Element");
-                return;
-            }
-
-            foreach (var propertyDefinition in definition.Properties)
-            {
-                _columnTitles.Add(ObjectNames.NicifyVariableName(propertyDefinition.Name));
-            }
-        }
-
         protected override VisualElement CreateHeader()
         {
             var header = new VisualElement();
             header.AddToClassList(TriStyles.TableHeader);
-
             header.Add(base.CreateHeader());
+            header.Add(_columnsRow);
+            return header;
+        }
 
-            _columnsRow = new VisualElement();
-            _columnsRow.AddToClassList(TriStyles.TableHeaderColumns);
-            _columnsRow.EnableInClassList(TriStyles.TableHeaderReorderable, reorderable);
+        private void EnsureHeaderColumns(IReadOnlyList<string> titles)
+        {
+            if (_columnsRow.childCount != 0)
+            {
+                return;
+            }
 
             var cellsContainer = new VisualElement();
             cellsContainer.style.flexDirection = FlexDirection.Row;
             cellsContainer.style.flexGrow = 1;
             cellsContainer.style.flexBasis = 0;
 
-            for (var i = 0; i < _columnTitles.Count; i++)
+            for (var i = 0; i < titles.Count; i++)
             {
-                var title = _columnTitles[i];
+                var title = titles[i];
 
                 var cell = new Label(title);
                 cell.AddToClassList(TriStyles.TableHeaderCell);
@@ -97,57 +81,84 @@ namespace TriInspector.VisualElements
                 _columnsRow.Add(spacer);
             }
 
-            header.Add(_columnsRow);
+            UpdateColumnsRowDisplay();
+        }
 
-            return header;
+        private void UpdateColumnsRowDisplay()
+        {
+            _columnsRow.style.display = _property.IsExpanded ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         protected override void SetExpanded(bool expanded)
         {
             base.SetExpanded(expanded);
 
-            if (_columnsRow != null)
-            {
-                _columnsRow.style.display = expanded ? DisplayStyle.Flex : DisplayStyle.None;
-            }
+            UpdateColumnsRowDisplay();
         }
 
         protected override VisualElement CreateItemElement(TriProperty property)
         {
-            var row = new VisualElement();
-            row.AddToClassList(TriStyles.TableRow);
-
             if (property.PropertyType == TriPropertyType.Generic)
             {
-                var columnIndex = 0;
-                foreach (var child in property.ChildrenProperties)
-                {
-                    row.Add(CreateCell(child, columnIndex++));
-                }
+                var content = new TableRowVisualElement(property.ValueType, property.ChildrenProperties, _sizes);
+                content.AddToClassList(TriStyles.TableRow);
+                EnsureHeaderColumns(content.ColumnTitles);
+                return new TriValidationResultsVisualElement(property, content);
+            }
 
-                row = new TriValidationResultsVisualElement(property, row);
-            }
-            else
+            EnsureHeaderColumns(SingleColumnTitles);
+
+            var row = new VisualElement();
+            row.AddToClassList(TriStyles.TableRow);
+            row.Add(CreateCell(new TriPropertyVisualElement(property, new TriPropertyVisualElement.Props
             {
-                row.Add(CreateCell(property, 0));
-            }
+                forceInline = true,
+            }), 0, _sizes));
 
             return row;
         }
 
-        private VisualElement CreateCell(TriProperty property, int columnIndex)
+        private static VisualElement CreateCell(VisualElement content, int columnIndex, float[] sizes)
         {
             var cell = new VisualElement();
             cell.AddToClassList(TriStyles.TableCell);
             cell.AddToClassList(TriStyles.UnityInspectorElement);
             cell.AddToClassList(TriStyles.UnityInspectorMainContainer);
             cell.AddToClassList(TriStyles.TriInspectorElement);
-            TriColumnSizes.Apply(cell, _sizes, columnIndex);
-            cell.Add(new TriPropertyVisualElement(property, new TriPropertyVisualElement.Props
-            {
-                forceInline = true,
-            }));
+            TriColumnSizes.Apply(cell, sizes, columnIndex);
+            cell.Add(content);
             return cell;
+        }
+
+        private class TableRowVisualElement : TriPropertyCollectionVisualElement
+        {
+            private readonly float[] _sizes;
+            private int _columnIndex;
+
+            public TableRowVisualElement(Type declarationsType, IReadOnlyList<TriProperty> properties, float[] sizes)
+                : base(declarationsType)
+            {
+                _sizes = sizes;
+                ColumnTitles = new List<string>();
+
+                foreach (var property in properties)
+                {
+                    var columnCount = childCount;
+                    AddProperty(property, new TriPropertyVisualElement.Props {forceInline = true}, out var group);
+
+                    if (childCount != columnCount)
+                    {
+                        ColumnTitles.Add(group ?? ObjectNames.NicifyVariableName(property.RawName));
+                    }
+                }
+            }
+
+            public List<string> ColumnTitles { get; }
+
+            protected override void AddPropertyChild(VisualElement child, TriProperty property)
+            {
+                base.AddPropertyChild(CreateCell(child, _columnIndex++, _sizes), property);
+            }
         }
 
         private class TableListPropertyOverrideContext : TriPropertyOverrideContext
