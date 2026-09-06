@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Processors;
-using TriInspector.Resolvers;
-
-[assembly: RegisterTriPropertyDisableProcessor(typeof(DisableIfProcessor))]
+﻿using TriInspector.Resolvers;
 
 namespace TriInspector.Processors
 {
+    [RegisterTriPropertyDisableProcessor]
     public class DisableIfProcessor : TriPropertyDisableProcessor<DisableIfAttribute>
     {
         private ValueResolver<object> _conditionResolver;

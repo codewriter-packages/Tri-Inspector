@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Processors;
-using TriInspector.Resolvers;
-
-[assembly: RegisterTriPropertyHideProcessor(typeof(HideIfProcessor))]
+﻿using TriInspector.Resolvers;
 
 namespace TriInspector.Processors
 {
+    [RegisterTriPropertyHideProcessor]
     public class HideIfProcessor : TriPropertyHideProcessor<HideIfAttribute>
     {
         private ValueResolver<object> _conditionResolver;

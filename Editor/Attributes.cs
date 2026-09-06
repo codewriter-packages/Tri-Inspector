@@ -35,27 +35,17 @@ namespace TriInspector
     {
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriPropertyHideProcessor : Attribute
     {
-        public RegisterTriPropertyHideProcessor(Type processorType)
-        {
-            ProcessorType = processorType;
-        }
-
-        public Type ProcessorType { get; }
         public bool ApplyOnArrayElement { get; set; }
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriPropertyDisableProcessor : Attribute
     {
-        public RegisterTriPropertyDisableProcessor(Type processorType)
-        {
-            ProcessorType = processorType;
-        }
-
-        public Type ProcessorType { get; }
         public bool ApplyOnArrayElement { get; set; }
     }
 

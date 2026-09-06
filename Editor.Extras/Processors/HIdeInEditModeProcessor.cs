@@ -1,11 +1,8 @@
-﻿using TriInspector.Processors;
-using TriInspector;
-using UnityEngine;
-
-[assembly: RegisterTriPropertyHideProcessor(typeof(HideInEditModeProcessor))]
+﻿using UnityEngine;
 
 namespace TriInspector.Processors
 {
+    [RegisterTriPropertyHideProcessor]
     public class HideInEditModeProcessor : TriPropertyHideProcessor<HideInEditModeAttribute>
     {
         public override bool IsHidden(TriProperty property)

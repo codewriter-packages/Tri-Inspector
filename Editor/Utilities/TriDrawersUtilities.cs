@@ -23,8 +23,8 @@ namespace TriInspector.Utilities
         private static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> _allValueDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriAttributeValidatorAttribute> _allAttributeValidatorTypesBackingField;
         private static IReadOnlyList<RegisterTriValueValidatorAttribute> _allValueValidatorTypesBackingField;
-        private static IReadOnlyList<RegisterTriPropertyHideProcessor> _allHideProcessorTypesBackingField;
-        private static IReadOnlyList<RegisterTriPropertyDisableProcessor> _allDisableProcessorTypesBackingField;
+        private static IReadOnlyList<Info<RegisterTriPropertyHideProcessor>> _allHideProcessorTypesBackingField;
+        private static IReadOnlyList<Info<RegisterTriPropertyDisableProcessor>> _allDisableProcessorTypesBackingField;
 
         private static IReadOnlyList<TriTypeProcessor> _allTypeProcessorBackingField;
 
@@ -142,17 +142,17 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriPropertyHideProcessor> AllHideProcessors
+        public static IReadOnlyList<Info<RegisterTriPropertyHideProcessor>> AllHideProcessors
         {
             get
             {
                 if (_allHideProcessorTypesBackingField == null)
                 {
                     _allHideProcessorTypesBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriPropertyHideProcessor>()
-                        where HideProcessorMatcher.Match(attr.ProcessorType)
-                        select attr
+                        from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriPropertyHideProcessor))
+                        let attr = processorType.GetCustomAttribute<RegisterTriPropertyHideProcessor>()
+                        where attr != null && HideProcessorMatcher.Match(processorType)
+                        select new Info<RegisterTriPropertyHideProcessor>(processorType, attr)
                     ).ToList();
                 }
 
@@ -160,17 +160,17 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriPropertyDisableProcessor> AllDisableProcessors
+        public static IReadOnlyList<Info<RegisterTriPropertyDisableProcessor>> AllDisableProcessors
         {
             get
             {
                 if (_allDisableProcessorTypesBackingField == null)
                 {
                     _allDisableProcessorTypesBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriPropertyDisableProcessor>()
-                        where DisableProcessorMatcher.Match(attr.ProcessorType)
-                        select attr
+                        from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriPropertyDisableProcessor))
+                        let attr = processorType.GetCustomAttribute<RegisterTriPropertyDisableProcessor>()
+                        where attr != null && DisableProcessorMatcher.Match(processorType)
+                        select new Info<RegisterTriPropertyDisableProcessor>(processorType, attr)
                     ).ToList();
                 }
 
@@ -248,11 +248,11 @@ namespace TriInspector.Utilities
             return
                 from attribute in attributes
                 from processor in AllHideProcessors
-                where HideProcessorMatcher.Match(processor.ProcessorType, attribute.GetType())
+                where HideProcessorMatcher.Match(processor.DrawerType, attribute.GetType())
                 select CreateInstance<TriPropertyHideProcessor>(
-                    processor.ProcessorType, valueType, it =>
+                    processor.DrawerType, valueType, it =>
                     {
-                        it.ApplyOnArrayElement = processor.ApplyOnArrayElement;
+                        it.ApplyOnArrayElement = processor.Attr.ApplyOnArrayElement;
                         it.RawAttribute = attribute;
                     });
         }
@@ -263,11 +263,11 @@ namespace TriInspector.Utilities
             return
                 from attribute in attributes
                 from processor in AllDisableProcessors
-                where DisableProcessorMatcher.Match(processor.ProcessorType, attribute.GetType())
+                where DisableProcessorMatcher.Match(processor.DrawerType, attribute.GetType())
                 select CreateInstance<TriPropertyDisableProcessor>(
-                    processor.ProcessorType, valueType, it =>
+                    processor.DrawerType, valueType, it =>
                     {
-                        it.ApplyOnArrayElement = processor.ApplyOnArrayElement;
+                        it.ApplyOnArrayElement = processor.Attr.ApplyOnArrayElement;
                         it.RawAttribute = attribute;
                     });
         }

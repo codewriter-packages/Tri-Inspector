@@ -1,11 +1,8 @@
-﻿using TriInspector.Processors;
-using TriInspector;
-using UnityEngine;
-
-[assembly: RegisterTriPropertyDisableProcessor(typeof(DisableInPlayModeProcessor))]
+﻿using UnityEngine;
 
 namespace TriInspector.Processors
 {
+    [RegisterTriPropertyDisableProcessor]
     public class DisableInPlayModeProcessor : TriPropertyDisableProcessor<DisableInPlayModeAttribute>
     {
         public override bool IsDisabled(TriProperty property)
