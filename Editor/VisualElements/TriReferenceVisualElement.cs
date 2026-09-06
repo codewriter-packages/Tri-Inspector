@@ -64,6 +64,12 @@ namespace TriInspector.VisualElements
 
                 if (props.drawPrefixLabel)
                 {
+                    inlineRoot.AddToClassList(TriStyles.UnityInspectorElement);
+                    inlineRoot.AddToClassList(TriStyles.UnityInspectorMainContainer);
+                    inlineRoot.AddToClassList(TriStyles.TriInspectorElement);
+
+                    inlineRoot.style.marginLeft = -3;
+
                     inlineRoot = new TriAlignedLabelForGenericVisualElement(property, inlineRoot);
                 }
 
