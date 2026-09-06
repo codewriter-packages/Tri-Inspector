@@ -7,7 +7,7 @@ using UnityEngine.Pool;
 namespace TriInspector.TypeProcessors
 {
     [RegisterTriTypeProcessor(1)]
-    public class TriRegisterShownByTriPropertiesTypeProcessor : TriTypeProcessor
+    public class TriRegisterPropertiesTypeProcessor : TriTypeProcessor
     {
         public override void ProcessType(Type type, List<TriPropertyDefinition> properties)
         {
