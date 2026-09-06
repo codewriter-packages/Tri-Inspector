@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using TriInspector.Resolvers;
 using TriInspector.Utilities;
 using UnityEngine;
+using Attribute = System.Attribute;
 
 namespace TriInspector
 {
@@ -17,9 +17,10 @@ namespace TriInspector
 
         private readonly List<string> _extensionErrors = new List<string>();
         private readonly MemberInfo _memberInfo;
-        private readonly List<Attribute> _attributes;
+        private readonly Attribute[] _attributes;
         private readonly bool _skipNullValuesFix;
 
+        private List<Attribute> _attributesDynamicNullable;
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
         private IReadOnlyList<TriCustomDrawer> _drawersBackingField;
@@ -50,7 +51,7 @@ namespace TriInspector
             ValueGetterDelegate valueGetter, ValueSetterDelegate valueSetter,
             TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
         {
-            var attributes = memberInfo?.GetCustomAttributes().ToList();
+            var attributes = TriReflectionUtilities.GetCustomNonSerializationAttributes(memberInfo);
             var ownerType = memberInfo?.DeclaringType ?? typeof(object);
 
             return new TriPropertyDefinition(
@@ -74,7 +75,7 @@ namespace TriInspector
             Type fieldType,
             ValueGetterDelegate valueGetter,
             ValueSetterDelegate valueSetter,
-            List<Attribute> attributes,
+            Attribute[] attributes,
             bool isArrayElement,
             TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
         {
@@ -84,7 +85,7 @@ namespace TriInspector
             IsArrayElement = isArrayElement;
             Origin = origin;
 
-            _attributes = attributes ?? new List<Attribute>();
+            _attributes = attributes ?? Array.Empty<Attribute>();
             _memberInfo = memberInfo;
             _valueGetter = valueGetter;
             _valueSetter = valueSetter;
@@ -103,7 +104,7 @@ namespace TriInspector
                     IsDictionary = true;
                     ArrayElementType = typeof(TriDictionaryEntry<,>).MakeGenericType(fieldType.GetGenericArguments());
                     FieldType = typeof(List<>).MakeGenericType(ArrayElementType);
-                    _attributes.Add(new HideReferencePickerAttribute());
+                    GetEditableAttributes().Add(new HideReferencePickerAttribute());
                     (_valueGetter, _valueSetter) = ConfigureDictionaryAsListSerialization(
                         ArrayElementType, valueGetter, valueSetter);
                 }
@@ -138,7 +139,7 @@ namespace TriInspector
 
         public TriPropertyOrigin Origin { get; }
 
-        public IReadOnlyList<Attribute> Attributes => _attributes;
+        public AttributesCollection Attributes => new AttributesCollection(this);
 
         public bool IsReadOnly { get; }
 
@@ -170,7 +171,8 @@ namespace TriInspector
 
         public List<Attribute> GetEditableAttributes()
         {
-            return _attributes;
+            _attributesDynamicNullable ??= new List<Attribute>(_attributes);
+            return _attributesDynamicNullable;
         }
 
         public bool TryGetMemberInfo(out MemberInfo memberInfo)
@@ -234,7 +236,10 @@ namespace TriInspector
                     });
 
                     _arrayElementDefinitionBackingField = new TriPropertyDefinition(_memberInfo, OwnerType, 0,
-                        "Element", ArrayElementType, elementGetter, elementSetter, _attributes, true, Origin);
+                        "Element", ArrayElementType, elementGetter, elementSetter, _attributes, true, Origin)
+                    {
+                        _attributesDynamicNullable = _attributesDynamicNullable,
+                    };
                 }
 
                 return _arrayElementDefinitionBackingField;
@@ -248,10 +253,15 @@ namespace TriInspector
                 return _hideProcessorsBackingField;
             }
 
-            return _hideProcessorsBackingField = TriDrawersUtilities
-                .CreateHideProcessorsFor(FieldType, Attributes)
-                .Where(CanApplyExtensionOnSelf)
-                .ToList();
+            List<TriPropertyHideProcessor> processors = null;
+            TriDrawersUtilities.CreateHideProcessorsFor(ref processors, FieldType, Attributes);
+            if (processors == null)
+            {
+                return _hideProcessorsBackingField = EmptyList<TriPropertyHideProcessor>.Empty;
+            }
+
+            RemoveNonApplicableOnSelf(processors);
+            return _hideProcessorsBackingField = processors;
         }
 
         private IReadOnlyList<TriPropertyDisableProcessor> PopulateDisableProcessors()
@@ -261,10 +271,15 @@ namespace TriInspector
                 return _disableProcessorsBackingField;
             }
 
-            return _disableProcessorsBackingField = TriDrawersUtilities
-                .CreateDisableProcessorsFor(FieldType, Attributes)
-                .Where(CanApplyExtensionOnSelf)
-                .ToList();
+            List<TriPropertyDisableProcessor> processors = null;
+            TriDrawersUtilities.CreateDisableProcessorsFor(ref processors, FieldType, Attributes);
+            if (processors == null)
+            {
+                return _disableProcessorsBackingField = EmptyList<TriPropertyDisableProcessor>.Empty;
+            }
+
+            RemoveNonApplicableOnSelf(processors);
+            return _disableProcessorsBackingField = processors;
         }
 
         private IReadOnlyList<TriValidator> PopulateValidators()
@@ -274,11 +289,17 @@ namespace TriInspector
                 return _validatorsBackingField;
             }
 
-            return _validatorsBackingField = Enumerable.Empty<TriValidator>()
-                .Concat(TriDrawersUtilities.CreateValueValidatorsFor(FieldType))
-                .Concat(TriDrawersUtilities.CreateAttributeValidatorsFor(FieldType, Attributes))
-                .Where(CanApplyExtensionOnSelf)
-                .ToList();
+            List<TriValidator> validators = null;
+            TriDrawersUtilities.CreateValueValidatorsFor(ref validators, FieldType);
+            TriDrawersUtilities.CreateAttributeValidatorsFor(ref validators, FieldType, Attributes);
+
+            if (validators == null)
+            {
+                return _validatorsBackingField = EmptyList<TriValidator>.Empty;
+            }
+
+            RemoveNonApplicableOnSelf(validators);
+            return _validatorsBackingField = validators;
         }
 
         private IReadOnlyList<TriCustomDrawer> PopulateDrawers()
@@ -288,16 +309,17 @@ namespace TriInspector
                 return _drawersBackingField;
             }
 
-            return _drawersBackingField = Enumerable.Empty<TriCustomDrawer>()
-                .Concat(TriDrawersUtilities.CreateValueDrawersFor(FieldType))
-                .Concat(TriDrawersUtilities.CreateAttributeDrawersFor(FieldType, Attributes))
-                .Concat(new[]
-                {
-                    new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
-                })
-                .Where(CanApplyExtensionOnSelf)
-                .OrderBy(it => it.Order)
-                .ToList();
+            var drawers = new List<TriCustomDrawer>
+            {
+                new ValidatorsDrawer {Order = TriDrawerOrder.Validator,},
+            };
+
+            TriDrawersUtilities.CreateValueDrawersFor(ref drawers, FieldType);
+            TriDrawersUtilities.CreateAttributeDrawersFor(ref drawers, FieldType, Attributes);
+
+            RemoveNonApplicableOnSelf(drawers);
+            drawers.Sort(static (a, b) => a.Order.CompareTo(b.Order));
+            return _drawersBackingField = drawers;
         }
 
         private static ValueGetterDelegate MakeGetter(FieldInfo fi)
@@ -443,6 +465,17 @@ namespace TriInspector
             return (GetDictionaryAsList, valueSetter != null ? SetListAsDictionary : null);
         }
 
+        private void RemoveNonApplicableOnSelf<T>(List<T> list) where T : TriPropertyExtension
+        {
+            for (var i = list.Count - 1; i >= 0; i--)
+            {
+                if (!CanApplyExtensionOnSelf(list[i]))
+                {
+                    list.RemoveAt(i);
+                }
+            }
+        }
+
         private bool CanApplyExtensionOnSelf(TriPropertyExtension propertyExtension)
         {
             if (propertyExtension.ApplyOnArrayElement.HasValue)
@@ -466,5 +499,95 @@ namespace TriInspector
         public delegate object ValueGetterDelegate(TriProperty self, int targetIndex);
 
         public delegate object ValueSetterDelegate(TriProperty self, int targetIndex, object value);
+
+        private static class EmptyList<T>
+        {
+            public static readonly List<T> Empty = new List<T>();
+        }
+
+        public struct AttributesCollection
+        {
+            private readonly TriPropertyDefinition _self;
+
+            public AttributesCollection(TriPropertyDefinition self)
+            {
+                _self = self;
+            }
+
+            public Enumerator GetEnumerator() => new Enumerator(_self);
+
+            public int Count => _self._attributesDynamicNullable?.Count ??
+                                _self._attributes?.Length ?? 0;
+
+            public bool TryGet<T>(out T result) where T : Attribute
+            {
+                var dynamic = _self._attributesDynamicNullable;
+                if (dynamic != null)
+                {
+                    foreach (var attribute in dynamic)
+                    {
+                        if (attribute is T typed)
+                        {
+                            result = typed;
+                            return true;
+                        }
+                    }
+
+                    result = null;
+                    return false;
+                }
+
+                foreach (var attribute in _self._attributes)
+                {
+                    if (attribute is T typed)
+                    {
+                        result = typed;
+                        return true;
+                    }
+                }
+
+                result = null;
+                return false;
+            }
+
+            public struct Enumerator
+            {
+                private readonly List<Attribute> _dynamic;
+                private readonly Attribute[] _static;
+                private int _index;
+
+                internal Enumerator(TriPropertyDefinition self)
+                {
+                    _dynamic = self._attributesDynamicNullable;
+                    _static = self._attributes;
+                    _index = 0;
+                    Current = null;
+                }
+
+                public Attribute Current { get; private set; }
+
+                public bool MoveNext()
+                {
+                    if (_dynamic != null)
+                    {
+                        if (_index < _dynamic.Count)
+                        {
+                            Current = _dynamic[_index++];
+                            return true;
+                        }
+
+                        return false;
+                    }
+
+                    if (_index < _static.Length)
+                    {
+                        Current = _static[_index++];
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+        }
     }
 }

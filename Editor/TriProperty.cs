@@ -646,17 +646,7 @@ namespace TriInspector
                 }
             }
 
-            foreach (var attr in _definition.Attributes)
-            {
-                if (attr is TAttribute typedAttr)
-                {
-                    attribute = typedAttr;
-                    return true;
-                }
-            }
-
-            attribute = null;
-            return false;
+            return _definition.Attributes.TryGet(out attribute);
         }
 
         internal static void BuildPropertyPath(TriProperty property, StringBuilder sb)

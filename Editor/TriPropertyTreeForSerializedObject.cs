@@ -28,7 +28,7 @@ namespace TriInspector
                 fieldType: TargetObjectType,
                 valueGetter: (self, targetIndex) => _serializedObject.targetObjects[targetIndex],
                 valueSetter: (self, targetIndex, value) => _serializedObject.targetObjects[targetIndex],
-                attributes: new List<Attribute>(),
+                attributes: Array.Empty<Attribute>(),
                 isArrayElement: false);
 
             RootProperty = new TriProperty(this, null, RootPropertyDefinition, serializedObject);

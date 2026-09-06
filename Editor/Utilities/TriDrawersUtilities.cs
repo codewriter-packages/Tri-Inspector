@@ -189,87 +189,119 @@ namespace TriInspector.Utilities
             return attr.CreateVisualElementInternal(attribute);
         }
 
-        public static IEnumerable<TriValueDrawer> CreateValueDrawersFor(Type valueType)
+        public static void CreateValueDrawersFor(ref List<TriCustomDrawer> result, Type valueType)
         {
-            return
-                from drawer in AllValueDrawerTypes
-                where ValueDrawerMatcher.Match(drawer.DrawerType, valueType)
-                select CreateInstance<TriValueDrawer>(drawer.DrawerType, valueType, it =>
+            foreach (var drawer in AllValueDrawerTypes)
+            {
+                if (ValueDrawerMatcher.Match(drawer.DrawerType, valueType))
                 {
-                    it.ApplyOnArrayElement = drawer.Attr.ApplyOnArrayElement;
-                    it.Order = drawer.Attr.Order;
-                });
-        }
-
-        public static IEnumerable<TriAttributeDrawer> CreateAttributeDrawersFor(
-            Type valueType, IReadOnlyList<Attribute> attributes)
-        {
-            return
-                from attribute in attributes
-                from drawer in AllAttributeDrawerTypes
-                where AttributeDrawerMatcher.Match(drawer.DrawerType, attribute.GetType())
-                select CreateInstance<TriAttributeDrawer>(drawer.DrawerType, valueType, it =>
-                {
-                    it.ApplyOnArrayElement = drawer.Attr.ApplyOnArrayElement;
-                    it.Order = drawer.Attr.Order;
-                    it.RawAttribute = attribute;
-                });
-        }
-
-        public static IEnumerable<TriValueValidator> CreateValueValidatorsFor(Type valueType)
-        {
-            return
-                from validator in AllValueValidatorTypes
-                where ValueValidatorMatcher.Match(validator.DrawerType, valueType)
-                select CreateInstance<TriValueValidator>(validator.DrawerType, valueType, it =>
-                {
-                    //
-                    it.ApplyOnArrayElement = validator.Attr.ApplyOnArrayElement;
-                });
-        }
-
-        public static IEnumerable<TriAttributeValidator> CreateAttributeValidatorsFor(
-            Type valueType, IReadOnlyList<Attribute> attributes)
-        {
-            return
-                from attribute in attributes
-                from validator in AllAttributeValidatorTypes
-                where AttributeValidatorMatcher.Match(validator.DrawerType, attribute.GetType())
-                select CreateInstance<TriAttributeValidator>(validator.DrawerType, valueType, it =>
-                {
-                    it.ApplyOnArrayElement = validator.Attr.ApplyOnArrayElement;
-                    it.RawAttribute = attribute;
-                });
-        }
-
-        public static IEnumerable<TriPropertyHideProcessor> CreateHideProcessorsFor(
-            Type valueType, IReadOnlyList<Attribute> attributes)
-        {
-            return
-                from attribute in attributes
-                from processor in AllHideProcessors
-                where HideProcessorMatcher.Match(processor.DrawerType, attribute.GetType())
-                select CreateInstance<TriPropertyHideProcessor>(
-                    processor.DrawerType, valueType, it =>
+                    result ??= new List<TriCustomDrawer>();
+                    result.Add(CreateInstance<TriValueDrawer>(drawer.DrawerType, valueType, it =>
                     {
-                        it.ApplyOnArrayElement = processor.Attr.ApplyOnArrayElement;
-                        it.RawAttribute = attribute;
-                    });
+                        it.ApplyOnArrayElement = drawer.Attr.ApplyOnArrayElement;
+                        it.Order = drawer.Attr.Order;
+                    }));
+                }
+            }
         }
 
-        public static IEnumerable<TriPropertyDisableProcessor> CreateDisableProcessorsFor(
-            Type valueType, IReadOnlyList<Attribute> attributes)
+        public static void CreateAttributeDrawersFor(ref List<TriCustomDrawer> result,
+            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
         {
-            return
-                from attribute in attributes
-                from processor in AllDisableProcessors
-                where DisableProcessorMatcher.Match(processor.DrawerType, attribute.GetType())
-                select CreateInstance<TriPropertyDisableProcessor>(
-                    processor.DrawerType, valueType, it =>
+            foreach (var attribute in attributes)
+            {
+                foreach (var drawer in AllAttributeDrawerTypes)
+                {
+                    if (AttributeDrawerMatcher.Match(drawer.DrawerType, attribute.GetType()))
                     {
-                        it.ApplyOnArrayElement = processor.Attr.ApplyOnArrayElement;
-                        it.RawAttribute = attribute;
-                    });
+                        result ??= new List<TriCustomDrawer>();
+                        result.Add(CreateInstance<TriAttributeDrawer>(drawer.DrawerType, valueType, it =>
+                        {
+                            it.ApplyOnArrayElement = drawer.Attr.ApplyOnArrayElement;
+                            it.Order = drawer.Attr.Order;
+                            it.RawAttribute = attribute;
+                        }));
+                    }
+                }
+            }
+        }
+
+        public static void CreateValueValidatorsFor(ref List<TriValidator> result, Type valueType)
+        {
+            foreach (var validator in AllValueValidatorTypes)
+            {
+                if (ValueValidatorMatcher.Match(validator.DrawerType, valueType))
+                {
+                    result ??= new List<TriValidator>();
+                    result.Add(CreateInstance<TriValueValidator>(validator.DrawerType, valueType,
+                        it =>
+                        {
+                            it.ApplyOnArrayElement = validator.Attr.ApplyOnArrayElement;
+                        }));
+                }
+            }
+        }
+
+        public static void CreateAttributeValidatorsFor(ref List<TriValidator> result,
+            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+        {
+            foreach (var attribute in attributes)
+            {
+                foreach (var validator in AllAttributeValidatorTypes)
+                {
+                    if (AttributeValidatorMatcher.Match(validator.DrawerType, attribute.GetType()))
+                    {
+                        result ??= new List<TriValidator>();
+                        result.Add(CreateInstance<TriAttributeValidator>(validator.DrawerType, valueType, it =>
+                        {
+                            it.ApplyOnArrayElement = validator.Attr.ApplyOnArrayElement;
+                            it.RawAttribute = attribute;
+                        }));
+                    }
+                }
+            }
+        }
+
+        public static void CreateHideProcessorsFor(ref List<TriPropertyHideProcessor> result,
+            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+        {
+            foreach (var processor in AllHideProcessors)
+            {
+                foreach (var attribute in attributes)
+                {
+                    if (HideProcessorMatcher.Match(processor.DrawerType, attribute.GetType()))
+                    {
+                        result ??= new List<TriPropertyHideProcessor>();
+                        result.Add(CreateInstance<TriPropertyHideProcessor>(
+                            processor.DrawerType, valueType, it =>
+                            {
+                                it.ApplyOnArrayElement = processor.Attr.ApplyOnArrayElement;
+                                it.RawAttribute = attribute;
+                            }));
+                    }
+                }
+            }
+        }
+
+        public static void CreateDisableProcessorsFor(ref List<TriPropertyDisableProcessor> result,
+            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+        {
+            foreach (var processor in AllDisableProcessors)
+            {
+                foreach (var attribute in attributes)
+                {
+                    if (DisableProcessorMatcher.Match(processor.DrawerType, attribute.GetType()))
+                    {
+                        result ??= new List<TriPropertyDisableProcessor>();
+                        result.Add(CreateInstance<TriPropertyDisableProcessor>(
+                            processor.DrawerType, valueType, it =>
+                            {
+                                it.ApplyOnArrayElement = processor.Attr.ApplyOnArrayElement;
+                                it.RawAttribute = attribute;
+                            }));
+                    }
+                }
+            }
         }
 
         private static T CreateInstance<T>(Type type, Type argType, Action<T> setup)

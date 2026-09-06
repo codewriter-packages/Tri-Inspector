@@ -88,6 +88,41 @@ namespace TriInspector.Utilities
             return AttributesCache[type] = type.GetCustomAttributes().ToList();
         }
 
+        public static Attribute[] GetCustomNonSerializationAttributes(MemberInfo memberInfo)
+        {
+            if (memberInfo == null)
+            {
+                return null;
+            }
+
+            if (!HasAnyNonSerializationAttributes(memberInfo))
+            {
+                return null;
+            }
+
+            return Attribute.GetCustomAttributes(memberInfo);
+        }
+
+        private static bool HasAnyNonSerializationAttributes(MemberInfo memberInfo)
+        {
+            foreach (var customAttributeData in memberInfo.GetCustomAttributesData())
+            {
+                if (!SerializationOnlyAttributeTypes.Contains(customAttributeData.AttributeType))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static readonly HashSet<Type> SerializationOnlyAttributeTypes = new HashSet<Type>
+        {
+            typeof(SerializeField),
+            typeof(SerializeReference),
+            typeof(ShowInInspectorAttribute),
+        };
+
         public static void GetAllInstanceFieldsInDeclarationOrder(List<FieldInfo> result, Type type)
         {
             const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
