@@ -458,8 +458,9 @@ namespace TriInspector
                 if (PropertyType == TriPropertyType.Array)
                 {
                     // Arrays are mutated in place, so the cached reference would be compared against
-                    // itself. Snapshot an order-sensitive hash of the element hashes instead, which
-                    // detects add/remove/reorder as well as element value changes.
+                    // itself. Compare a length-based hash instead (see ComputeArrayHash): this detects
+                    // add/remove but intentionally not reorder or element value changes, to avoid
+                    // recreating the list elements (and losing VisualElement interactivity) on edits.
                     var newArrayHash = ComputeArrayHash(newValue as IList);
                     contentChanged = newArrayHash != _arrayHash;
                     _arrayHash = newArrayHash;
