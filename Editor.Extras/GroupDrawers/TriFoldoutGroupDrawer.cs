@@ -1,12 +1,9 @@
-﻿using TriInspector;
-using TriInspector.GroupDrawers;
-using TriInspector.VisualElements;
+﻿using TriInspector.VisualElements;
 using TriInspector.VisualElements.Groups;
-
-[assembly: RegisterTriGroupDrawer(typeof(TriFoldoutGroupDrawer))]
 
 namespace TriInspector.GroupDrawers
 {
+    [RegisterTriGroupDrawer]
     public class TriFoldoutGroupDrawer : TriGroupDrawer<DeclareFoldoutGroupAttribute>
     {
         public override TriPropertyCollectionVisualElement CreateVisualElement(DeclareFoldoutGroupAttribute attribute)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using TriInspector.VisualElements;
+using UnityEditor;
 using UnityEngine;
 
 namespace TriInspector.Utilities
@@ -34,14 +35,15 @@ namespace TriInspector.Utilities
                 if (_allGroupDrawersCacheBackingField == null)
                 {
                     _allGroupDrawersCacheBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriGroupDrawerAttribute>()
-                        let groupAttributeType = GroupDrawerMatcher.MatchOut(attr.DrawerType, out var t) ? t : null
+                        from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriGroupDrawer))
+                        let attr = drawerType.GetCustomAttribute<RegisterTriGroupDrawerAttribute>()
+                        where attr != null
+                        let groupAttributeType = GroupDrawerMatcher.MatchOut(drawerType, out var t) ? t : null
                         where groupAttributeType != null
-                        select new KeyValuePair<Type, RegisterTriGroupDrawerAttribute>(groupAttributeType, attr)
+                        select new KeyValuePair<Type, Type>(groupAttributeType, drawerType)
                     ).ToDictionary(
                         it => it.Key,
-                        it => (TriGroupDrawer) Activator.CreateInstance(it.Value.DrawerType));
+                        it => (TriGroupDrawer) Activator.CreateInstance(it.Value));
                 }
 
                 return _allGroupDrawersCacheBackingField;

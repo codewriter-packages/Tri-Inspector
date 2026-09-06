@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace TriInspector
 {
@@ -30,15 +31,10 @@ namespace TriInspector
         public bool ApplyOnArrayElement { get; set; }
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriGroupDrawerAttribute : Attribute
     {
-        public RegisterTriGroupDrawerAttribute(Type drawerType)
-        {
-            DrawerType = drawerType;
-        }
-
-        public Type DrawerType { get; }
     }
 
     [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]

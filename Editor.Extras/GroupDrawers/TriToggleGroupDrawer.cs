@@ -1,12 +1,9 @@
-﻿using TriInspector;
-using TriInspector.GroupDrawers;
-using TriInspector.VisualElements;
+﻿using TriInspector.VisualElements;
 using TriInspector.VisualElements.Groups;
-
-[assembly: RegisterTriGroupDrawer(typeof(TriToggleGroupDrawer))]
 
 namespace TriInspector.GroupDrawers
 {
+    [RegisterTriGroupDrawer]
     public class TriToggleGroupDrawer : TriGroupDrawer<DeclareToggleGroupAttribute>
     {
         public override TriPropertyCollectionVisualElement CreateVisualElement(DeclareToggleGroupAttribute attribute)
