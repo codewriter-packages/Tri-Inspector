@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using TriInspector.Utilities;
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace TriInspector.TypeProcessors
 {
@@ -13,47 +14,50 @@ namespace TriInspector.TypeProcessors
         {
             const int fieldsOffset = 1;
 
-            var list = TriReflectionUtilities.GetAllInstanceFieldsInDeclarationOrder(type);
-            var ind = 0;
-
-            foreach (var fieldInfo in list)
+            using (ListPool<FieldInfo>.Get(out var result))
             {
-                if (fieldInfo.IsInitOnly)
-                {
-                    continue;
-                }
+                TriReflectionUtilities.GetAllInstanceFieldsInDeclarationOrder(result, type);
 
-                if (fieldInfo.GetCustomAttribute<NonSerializedAttribute>() != null ||
-                    fieldInfo.GetCustomAttribute<HideInInspector>() != null)
+                var ind = 0;
+                foreach (var fieldInfo in result)
                 {
-                    continue;
-                }
+                    if (fieldInfo.IsInitOnly)
+                    {
+                        continue;
+                    }
 
-                if (fieldInfo.GetCustomAttribute<SerializeReference>() != null)
-                {
-                    // if it's a list or array, the base type should be serializable, actually...
-                    // but we'll check this in the UnitySerializationRulesAnalyzer and display a warning in the inspector
-                    properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                        TriPropertyOrigin.UnitySerializeReference));
-                    continue;
-                }
+                    if (fieldInfo.IsDefined(typeof(NonSerializedAttribute), false) ||
+                        fieldInfo.IsDefined(typeof(HideInInspector), false))
+                    {
+                        continue;
+                    }
 
-                // [Serializable] check moved to UnitySerializationRulesAnalyzer, just skip some dangerous types
-                // Unsupported collection types check also moved to analyzer
-                if (fieldInfo.GetCustomAttribute<SerializeField>() != null &&
-                    TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType))
-                {
-                    properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                        TriPropertyOrigin.UnitySerializeField));
-                    continue;
-                }
+                    if (fieldInfo.IsDefined(typeof(SerializeReference), false))
+                    {
+                        // if it's a list or array, the base type should be serializable, actually...
+                        // but we'll check this in the UnitySerializationRulesAnalyzer and display a warning in the inspector
+                        properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
+                            TriPropertyOrigin.UnitySerializeReference));
+                        continue;
+                    }
 
-                if (fieldInfo.IsPublic &&
-                    TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType))
-                {
-                    properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                        TriPropertyOrigin.UnityPublicField));
-                    continue;
+                    // [Serializable] check moved to UnitySerializationRulesAnalyzer, just skip some dangerous types
+                    // Unsupported collection types check also moved to analyzer
+                    if (fieldInfo.IsDefined(typeof(SerializeField), false) &&
+                        TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType))
+                    {
+                        properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
+                            TriPropertyOrigin.UnitySerializeField));
+                        continue;
+                    }
+
+                    if (fieldInfo.IsPublic &&
+                        TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType))
+                    {
+                        properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
+                            TriPropertyOrigin.UnityPublicField));
+                        continue;
+                    }
                 }
             }
         }

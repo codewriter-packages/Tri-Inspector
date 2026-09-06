@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using TriInspector.Utilities;
+using UnityEngine.Pool;
 
 namespace TriInspector.TypeProcessors
 {
@@ -13,16 +13,24 @@ namespace TriInspector.TypeProcessors
         {
             const int methodsOffset = 20001;
 
-            properties.AddRange(TriReflectionUtilities
-                .GetAllInstanceMethodsInDeclarationOrder(type)
-                .Where(IsSerialized)
-                .Select((it, ind) => TriPropertyDefinition.CreateForMethodInfo(ind + methodsOffset, it,
-                    TriPropertyOrigin.TriButton)));
-        }
+            using (ListPool<MethodInfo>.Get(out var result))
+            {
+                TriReflectionUtilities.GetAllInstanceMethodsInDeclarationOrder(result, type);
 
-        private static bool IsSerialized(MethodInfo methodInfo)
-        {
-            return methodInfo.GetCustomAttribute<ButtonAttribute>(false) != null;
+                var ind = 0;
+                foreach (var methodInfo in result)
+                {
+                    if (!methodInfo.IsDefined(typeof(ButtonAttribute), false))
+                    {
+                        continue;
+                    }
+
+                    var property = TriPropertyDefinition.CreateForMethodInfo(ind++ + methodsOffset, methodInfo,
+                        TriPropertyOrigin.TriButton);
+
+                    properties.Add(property);
+                }
+            }
         }
     }
 }

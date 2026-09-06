@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using TriInspector.Utilities;
+using UnityEngine.Pool;
 
 namespace TriInspector.TypeProcessors
 {
@@ -13,16 +13,24 @@ namespace TriInspector.TypeProcessors
         {
             const int propertiesOffset = 10001;
 
-            properties.AddRange(TriReflectionUtilities
-                .GetAllInstancePropertiesInDeclarationOrder(type)
-                .Where(IsSerialized)
-                .Select((it, ind) => TriPropertyDefinition.CreateForPropertyInfo(ind + propertiesOffset, it,
-                    TriPropertyOrigin.TriProperty)));
-        }
+            using (ListPool<PropertyInfo>.Get(out var result))
+            {
+                TriReflectionUtilities.GetAllInstancePropertiesInDeclarationOrder(result, type);
 
-        private static bool IsSerialized(PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetCustomAttribute<ShowInInspectorAttribute>(false) != null;
+                var ind = 0;
+                foreach (var propertyInfo in result)
+                {
+                    if (!propertyInfo.IsDefined(typeof(ShowInInspectorAttribute), false))
+                    {
+                        continue;
+                    }
+
+                    var property = TriPropertyDefinition.CreateForPropertyInfo(ind++ + propertiesOffset, propertyInfo,
+                        TriPropertyOrigin.TriProperty);
+
+                    properties.Add(property);
+                }
+            }
         }
     }
 }

@@ -12,21 +12,15 @@ namespace TriInspector.Utilities
         private static readonly Dictionary<Type, IReadOnlyList<Attribute>> AttributesCache =
             new Dictionary<Type, IReadOnlyList<Attribute>>();
 
-        private static IReadOnlyList<Assembly> _assemblies;
-        private static IReadOnlyList<Type> _allNonAbstractTypesBackingField;
         private static ISet<Type> _makeSerializableTypes;
 
-        public static IReadOnlyList<Assembly> Assemblies
+        private static IReadOnlyList<Assembly> GetAssemblies()
         {
-            get
-            {
-                if (_assemblies == null)
-                {
-                    _assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                }
-
-                return _assemblies;
-            }
+#if UNITY_6000_6_OR_NEWER
+            return UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies();
+#else
+            return AppDomain.CurrentDomain.GetAssemblies();
+#endif
         }
 
         public static ISet<Type> MakeSerializableTypes
@@ -62,8 +56,8 @@ namespace TriInspector.Utilities
 
                     if (getSerializableType != null)
                     {
-                        var found = Assemblies
-                            .SelectMany(asm => asm.GetCustomAttributes<MakeSerializableAttribute>())
+                        var found = GetAssemblies()
+                            .SelectMany(asm => asm.GetCustomAttributes(typeof(MakeSerializableAttribute)))
                             .Select(attr => (Type) getSerializableType.Invoke(attr, null));
 
                         foreach (var type in found)
@@ -84,32 +78,6 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<Type> AllNonAbstractTypes
-        {
-            get
-            {
-                if (_allNonAbstractTypesBackingField == null)
-                {
-                    _allNonAbstractTypesBackingField = Assemblies
-                        .SelectMany(asm =>
-                        {
-                            try
-                            {
-                                return asm.GetTypes();
-                            }
-                            catch (ReflectionTypeLoadException)
-                            {
-                                return Array.Empty<Type>();
-                            }
-                        })
-                        .Where(type => !type.IsAbstract)
-                        .ToList();
-                }
-
-                return _allNonAbstractTypesBackingField;
-            }
-        }
-
         public static IReadOnlyList<Attribute> GetAttributesCached(Type type)
         {
             if (AttributesCache.TryGetValue(type, out var attributes))
@@ -120,33 +88,28 @@ namespace TriInspector.Utilities
             return AttributesCache[type] = type.GetCustomAttributes().ToList();
         }
 
-        public static IReadOnlyList<T> GetCustomAttributes<T>(this Assembly asm)
-        {
-            return asm.GetCustomAttributes(typeof(T)).Cast<T>().ToList();
-        }
-
-        public static IReadOnlyList<FieldInfo> GetAllInstanceFieldsInDeclarationOrder(Type type)
+        public static void GetAllInstanceFieldsInDeclarationOrder(List<FieldInfo> result, Type type)
         {
             const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
                                        BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-            return GetAllMembersInDeclarationOrder(type, it => it.GetFields(flags));
+            GetAllMembersInDeclarationOrder(result, type, static it => it.GetFields(flags));
         }
 
-        public static IReadOnlyList<PropertyInfo> GetAllInstancePropertiesInDeclarationOrder(Type type)
+        public static void GetAllInstancePropertiesInDeclarationOrder(List<PropertyInfo> result, Type type)
         {
             const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
                                        BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-            return GetAllMembersInDeclarationOrder(type, it => it.GetProperties(flags));
+            GetAllMembersInDeclarationOrder(result, type, static it => it.GetProperties(flags));
         }
 
-        public static IReadOnlyList<MethodInfo> GetAllInstanceMethodsInDeclarationOrder(Type type)
+        public static void GetAllInstanceMethodsInDeclarationOrder(List<MethodInfo> result, Type type)
         {
             const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic |
                                        BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-            return GetAllMembersInDeclarationOrder(type, it => it.GetMethods(flags));
+            GetAllMembersInDeclarationOrder(result, type, static it => it.GetMethods(flags));
         }
 
         public static bool IsArrayOrListOrDictionary(Type type, out Type elementType, out bool isDictionary)
@@ -161,7 +124,7 @@ namespace TriInspector.Utilities
             if (type.IsGenericType)
             {
                 var genericType = type.GetGenericTypeDefinition();
-                
+
                 if (genericType == typeof(List<>))
                 {
                     elementType = type.GetGenericArguments().Single();
@@ -185,18 +148,6 @@ namespace TriInspector.Utilities
             return false;
         }
 
-        public static Type GetUnityEditorTypeByFullName(string name)
-        {
-            return GetTypeByFullName(name, typeof(Editor).Assembly);
-        }
-
-        public static Type GetTypeByFullName(string name, Assembly assembly)
-        {
-            return assembly
-                .GetTypes()
-                .Single(it => it.FullName == name);
-        }
-
         public static bool TryFindTypeByFullName(string name, out Type type)
         {
             type = Type.GetType(name);
@@ -205,7 +156,7 @@ namespace TriInspector.Utilities
                 return true;
             }
 
-            foreach (var assembly in Assemblies)
+            foreach (var assembly in GetAssemblies())
             {
                 type = assembly.GetType(name);
                 if (type != null)
@@ -217,11 +168,9 @@ namespace TriInspector.Utilities
             return false;
         }
 
-        private static IReadOnlyList<T> GetAllMembersInDeclarationOrder<T>(
-            Type type, Func<Type, T[]> select)
+        private static void GetAllMembersInDeclarationOrder<T>(List<T> result, Type type, Func<Type, T[]> select)
             where T : MemberInfo
         {
-            var result = new List<T>();
             var typeTree = new Stack<Type>();
 
             while (type != null)
@@ -235,8 +184,6 @@ namespace TriInspector.Utilities
                 var items = select(t);
                 result.AddRange(items);
             }
-
-            return result;
         }
     }
 }
