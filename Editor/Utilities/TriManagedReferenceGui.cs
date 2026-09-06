@@ -36,11 +36,11 @@ namespace TriInspector.Utilities
 
             protected override AdvancedDropdownItem BuildRoot()
             {
-                var types = TriReflectionUtilities
-                    .AllNonAbstractTypes
-                    .Where(type => !typeof(Object).IsAssignableFrom(type))
-                    .Where(type => _property.FieldType.IsAssignableFrom(type))
+                var types = TypeCache.GetTypesDerivedFrom(_property.FieldType)
+                    .Where(type => !type.IsAbstract)
                     .Where(type => type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null)
+                    .Where(type => TriUnitySerializationUtilities.IsTypeSerializableByUnity(type))
+                    .Where(type => !typeof(Object).IsAssignableFrom(type))
                     .ToList();
 
                 var groupByNamespace = types.Count > 20;
