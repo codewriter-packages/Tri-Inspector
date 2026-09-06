@@ -1,4 +1,5 @@
 using System;
+using TriInspector.Utilities;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements.Groups
@@ -25,18 +26,7 @@ namespace TriInspector.VisualElements.Groups
             wrapper.AddToClassList(TriStyles.UnityInspectorMainContainer);
             wrapper.AddToClassList(TriStyles.TriInspectorElement);
 
-            if (index < _sizes.Length && _sizes[index] > 0f)
-            {
-                wrapper.style.minWidth = _sizes[index];
-                wrapper.style.width = _sizes[index];
-                wrapper.style.flexGrow = 0;
-                wrapper.style.flexShrink = 0;
-            }
-            else
-            {
-                wrapper.style.flexGrow = 1;
-                wrapper.style.flexBasis = 0;
-            }
+            TriColumnSizes.Apply(wrapper, _sizes, index);
 
             if (index > 0)
             {

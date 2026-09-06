@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using TriInspector.Resolvers;
+using TriInspector.Utilities;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -11,14 +12,17 @@ namespace TriInspector.VisualElements
         private readonly TriProperty _property;
         private readonly List<string> _columnTitles = new List<string>();
         private readonly ValueResolver<string>[] _headerResolvers;
+        private readonly float[] _sizes;
 
         private VisualElement _columnsRow;
 
-        public TriTableListVisualElement(TriProperty property, ValueResolver<string>[] headerResolvers = null)
+        public TriTableListVisualElement(TriProperty property, ValueResolver<string>[] headerResolvers = null,
+            float[] sizes = null)
             : base(property)
         {
             _property = property;
             _headerResolvers = headerResolvers;
+            _sizes = sizes;
 
             AddToClassList(TriStyles.Table);
 
@@ -74,6 +78,7 @@ namespace TriInspector.VisualElements
 
                 var cell = new Label(title);
                 cell.AddToClassList(TriStyles.TableHeaderCell);
+                TriColumnSizes.Apply(cell, _sizes, i);
 
                 if (_headerResolvers != null && i < _headerResolvers.Length && _headerResolvers[i] != null)
                 {
@@ -114,28 +119,30 @@ namespace TriInspector.VisualElements
 
             if (property.PropertyType == TriPropertyType.Generic)
             {
+                var columnIndex = 0;
                 foreach (var child in property.ChildrenProperties)
                 {
-                    row.Add(CreateCell(child));
+                    row.Add(CreateCell(child, columnIndex++));
                 }
 
                 row = new TriValidationResultsVisualElement(property, row);
             }
             else
             {
-                row.Add(CreateCell(property));
+                row.Add(CreateCell(property, 0));
             }
 
             return row;
         }
 
-        private static VisualElement CreateCell(TriProperty property)
+        private VisualElement CreateCell(TriProperty property, int columnIndex)
         {
             var cell = new VisualElement();
             cell.AddToClassList(TriStyles.TableCell);
             cell.AddToClassList(TriStyles.UnityInspectorElement);
             cell.AddToClassList(TriStyles.UnityInspectorMainContainer);
             cell.AddToClassList(TriStyles.TriInspectorElement);
+            TriColumnSizes.Apply(cell, _sizes, columnIndex);
             cell.Add(new TriPropertyVisualElement(property, new TriPropertyVisualElement.Props
             {
                 forceInline = true,

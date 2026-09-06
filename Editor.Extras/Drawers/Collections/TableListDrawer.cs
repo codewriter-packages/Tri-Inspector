@@ -43,7 +43,7 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriTableListVisualElement(property, _headerResolvers);
+            return new TriTableListVisualElement(property, _headerResolvers, Attribute.Sizes);
         }
     }
 }

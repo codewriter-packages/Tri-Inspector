@@ -39,11 +39,11 @@ namespace TriInspector.Drawers
 
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return CreateElement(property, _headerResolvers, Attribute.Layout);
+            return CreateElement(property, _headerResolvers, Attribute.Layout, Attribute.KeyColumnSize);
         }
 
         public static VisualElement CreateElement(TriProperty property,
-            ValueResolver<string>[] headerResolvers, DictionaryLayout layout)
+            ValueResolver<string>[] headerResolvers, DictionaryLayout layout, float keyColumnSize = 0f)
         {
             if (property.PropertyTree.TargetsCount != 1)
             {
@@ -61,7 +61,10 @@ namespace TriInspector.Drawers
 
                 case DictionaryLayout.TwoColumns:
                 default:
-                    return new TriTableListVisualElement(property, headerResolvers);
+                    var sizes = keyColumnSize > 0f
+                        ? new float[] {keyColumnSize, 1f - keyColumnSize}
+                        : null;
+                    return new TriTableListVisualElement(property, headerResolvers, sizes);
             }
         }
 

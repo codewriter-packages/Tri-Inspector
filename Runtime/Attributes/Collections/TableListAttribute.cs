@@ -8,5 +8,6 @@ namespace TriInspector
     public class TableListAttribute : CollectionDrawerSettingsAttribute
     {
         public string[] Labels { get; set; }
+        public float[] Sizes { get; set; }
     }
 }
