@@ -26,6 +26,7 @@ namespace TriInspector.VisualElements
         public const string ListHeaderFoldoutCollapsible = "tri-list__header-foldout-collapsible";
         public const string ListHeaderFoldoutNonCollapsible = "tri-list__header-foldout-non-collapsible";
         public const string ListHeaderSize = "tri-list__header-size";
+        public const string ListHeaderSizeReadonly = "tri-list__header-size--readonly";
         public const string ListHeaderButton = "tri-list__header-button";
         public const string ListElement = "tri-list__element";
         public const string ListElementContent = "tri-list__element-content";

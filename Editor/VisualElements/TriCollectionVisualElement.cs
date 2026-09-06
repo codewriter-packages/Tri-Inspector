@@ -14,6 +14,7 @@ namespace TriInspector.VisualElements
     {
         private readonly TriProperty _property;
         private readonly bool _alwaysExpanded;
+        private readonly bool _hideArraySize;
         private readonly SerializedProperty _serializedProperty;
         private ScrollView _scrollView;
         private bool _headerInitialized;
@@ -27,6 +28,7 @@ namespace TriInspector.VisualElements
             property.TryGetAttribute(out CollectionDrawerSettingsAttribute settings);
 
             _alwaysExpanded = settings?.AlwaysExpanded ?? false;
+            _hideArraySize = settings?.HideArraySize ?? false;
             var showAlternatingBackground = settings?.ShowAlternatingBackground ?? true;
 
             allowAdd = settings == null || !settings.HideAddButton;
@@ -139,6 +141,7 @@ namespace TriInspector.VisualElements
                 expanded = _alwaysExpanded || _property.IsExpanded,
                 collapsible = !_alwaysExpanded,
                 allowAdd = allowAdd,
+                hideArraySize = _hideArraySize,
                 getCount = () => ItemCount,
                 setCount = SetArraySizeCallback,
                 addItem = () => AddElementCallback(null),

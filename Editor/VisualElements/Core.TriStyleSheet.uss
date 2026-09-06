@@ -286,6 +286,13 @@ unity-property-field__label
     margin: 0 1px;
 }
 
+.tri-list__header-size--readonly {
+    width: 70px;
+    opacity: 0.4;
+    -unity-text-align: middle-right;
+    padding: 0 3px;
+}
+
 .tri-list__header-button {
     flex-shrink: 0;
     flex-grow: 0;

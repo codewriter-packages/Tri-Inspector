@@ -12,6 +12,7 @@ namespace TriInspector.VisualElements
             public bool expanded;
             public bool collapsible;
             public bool allowAdd;
+            public bool hideArraySize;
             public Func<int> getCount;
             public Action<int> setCount;
             public Action addItem;
@@ -19,6 +20,7 @@ namespace TriInspector.VisualElements
         }
 
         private readonly IntegerField _sizeField;
+        private readonly Label _sizeLabel;
         private readonly Func<int> _getCount;
         private int _displayedCount = -1;
 
@@ -58,19 +60,29 @@ namespace TriInspector.VisualElements
 
             Add(foldout);
 
-            _sizeField = new IntegerField {isDelayed = true};
-            _sizeField.AddToClassList(TriStyles.ListHeaderSize);
-            _sizeField.RegisterValueChangedCallback(evt =>
+            if (props.hideArraySize)
             {
-                var target = Mathf.Max(0, evt.newValue);
-                if (target != evt.newValue)
+                _sizeLabel = new Label();
+                _sizeLabel.AddToClassList(TriStyles.ListHeaderSize);
+                _sizeLabel.AddToClassList(TriStyles.ListHeaderSizeReadonly);
+                Add(_sizeLabel);
+            }
+            else
+            {
+                _sizeField = new IntegerField {isDelayed = true};
+                _sizeField.AddToClassList(TriStyles.ListHeaderSize);
+                _sizeField.RegisterValueChangedCallback(evt =>
                 {
-                    _sizeField.SetValueWithoutNotify(target);
-                }
+                    var target = Mathf.Max(0, evt.newValue);
+                    if (target != evt.newValue)
+                    {
+                        _sizeField.SetValueWithoutNotify(target);
+                    }
 
-                props.setCount?.Invoke(target);
-            });
-            Add(_sizeField);
+                    props.setCount?.Invoke(target);
+                });
+                Add(_sizeField);
+            }
 
             if (props.allowAdd)
             {
@@ -101,12 +113,20 @@ namespace TriInspector.VisualElements
 
             _displayedCount = count;
 
-            // Don't clobber the value while the user is editing it
-            var focused = _sizeField.focusController?.focusedElement as VisualElement;
-            var editing = focused != null && (focused == _sizeField || _sizeField.Contains(focused));
-            if (!editing)
+            if (_sizeLabel != null)
             {
-                _sizeField.SetValueWithoutNotify(count);
+                _sizeLabel.text = $"{count} items";
+            }
+
+            if (_sizeField != null)
+            {
+                // Don't clobber the value while the user is editing it
+                var focused = _sizeField.focusController?.focusedElement as VisualElement;
+                var editing = focused != null && (focused == _sizeField || _sizeField.Contains(focused));
+                if (!editing)
+                {
+                    _sizeField.SetValueWithoutNotify(count);
+                }
             }
         }
     }
