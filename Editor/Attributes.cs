@@ -85,16 +85,15 @@ namespace TriInspector
         public bool ApplyOnArrayElement { get; set; }
     }
     
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriTypeProcessorAttribute : Attribute
     {
-        public RegisterTriTypeProcessorAttribute(Type processorType, int order)
+        public RegisterTriTypeProcessorAttribute(int order)
         {
-            ProcessorType = processorType;
             Order = order;
         }
 
-        public Type ProcessorType { get; }
         public int Order { get; }
     }
 }

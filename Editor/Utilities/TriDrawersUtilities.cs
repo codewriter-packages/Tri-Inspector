@@ -57,10 +57,11 @@ namespace TriInspector.Utilities
                 if (_allTypeProcessorBackingField == null)
                 {
                     _allTypeProcessorBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriTypeProcessorAttribute>()
+                        from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriTypeProcessor))
+                        let attr = processorType.GetCustomAttribute<RegisterTriTypeProcessorAttribute>()
+                        where attr != null
                         orderby attr.Order
-                        select (TriTypeProcessor) Activator.CreateInstance(attr.ProcessorType)
+                        select (TriTypeProcessor) Activator.CreateInstance(processorType)
                     ).ToList();
                 }
 

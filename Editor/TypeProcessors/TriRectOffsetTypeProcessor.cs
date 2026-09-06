@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using TriInspector;
-using TriInspector.TypeProcessors;
 using UnityEngine;
-
-[assembly: RegisterTriTypeProcessor(typeof(TriRectOffsetTypeProcessor), 1)]
 
 namespace TriInspector.TypeProcessors
 {
+    [RegisterTriTypeProcessor(1)]
     public class TriRectOffsetTypeProcessor : TriTypeProcessor
     {
         private static readonly string[] DrawnProperties = new[]

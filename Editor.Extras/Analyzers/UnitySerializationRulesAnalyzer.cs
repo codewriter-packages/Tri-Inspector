@@ -9,12 +9,12 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
 
-[assembly: RegisterTriTypeProcessor(typeof(UnitySerializationRulesAnalyzer), 999999)]
 [assembly: RegisterTriAttributeValidator(typeof(UnitySerializationRuleValidator))]
 [assembly: RegisterTriAttributeDrawer(typeof(UnitySerializationRuleDrawer), TriDrawerOrder.Drawer + 1)]
 
 namespace Editor.Extras.Analyzers
 {
+    [RegisterTriTypeProcessor(999999)]
     internal class UnitySerializationRulesAnalyzer : TriTypeProcessor
     {
         private static readonly UnitySerializationRule[] Rules =

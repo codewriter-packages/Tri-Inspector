@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using TriInspector;
-using TriInspector.TypeProcessors;
 using TriInspector.Utilities;
 using UnityEngine;
 
-[assembly: RegisterTriTypeProcessor(typeof(TriRegisterUnitySerializedFieldsTypeProcessor), 0)]
-
 namespace TriInspector.TypeProcessors
 {
+    [RegisterTriTypeProcessor(0)]
     public class TriRegisterUnitySerializedFieldsTypeProcessor : TriTypeProcessor
     {
         public override void ProcessType(Type type, List<TriPropertyDefinition> properties)

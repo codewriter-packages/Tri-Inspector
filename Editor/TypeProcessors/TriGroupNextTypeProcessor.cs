@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using TriInspector;
-using TriInspector.TypeProcessors;
 using TriInspector.Utilities;
-
-[assembly: RegisterTriTypeProcessor(typeof(TriGroupNextTypeProcessor), 11000)]
 
 namespace TriInspector.TypeProcessors
 {
+    [RegisterTriTypeProcessor(11000)]
     public class TriGroupNextTypeProcessor : TriTypeProcessor
     {
         public override void ProcessType(Type type, List<TriPropertyDefinition> properties)
