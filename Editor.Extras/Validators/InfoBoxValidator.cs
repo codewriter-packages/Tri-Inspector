@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Resolvers;
-using TriInspector.Validators;
-
-[assembly: RegisterTriAttributeValidator(typeof(InfoBoxValidator))]
+﻿using TriInspector.Resolvers;
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator]
     public class InfoBoxValidator : TriAttributeValidator<InfoBoxAttribute>
     {
         private ValueResolver<string> _resolver;

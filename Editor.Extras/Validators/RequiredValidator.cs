@@ -1,12 +1,9 @@
 ﻿using JetBrains.Annotations;
-using TriInspector.Validators;
-using TriInspector;
 using TriInspector.Resolvers;
-
-[assembly: RegisterTriAttributeValidator(typeof(RequiredValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class RequiredValidator : TriAttributeValidator<RequiredAttribute>
     {
         [CanBeNull] private ActionResolver _fixActionResolver;

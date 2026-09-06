@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Resolvers;
-using TriInspector.Validators;
-
-[assembly: RegisterTriAttributeValidator(typeof(ValidateInputValidator))]
+﻿using TriInspector.Resolvers;
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator]
     public class ValidateInputValidator : TriAttributeValidator<ValidateInputAttribute>
     {
         private ValueResolver<TriValidationResult> _resolver;

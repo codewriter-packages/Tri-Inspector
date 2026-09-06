@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Resolvers;
-using TriInspector.Validators;
-
-[assembly: RegisterTriAttributeValidator(typeof(DropdownValidator<>), ApplyOnArrayElement = true)]
+﻿using TriInspector.Resolvers;
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class DropdownValidator<T> : TriAttributeValidator<DropdownAttribute>
     {
         private DropdownValuesResolver<T> _valuesResolver;

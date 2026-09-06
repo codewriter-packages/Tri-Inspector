@@ -49,27 +49,17 @@ namespace TriInspector
         public bool ApplyOnArrayElement { get; set; }
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriValueValidatorAttribute : Attribute
     {
-        public RegisterTriValueValidatorAttribute(Type validatorType)
-        {
-            ValidatorType = validatorType;
-        }
-
-        public Type ValidatorType { get; }
         public bool ApplyOnArrayElement { get; set; } = true;
     }
 
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriAttributeValidatorAttribute : Attribute
     {
-        public RegisterTriAttributeValidatorAttribute(Type validatorType)
-        {
-            ValidatorType = validatorType;
-        }
-
-        public Type ValidatorType { get; }
         public bool ApplyOnArrayElement { get; set; }
     }
     

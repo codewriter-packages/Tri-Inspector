@@ -1,12 +1,9 @@
-﻿using TriInspector;
-using TriInspector.Validators;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
-
-[assembly: RegisterTriValueValidator(typeof(MissingReferenceValidator))]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriValueValidator]
     public class MissingReferenceValidator : TriValueValidator<UnityEngine.Object>
     {
         public override TriValidationResult Validate(TriValue<UnityEngine.Object> propertyValue)

@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Validators;
-using UnityEditor;
-
-[assembly: RegisterTriValueValidator(typeof(TypeMismatchValidator<>))]
+﻿using UnityEditor;
 
 namespace TriInspector.Validators
 {
+    [RegisterTriValueValidator]
     public class TypeMismatchValidator<T> : TriValueValidator<T>
         where T : UnityEngine.Object
     {

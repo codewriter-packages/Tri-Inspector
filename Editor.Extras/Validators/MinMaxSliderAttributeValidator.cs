@@ -1,13 +1,9 @@
-using System;
-using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Validators;
 using UnityEngine;
-
-[assembly: RegisterTriAttributeValidator(typeof(MinMaxSliderAttributeValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class MinMaxSliderAttributeValidator : TriAttributeValidator<MinMaxSliderAttribute>
     {
         private MinMaxSliderAttributeHelpers.SliderResolvers _resolvers;

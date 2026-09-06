@@ -1,12 +1,9 @@
 using System;
-using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Validators;
-
-[assembly: RegisterTriAttributeValidator(typeof(SliderAttributeValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class SliderAttributeValidator : TriAttributeValidator<SliderAttribute>
     {
         private SliderAttributeHelpers.SliderResolvers _resolvers;

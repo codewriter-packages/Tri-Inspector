@@ -1,15 +1,11 @@
 #if TRI_MODULE_ANIMATION
 
 using System.Linq;
-using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Validators;
-using UnityEngine;
-
-[assembly: RegisterTriAttributeValidator(typeof(AnimatorParameterAttributeValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class AnimatorParameterAttributeValidator : TriAttributeValidator<AnimatorParameterAttribute>
     {
         private AnimatorParameterHelper.ResolvedParams _resolvedParams;

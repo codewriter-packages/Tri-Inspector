@@ -2,14 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TriInspector;
-using TriInspector.Validators;
 using UnityEngine;
-
-[assembly: RegisterTriAttributeValidator(typeof(RequiredGetValidator), ApplyOnArrayElement = false)]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = false)]
     public class RequiredGetValidator : TriAttributeValidator<RequiredGetAttribute>
     {
         public override TriExtensionInitializationResult Initialize(TriPropertyDefinition propertyDefinition)

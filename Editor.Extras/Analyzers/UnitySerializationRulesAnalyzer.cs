@@ -2,14 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Editor.Extras.Analyzers;
 using TriInspector;
 using TriInspector.Utilities;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Object = UnityEngine.Object;
-
-[assembly: RegisterTriAttributeValidator(typeof(UnitySerializationRuleValidator))]
 
 namespace Editor.Extras.Analyzers
 {
@@ -244,6 +241,7 @@ namespace Editor.Extras.Analyzers
         }
     }
 
+    [RegisterTriAttributeValidator]
     internal class UnitySerializationRuleValidator : TriAttributeValidator<UnitySerializationRuleAttribute>
     {
         private const string HelpUrl = "https://github.com/codewriter-packages/Tri-Inspector/discussions/241";

@@ -1,10 +1,6 @@
-﻿using TriInspector;
-using TriInspector.Validators;
-
-[assembly:RegisterTriValueValidator(typeof(TriDictionaryDuplicatedEntriesValidator))]
-
-namespace TriInspector.Validators
+﻿namespace TriInspector.Validators
 {
+    [RegisterTriValueValidator]
     public class TriDictionaryDuplicatedEntriesValidator : TriValueValidator<ITriDictionaryEntry>
     {
         public override TriValidationResult Validate(TriValue<ITriDictionaryEntry> propertyValue)

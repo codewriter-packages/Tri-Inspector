@@ -1,11 +1,8 @@
-﻿using TriInspector;
-using TriInspector.Validators;
-using UnityEditor;
-
-[assembly: RegisterTriAttributeValidator(typeof(SceneValidator), ApplyOnArrayElement = true)]
+﻿using UnityEditor;
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class SceneValidator : TriAttributeValidator<SceneAttribute>
     {
         public override TriValidationResult Validate(TriProperty property)

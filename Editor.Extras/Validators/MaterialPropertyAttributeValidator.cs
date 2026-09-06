@@ -1,13 +1,9 @@
 using System.Linq;
-using TriInspector;
 using TriInspector.Drawers;
-using TriInspector.Validators;
-using UnityEngine;
-
-[assembly: RegisterTriAttributeValidator(typeof(MaterialPropertyAttributeValidator), ApplyOnArrayElement = true)]
 
 namespace TriInspector.Validators
 {
+    [RegisterTriAttributeValidator(ApplyOnArrayElement = true)]
     public class MaterialPropertyAttributeValidator : TriAttributeValidator<MaterialPropertyAttribute>
     {
         private MaterialPropertyHelper.ResolvedParams _resolvedParams;

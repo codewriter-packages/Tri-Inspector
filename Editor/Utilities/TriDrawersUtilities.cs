@@ -21,8 +21,8 @@ namespace TriInspector.Utilities
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
         private static IReadOnlyList<Info<RegisterTriAttributeDrawerAttribute>> _allAttributeDrawerTypesBackingField;
         private static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> _allValueDrawerTypesBackingField;
-        private static IReadOnlyList<RegisterTriAttributeValidatorAttribute> _allAttributeValidatorTypesBackingField;
-        private static IReadOnlyList<RegisterTriValueValidatorAttribute> _allValueValidatorTypesBackingField;
+        private static IReadOnlyList<Info<RegisterTriAttributeValidatorAttribute>> _allAttributeValidatorTypesBackingField;
+        private static IReadOnlyList<Info<RegisterTriValueValidatorAttribute>> _allValueValidatorTypesBackingField;
         private static IReadOnlyList<Info<RegisterTriPropertyHideProcessor>> _allHideProcessorTypesBackingField;
         private static IReadOnlyList<Info<RegisterTriPropertyDisableProcessor>> _allDisableProcessorTypesBackingField;
 
@@ -106,17 +106,17 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriValueValidatorAttribute> AllValueValidatorTypes
+        public static IReadOnlyList<Info<RegisterTriValueValidatorAttribute>> AllValueValidatorTypes
         {
             get
             {
                 if (_allValueValidatorTypesBackingField == null)
                 {
                     _allValueValidatorTypesBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriValueValidatorAttribute>()
-                        where ValueValidatorMatcher.Match(attr.ValidatorType)
-                        select attr
+                        from validatorType in TypeCache.GetTypesDerivedFrom(typeof(TriValueValidator))
+                        let attr = validatorType.GetCustomAttribute<RegisterTriValueValidatorAttribute>()
+                        where attr != null && ValueValidatorMatcher.Match(validatorType)
+                        select new Info<RegisterTriValueValidatorAttribute>(validatorType, attr)
                     ).ToList();
                 }
 
@@ -124,17 +124,17 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriAttributeValidatorAttribute> AllAttributeValidatorTypes
+        public static IReadOnlyList<Info<RegisterTriAttributeValidatorAttribute>> AllAttributeValidatorTypes
         {
             get
             {
                 if (_allAttributeValidatorTypesBackingField == null)
                 {
                     _allAttributeValidatorTypesBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriAttributeValidatorAttribute>()
-                        where AttributeValidatorMatcher.Match(attr.ValidatorType)
-                        select attr
+                        from validatorType in TypeCache.GetTypesDerivedFrom(typeof(TriAttributeValidator))
+                        let attr = validatorType.GetCustomAttribute<RegisterTriAttributeValidatorAttribute>()
+                        where attr != null && AttributeValidatorMatcher.Match(validatorType)
+                        select new Info<RegisterTriAttributeValidatorAttribute>(validatorType, attr)
                     ).ToList();
                 }
 
@@ -220,11 +220,11 @@ namespace TriInspector.Utilities
         {
             return
                 from validator in AllValueValidatorTypes
-                where ValueValidatorMatcher.Match(validator.ValidatorType, valueType)
-                select CreateInstance<TriValueValidator>(validator.ValidatorType, valueType, it =>
+                where ValueValidatorMatcher.Match(validator.DrawerType, valueType)
+                select CreateInstance<TriValueValidator>(validator.DrawerType, valueType, it =>
                 {
                     //
-                    it.ApplyOnArrayElement = validator.ApplyOnArrayElement;
+                    it.ApplyOnArrayElement = validator.Attr.ApplyOnArrayElement;
                 });
         }
 
@@ -234,10 +234,10 @@ namespace TriInspector.Utilities
             return
                 from attribute in attributes
                 from validator in AllAttributeValidatorTypes
-                where AttributeValidatorMatcher.Match(validator.ValidatorType, attribute.GetType())
-                select CreateInstance<TriAttributeValidator>(validator.ValidatorType, valueType, it =>
+                where AttributeValidatorMatcher.Match(validator.DrawerType, attribute.GetType())
+                select CreateInstance<TriAttributeValidator>(validator.DrawerType, valueType, it =>
                 {
-                    it.ApplyOnArrayElement = validator.ApplyOnArrayElement;
+                    it.ApplyOnArrayElement = validator.Attr.ApplyOnArrayElement;
                     it.RawAttribute = attribute;
                 });
         }
