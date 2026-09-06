@@ -63,6 +63,11 @@ namespace TriInspector.VisualElements
             _columnsRow.AddToClassList(TriStyles.TableHeaderColumns);
             _columnsRow.EnableInClassList(TriStyles.TableHeaderReorderable, reorderable);
 
+            var cellsContainer = new VisualElement();
+            cellsContainer.style.flexDirection = FlexDirection.Row;
+            cellsContainer.style.flexGrow = 1;
+            cellsContainer.style.flexBasis = 0;
+
             for (var i = 0; i < _columnTitles.Count; i++)
             {
                 var title = _columnTitles[i];
@@ -75,8 +80,10 @@ namespace TriInspector.VisualElements
                     cell.TrackResolvedValue(_property, _headerResolvers[i], title, value => cell.text = value);
                 }
 
-                _columnsRow.Add(cell);
+                cellsContainer.Add(cell);
             }
+
+            _columnsRow.Add(cellsContainer);
 
             if (allowRemove)
             {
