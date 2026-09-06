@@ -1,14 +1,11 @@
-using TriInspector;
-using TriInspector.Drawers;
 using TriInspector.VisualElements;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriValueDrawer(typeof(ObjectReferenceDrawer), TriDrawerOrder.Fallback)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriValueDrawer(TriDrawerOrder.Fallback)]
     public class ObjectReferenceDrawer : TriValueDrawer<Object>
     {
         public override VisualElement CreateVisualElement(TriValue<Object> value, VisualElement next)

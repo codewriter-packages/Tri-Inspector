@@ -1,14 +1,11 @@
-﻿using TriInspector;
-using TriInspector.Drawers;
-using TriInspector.Utilities;
+﻿using TriInspector.Utilities;
 using TriInspector.VisualElements;
 using TriInspectorUnityInternalBridge;
 using UnityEngine.UIElements;
 
-[assembly: RegisterTriValueDrawer(typeof(CustomBuiltInDrawer), TriDrawerOrder.Fallback - 999)]
-
 namespace TriInspector.Drawers
 {
+    [RegisterTriValueDrawer(TriDrawerOrder.Fallback - 999)]
     public class CustomBuiltInDrawer : TriValueDrawer<object>
     {
         public override VisualElement CreateVisualElement(TriValue<object> propertyValue, VisualElement next)

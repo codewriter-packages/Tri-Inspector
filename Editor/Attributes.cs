@@ -3,16 +3,15 @@ using JetBrains.Annotations;
 
 namespace TriInspector
 {
-    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
     public class RegisterTriValueDrawerAttribute : Attribute
     {
-        public RegisterTriValueDrawerAttribute(Type drawerType, int order)
+        public RegisterTriValueDrawerAttribute(int order)
         {
-            DrawerType = drawerType;
             Order = order;
         }
 
-        public Type DrawerType { get; }
         public int Order { get; }
         public bool ApplyOnArrayElement { get; set; } = true;
     }

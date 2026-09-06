@@ -20,7 +20,7 @@ namespace TriInspector.Utilities
 
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
         private static IReadOnlyList<RegisterTriAttributeDrawerAttribute> _allAttributeDrawerTypesBackingField;
-        private static IReadOnlyList<RegisterTriValueDrawerAttribute> _allValueDrawerTypesBackingField;
+        private static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> _allValueDrawerTypesBackingField;
         private static IReadOnlyList<RegisterTriAttributeValidatorAttribute> _allAttributeValidatorTypesBackingField;
         private static IReadOnlyList<RegisterTriValueValidatorAttribute> _allValueValidatorTypesBackingField;
         private static IReadOnlyList<RegisterTriPropertyHideProcessor> _allHideProcessorTypesBackingField;
@@ -69,17 +69,18 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<RegisterTriValueDrawerAttribute> AllValueDrawerTypes
+        public static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> AllValueDrawerTypes
         {
             get
             {
                 if (_allValueDrawerTypesBackingField == null)
                 {
                     _allValueDrawerTypesBackingField = (
-                        from asm in TriReflectionUtilities.Assemblies
-                        from attr in asm.GetCustomAttributes<RegisterTriValueDrawerAttribute>()
-                        where ValueDrawerMatcher.Match(attr.DrawerType)
-                        select attr
+                        from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriValueDrawer))
+                        let attr = drawerType.GetCustomAttribute<RegisterTriValueDrawerAttribute>()
+                        where attr != null
+                        where ValueDrawerMatcher.Match(drawerType)
+                        select new Info<RegisterTriValueDrawerAttribute>(drawerType, attr)
                     ).ToList();
                 }
 
@@ -195,8 +196,8 @@ namespace TriInspector.Utilities
                 where ValueDrawerMatcher.Match(drawer.DrawerType, valueType)
                 select CreateInstance<TriValueDrawer>(drawer.DrawerType, valueType, it =>
                 {
-                    it.ApplyOnArrayElement = drawer.ApplyOnArrayElement;
-                    it.Order = drawer.Order;
+                    it.ApplyOnArrayElement = drawer.Attr.ApplyOnArrayElement;
+                    it.Order = drawer.Attr.Order;
                 });
         }
 
@@ -384,6 +385,18 @@ namespace TriInspector.Utilities
                 Debug.LogError($"{type.Name} must implement {_expectedGenericType}");
                 return false;
             }
+        }
+        
+        public struct Info<TAttr> where TAttr : Attribute
+        {
+            public Info(Type drawerType, TAttr attr)
+            {
+                DrawerType = drawerType;
+                Attr = attr;
+            }
+
+            public Type DrawerType { get; }
+            public TAttr Attr { get; }
         }
     }
 }
