@@ -28,35 +28,30 @@ namespace TriInspector
         private TriArray<TriPropertyHideProcessor>? _hideProcessorsBackingField;
         private TriArray<TriPropertyDisableProcessor>? _disableProcessorsBackingField;
 
-        public static TriPropertyDefinition CreateForFieldInfo(int order, FieldInfo fi,
-            TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
+        public static TriPropertyDefinition CreateForFieldInfo(int order, FieldInfo fi)
         {
-            return CreateForMemberInfo(fi, order, fi.Name, fi.FieldType, MakeGetter(fi), MakeSetter(fi), origin);
+            return CreateForMemberInfo(fi, order, fi.Name, fi.FieldType, MakeGetter(fi), MakeSetter(fi));
         }
 
-        public static TriPropertyDefinition CreateForPropertyInfo(int order, PropertyInfo pi,
-            TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
+        public static TriPropertyDefinition CreateForPropertyInfo(int order, PropertyInfo pi)
         {
-            return CreateForMemberInfo(pi, order, pi.Name, pi.PropertyType, MakeGetter(pi), MakeSetter(pi), origin);
+            return CreateForMemberInfo(pi, order, pi.Name, pi.PropertyType, MakeGetter(pi), MakeSetter(pi));
         }
 
-        public static TriPropertyDefinition CreateForMethodInfo(int order, MethodInfo mi,
-            TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
+        public static TriPropertyDefinition CreateForMethodInfo(int order, MethodInfo mi)
         {
-            return CreateForMemberInfo(mi, order, mi.Name, typeof(MethodInfo), MakeGetter(mi), MakeSetter(mi), origin);
+            return CreateForMemberInfo(mi, order, mi.Name, typeof(MethodInfo), MakeGetter(mi), MakeSetter(mi));
         }
 
         private static TriPropertyDefinition CreateForMemberInfo(
             MemberInfo memberInfo, int order, string propertyName, Type propertyType,
-            ValueGetterDelegate valueGetter, ValueSetterDelegate valueSetter,
-            TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
+            ValueGetterDelegate valueGetter, ValueSetterDelegate valueSetter)
         {
             var attributes = TriReflectionUtilities.GetCustomNonSerializationAttributes(memberInfo);
             var ownerType = memberInfo?.DeclaringType ?? typeof(object);
 
             return new TriPropertyDefinition(
-                memberInfo, ownerType, order, propertyName, propertyType, valueGetter, valueSetter, attributes, false,
-                origin);
+                memberInfo, ownerType, order, propertyName, propertyType, valueGetter, valueSetter, attributes, false);
         }
 
         internal static TriPropertyDefinition CreateForGetterSetter(
@@ -76,14 +71,12 @@ namespace TriInspector
             ValueGetterDelegate valueGetter,
             ValueSetterDelegate valueSetter,
             Attribute[] attributes,
-            bool isArrayElement,
-            TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
+            bool isArrayElement)
         {
             OwnerType = ownerType;
             Name = fieldName;
             FieldType = fieldType;
             IsArrayElement = isArrayElement;
-            Origin = origin;
 
             _attributes = attributes ?? Array.Empty<Attribute>();
             _memberInfo = memberInfo;
@@ -136,8 +129,6 @@ namespace TriInspector
         public string Name { get; }
 
         public int Order { get; internal set; }
-
-        public TriPropertyOrigin Origin { get; }
 
         public TriArray<Attribute> Attributes => _attributesDynamicNullable != null
             ? _attributesDynamicNullable
@@ -238,7 +229,7 @@ namespace TriInspector
                     });
 
                     _arrayElementDefinitionBackingField = new TriPropertyDefinition(_memberInfo, OwnerType, 0,
-                        "Element", ArrayElementType, elementGetter, elementSetter, _attributes, true, Origin)
+                        "Element", ArrayElementType, elementGetter, elementSetter, _attributes, true)
                     {
                         _attributesDynamicNullable = _attributesDynamicNullable,
                     };

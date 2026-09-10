@@ -25,8 +25,7 @@ namespace TriInspector.TypeProcessors
                         continue;
                     }
 
-                    var property = TriPropertyDefinition.CreateForPropertyInfo(ind++ + propertiesOffset, propertyInfo,
-                        TriPropertyOrigin.TriProperty);
+                    var property = TriPropertyDefinition.CreateForPropertyInfo(ind++ + propertiesOffset, propertyInfo);
 
                     properties.Add(property);
                 }

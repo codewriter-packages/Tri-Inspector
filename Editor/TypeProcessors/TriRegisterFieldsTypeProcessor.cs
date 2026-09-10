@@ -29,8 +29,7 @@ namespace TriInspector.TypeProcessors
                         {
                             if (TriUnitySerializationUtilities.IsTypeSupportedBySerializeReference(fieldInfo.FieldType))
                             {
-                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                                    TriPropertyOrigin.UnitySerializeReference));
+                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo));
                             }
 
                             continue;
@@ -40,8 +39,7 @@ namespace TriInspector.TypeProcessors
                         {
                             if (TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType, true))
                             {
-                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                                    TriPropertyOrigin.UnitySerializeField));
+                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo));
                             }
 
                             continue;
@@ -51,8 +49,7 @@ namespace TriInspector.TypeProcessors
                         {
                             if (TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType, false))
                             {
-                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                                    TriPropertyOrigin.UnityPublicField));
+                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo));
                                 continue;
                             }
 
@@ -62,8 +59,7 @@ namespace TriInspector.TypeProcessors
 
                     if (fieldInfo.IsDefined(typeof(ShowInInspectorAttribute), false))
                     {
-                        var property = TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                            TriPropertyOrigin.TriField);
+                        var property = TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo);
 
                         properties.Add(property);
                     }
