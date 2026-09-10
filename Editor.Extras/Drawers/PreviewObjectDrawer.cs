@@ -21,15 +21,10 @@ namespace TriInspector.Drawers
         {
             var previewSize = GetPreviewSize();
 
-            var preview = new IMGUIContainer
-            {
-                style =
-                {
-                    width = previewSize,
-                    height = previewSize,
-                    flexShrink = 0,
-                },
-            };
+            var preview = new IMGUIContainer();
+            preview.style.width = previewSize;
+            preview.style.height = previewSize;
+            preview.AddToClassList(Styles.Preview);
 
             preview.onGUIHandler = () => DrawPreview(new Rect(0, 0, previewSize, previewSize), property, preview);
 
@@ -38,16 +33,12 @@ namespace TriInspector.Drawers
                 return preview;
             }
 
-            var row = new VisualElement
-            {
-                style =
-                {
-                    flexDirection = FlexDirection.Row,
-                },
-            };
+            var row = new VisualElement();
+            row.AddToClassList(Styles.Row);
 
-            next.style.flexGrow = 1;
-            next.style.flexShrink = 1;
+            preview.AddToClassList(Styles.PreviewWithField);
+
+            next.AddToClassList(Styles.Next);
 
             row.Add(next);
             row.Add(preview);
@@ -131,6 +122,14 @@ namespace TriInspector.Drawers
         private float GetPreviewSize()
         {
             return Attribute.Height > 0 ? Attribute.Height : EditorGUIUtility.singleLineHeight * 4;
+        }
+
+        private static class Styles
+        {
+            public const string Preview = "tri-preview-object";
+            public const string PreviewWithField = "tri-preview-object--with-field";
+            public const string Row = "tri-preview-object__row";
+            public const string Next = "tri-preview-object__next";
         }
     }
 }
