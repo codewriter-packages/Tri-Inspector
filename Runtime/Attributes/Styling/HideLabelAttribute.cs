@@ -3,7 +3,8 @@ using System.Diagnostics;
 
 namespace TriInspector
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | 
+                    AttributeTargets.Class | AttributeTargets.Struct)]
     [Conditional("UNITY_EDITOR")]
     public class HideLabelAttribute : Attribute
     {

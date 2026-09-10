@@ -118,6 +118,7 @@ namespace TriInspector.Utilities
 
         private static readonly HashSet<Type> SerializationOnlyAttributeTypes = new HashSet<Type>
         {
+            typeof(SerializableAttribute),
             typeof(SerializeField),
             typeof(SerializeReference),
             typeof(ShowInInspectorAttribute),

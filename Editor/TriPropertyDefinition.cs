@@ -319,6 +319,11 @@ namespace TriInspector
             TriDrawersUtilities.CreateValueDrawersFor(ref drawers, FieldType);
             TriDrawersUtilities.CreateAttributeDrawersFor(ref drawers, FieldType, Attributes);
 
+            if (TriReflectionUtilities.GetCustomNonSerializationAttributes(FieldType) is {} typeAttributes)
+            {
+                TriDrawersUtilities.CreateAttributeDrawersFor(ref drawers, FieldType, typeAttributes);
+            }
+
             RemoveNonApplicableOnSelf(drawers);
             drawers.Sort(static (a, b) => a.Order.CompareTo(b.Order));
             return _drawersBackingField = drawers;
