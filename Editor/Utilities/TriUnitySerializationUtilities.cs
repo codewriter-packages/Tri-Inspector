@@ -32,6 +32,16 @@ namespace TriInspector.Utilities
                 return true;
             }
 
+            if (type.IsArray)
+            {
+                return IsTypeSupportedBySerializeField(type.GetElementType());
+            }
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                return IsTypeSupportedBySerializeField(type.GetGenericArguments()[0]);
+            }
+
             if (ExcludedNamespaces.Contains(type.Namespace))
             {
                 return false;
