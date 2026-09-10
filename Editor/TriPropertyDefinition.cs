@@ -139,7 +139,9 @@ namespace TriInspector
 
         public TriPropertyOrigin Origin { get; }
 
-        public AttributesCollection Attributes => new AttributesCollection(this);
+        public TriArray<Attribute> Attributes => _attributesDynamicNullable != null
+            ? _attributesDynamicNullable
+            : _attributes;
 
         public bool IsReadOnly { get; }
 
@@ -503,91 +505,6 @@ namespace TriInspector
         private static class EmptyList<T>
         {
             public static readonly List<T> Empty = new List<T>();
-        }
-
-        public struct AttributesCollection
-        {
-            private readonly TriPropertyDefinition _self;
-
-            public AttributesCollection(TriPropertyDefinition self)
-            {
-                _self = self;
-            }
-
-            public Enumerator GetEnumerator() => new Enumerator(_self);
-
-            public int Count => _self._attributesDynamicNullable?.Count ??
-                                _self._attributes?.Length ?? 0;
-
-            public bool TryGet<T>(out T result) where T : Attribute
-            {
-                var dynamic = _self._attributesDynamicNullable;
-                if (dynamic != null)
-                {
-                    foreach (var attribute in dynamic)
-                    {
-                        if (attribute is T typed)
-                        {
-                            result = typed;
-                            return true;
-                        }
-                    }
-
-                    result = null;
-                    return false;
-                }
-
-                foreach (var attribute in _self._attributes)
-                {
-                    if (attribute is T typed)
-                    {
-                        result = typed;
-                        return true;
-                    }
-                }
-
-                result = null;
-                return false;
-            }
-
-            public struct Enumerator
-            {
-                private readonly List<Attribute> _dynamic;
-                private readonly Attribute[] _static;
-                private int _index;
-
-                internal Enumerator(TriPropertyDefinition self)
-                {
-                    _dynamic = self._attributesDynamicNullable;
-                    _static = self._attributes;
-                    _index = 0;
-                    Current = null;
-                }
-
-                public Attribute Current { get; private set; }
-
-                public bool MoveNext()
-                {
-                    if (_dynamic != null)
-                    {
-                        if (_index < _dynamic.Count)
-                        {
-                            Current = _dynamic[_index++];
-                            return true;
-                        }
-
-                        return false;
-                    }
-
-                    if (_index < _static.Length)
-                    {
-                        Current = _static[_index++];
-                        return true;
-                    }
-
-                    return false;
-                }
-            }
         }
     }
 }

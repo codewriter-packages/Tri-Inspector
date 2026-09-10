@@ -206,7 +206,7 @@ namespace TriInspector.Utilities
         }
 
         public static void CreateAttributeDrawersFor(ref List<TriCustomDrawer> result,
-            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+            Type valueType, TriArray<Attribute> attributes)
         {
             foreach (var attribute in attributes)
             {
@@ -243,7 +243,7 @@ namespace TriInspector.Utilities
         }
 
         public static void CreateAttributeValidatorsFor(ref List<TriValidator> result,
-            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+            Type valueType, TriArray<Attribute> attributes)
         {
             foreach (var attribute in attributes)
             {
@@ -263,7 +263,7 @@ namespace TriInspector.Utilities
         }
 
         public static void CreateHideProcessorsFor(ref List<TriPropertyHideProcessor> result,
-            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+            Type valueType, TriArray<Attribute> attributes)
         {
             foreach (var processor in AllHideProcessors)
             {
@@ -284,7 +284,7 @@ namespace TriInspector.Utilities
         }
 
         public static void CreateDisableProcessorsFor(ref List<TriPropertyDisableProcessor> result,
-            Type valueType, TriPropertyDefinition.AttributesCollection attributes)
+            Type valueType, TriArray<Attribute> attributes)
         {
             foreach (var processor in AllDisableProcessors)
             {
