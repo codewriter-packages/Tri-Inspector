@@ -22,16 +22,12 @@ namespace TriInspector.VisualElements.Groups
 
             var wrapper = new VisualElement();
             wrapper.AddToClassList(TriStyles.HorizontalGroupColumn);
+            wrapper.EnableInClassList(TriStyles.HorizontalGroupColumnFirst, index == 0);
             wrapper.AddToClassList(TriStyles.UnityInspectorElement);
             wrapper.AddToClassList(TriStyles.UnityInspectorMainContainer);
             wrapper.AddToClassList(TriStyles.TriInspectorElement);
 
             TriColumnSizes.Apply(wrapper, _sizes, index);
-
-            if (index > 0)
-            {
-                wrapper.style.marginLeft = 2;
-            }
 
             wrapper.Add(child);
 

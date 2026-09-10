@@ -228,6 +228,10 @@ unity-property-field__label
 
 .tri-horizontal-group__column {
     overflow: visible;
+    margin-left: 4px;
+}
+.tri-horizontal-group__column--first {
+    margin-left: 0;
 }
 
 /* ---- List ---- */

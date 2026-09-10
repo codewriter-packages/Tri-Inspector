@@ -61,6 +61,7 @@ namespace TriInspector.VisualElements
 
         public const string HorizontalGroup = "tri-horizontal-group";
         public const string HorizontalGroupColumn = "tri-horizontal-group__column";
+        public const string HorizontalGroupColumnFirst = "tri-horizontal-group__column--first";
 
         public const string Samples = "tri-samples";
         public const string SamplesMenu = "tri-samples__menu";
