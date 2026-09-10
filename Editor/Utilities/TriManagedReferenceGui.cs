@@ -39,7 +39,7 @@ namespace TriInspector.Utilities
                 var types = TypeCache.GetTypesDerivedFrom(_property.FieldType)
                     .Where(type => !type.IsAbstract)
                     .Where(type => type.IsValueType || type.GetConstructor(Type.EmptyTypes) != null)
-                    .Where(type => TriUnitySerializationUtilities.IsTypeSerializableByUnity(type))
+                    .Where(type => TriUnitySerializationUtilities.IsTypeHasSerializableAttribute(type))
                     .Where(type => !typeof(Object).IsAssignableFrom(type))
                     .ToList();
 

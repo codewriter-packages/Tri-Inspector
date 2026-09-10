@@ -27,29 +27,36 @@ namespace TriInspector.TypeProcessors
                     {
                         if (fieldInfo.IsDefined(typeof(SerializeReference), false))
                         {
-                            // if it's a list or array, the base type should be serializable, actually...
-                            // but we'll check this in the UnitySerializationRulesAnalyzer and display a warning in the inspector
-                            properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                                TriPropertyOrigin.UnitySerializeReference));
+                            if (TriUnitySerializationUtilities.IsTypeSupportedBySerializeReference(fieldInfo.FieldType))
+                            {
+                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
+                                    TriPropertyOrigin.UnitySerializeReference));
+                            }
+
                             continue;
                         }
 
-                        // [Serializable] check moved to UnitySerializationRulesAnalyzer, just skip some dangerous types
-                        // Unsupported collection types check also moved to analyzer
-                        if (fieldInfo.IsDefined(typeof(SerializeField), false) &&
-                            TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType))
+                        if (fieldInfo.IsDefined(typeof(SerializeField), false))
                         {
-                            properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                                TriPropertyOrigin.UnitySerializeField));
+                            if (TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType, true))
+                            {
+                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
+                                    TriPropertyOrigin.UnitySerializeField));
+                            }
+
                             continue;
                         }
 
-                        if (fieldInfo.IsPublic &&
-                            TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType))
+                        if (fieldInfo.IsPublic)
                         {
-                            properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
-                                TriPropertyOrigin.UnityPublicField));
-                            continue;
+                            if (TriUnitySerializationUtilities.IsTypeSupportedBySerializeField(fieldInfo.FieldType, false))
+                            {
+                                properties.Add(TriPropertyDefinition.CreateForFieldInfo(ind++ + fieldsOffset, fieldInfo,
+                                    TriPropertyOrigin.UnityPublicField));
+                                continue;
+                            }
+
+                            // fall through: an unsupported public type may still be shown via [ShowInInspector]
                         }
                     }
 

@@ -1,48 +1,110 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
+using System.Runtime.CompilerServices;
 using Object = UnityEngine.Object;
 
 namespace TriInspector.Utilities
 {
     internal static class TriUnitySerializationUtilities
     {
-        private static readonly HashSet<string> ExcludedNamespaces = new()
-        {
-            "System",
-            "System.IO",
-            "System.Net",
-            "System.Reflection",
-            "System.Threading",
-        };
+        private static readonly Assembly CoreLibAssembly = typeof(List<>).Assembly;
+        private static readonly Assembly SystemCoreAssembly = typeof(HashSet<>).Assembly;
+        private static readonly Assembly SystemAssembly = typeof(LinkedList<>).Assembly;
 
-        public static bool IsTypeSupportedBySerializeField(Type type)
+        public static bool IsTypeSupportedBySerializeReference(Type type)
+        {
+            if (type == typeof(object) || type.IsInterface)
+            {
+                return true;
+            }
+            
+            if (type.IsValueType || type.IsPrimitive || type.IsEnum)
+            {
+                return false;
+            }
+
+            if (type.IsArray)
+            {
+                var elementType = type.GetElementType();
+                return type.GetArrayRank() == 1 &&
+                       (IsTypeHasSerializableAttribute(elementType) || elementType.IsInterface);
+            }
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var elementType = type.GetGenericArguments()[0];
+                return IsTypeHasSerializableAttribute(elementType) || elementType.IsInterface;
+            }
+
+            return true;
+        }
+
+        public static bool IsTypeSupportedBySerializeField(Type type, bool hasSerializeField,
+            bool isCollectionElement = false)
         {
             if (type == typeof(object) ||
                 type == typeof(IntPtr) ||
                 type == typeof(UIntPtr) ||
+                typeof(Delegate).IsAssignableFrom(type) ||
+                typeof(ITuple).IsAssignableFrom(type) ||
                 type.IsInterface)
             {
                 return false;
             }
 
-            if (type.IsPrimitive || type.IsEnum || TriReflectionUtilities.MakeSerializableTypes.Contains(type))
+            if (type.IsPrimitive ||
+                TriReflectionUtilities.MakeSerializableTypes.Contains(type) ||
+                typeof(Object).IsAssignableFrom(type))
             {
                 return true;
             }
 
+            if (type.IsEnum)
+            {
+                var underlyingType = type.GetEnumUnderlyingType();
+                return underlyingType != typeof(long) && underlyingType != typeof(ulong);
+            }
+
             if (type.IsArray)
             {
-                return IsTypeSupportedBySerializeField(type.GetElementType());
+                var elementType = type.GetElementType();
+
+                return !isCollectionElement &&
+                       type.GetArrayRank() == 1 &&
+                       IsTypeSupportedBySerializeField(elementType, hasSerializeField, true);
             }
 
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+            if (type.IsGenericType)
             {
-                return IsTypeSupportedBySerializeField(type.GetGenericArguments()[0]);
+                var genericType = type.GetGenericTypeDefinition();
+
+                if (genericType == typeof(List<>))
+                {
+                    var elementType = type.GetGenericArguments()[0];
+
+                    return !isCollectionElement &&
+                           IsTypeSupportedBySerializeField(elementType, hasSerializeField, true);
+                }
+
+                if (genericType == typeof(Dictionary<,>))
+                {
+#if UNITY_6000_6
+                    return hasSerializeField && !isCollectionElement;
+#else
+                    return false;
+#endif
+                }
             }
 
-            if (ExcludedNamespaces.Contains(type.Namespace))
+            if (type.Assembly == CoreLibAssembly ||
+                type.Assembly == SystemAssembly ||
+                type.Assembly == SystemCoreAssembly)
+            {
+                return false;
+            }
+
+            if (!IsTypeHasSerializableAttribute(type))
             {
                 return false;
             }
@@ -50,18 +112,8 @@ namespace TriInspector.Utilities
             return true;
         }
 
-        public static bool IsTypeSerializableByUnity(Type type)
+        public static bool IsTypeHasSerializableAttribute(Type type)
         {
-            if (type == null)
-            {
-                return false;
-            }
-
-            if (type.IsArray)
-            {
-                return true;
-            }
-
             if (type.GetCustomAttribute<SerializableAttribute>() != null)
             {
                 return true;
