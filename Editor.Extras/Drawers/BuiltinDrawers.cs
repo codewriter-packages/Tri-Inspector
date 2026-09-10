@@ -14,6 +14,17 @@ namespace TriInspector.Drawers
     }
 
     [RegisterTriValueDrawer(TriDrawerOrder.Fallback)]
+    public class CharDrawer : BuiltinDrawerBase<char>
+    {
+        public override VisualElement CreateVisualElement(TriValue<char> propertyValue, VisualElement next)
+        {
+            var field = new TextField {maxLength = 1,};
+            field.BindTri(propertyValue, v => new string(v, 1), v => v.Length == 1 ? v[0] : '\0');
+            return field;
+        }
+    }
+
+    [RegisterTriValueDrawer(TriDrawerOrder.Fallback)]
     public class BooleanDrawer : BuiltinDrawerBase<bool>
     {
         protected override BaseField<bool> CreateField() => new Toggle();
