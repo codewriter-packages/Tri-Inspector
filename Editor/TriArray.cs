@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace TriInspector
 {
-    public readonly struct TriArray<T> where T : class
+    public readonly struct TriArray<T>
     {
         private readonly List<T> _list;
         private readonly T[] _array;
@@ -73,7 +73,7 @@ namespace TriInspector
                 _list = list;
                 _array = list == null ? arr ?? Array.Empty<T>() : null;
                 _index = 0;
-                Current = null;
+                Current = default;
             }
 
             public T Current { get; private set; }

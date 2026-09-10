@@ -14,16 +14,13 @@ namespace TriInspector
     public sealed class TriProperty
     {
         private static readonly StringBuilder SharedPropertyPathStringBuilder = new StringBuilder();
-        
-        private static readonly IReadOnlyList<TriValidationResult> EmptyValidationResults =
-            new List<TriValidationResult>();
 
         private readonly TriPropertyDefinition _definition;
         private readonly int _propertyIndex;
         [CanBeNull] private readonly SerializedObject _serializedObject;
         [CanBeNull] private readonly SerializedProperty _serializedProperty;
         private List<TriProperty> _childrenProperties;
-        private List<TriValidationResult> _validationResults;
+        private TriArray<TriValidationResult> _validationResults;
 
         private GUIContent _displayNameBackingField;
         private string _propertyPath;
@@ -42,6 +39,7 @@ namespace TriInspector
 
         public event Action<TriProperty> ValueChanged;
         public event Action<TriProperty> ChildValueChanged;
+        public event Action<TriProperty> ValidationResultsChanged;
 
         internal TriProperty(
             TriPropertyTree propertyTree,
@@ -233,24 +231,21 @@ namespace TriInspector
             _dictionaryNullKeyEntryIndices ??= new List<int>();
 
         [PublicAPI]
-        public IReadOnlyList<int> DictionaryDuplicateEntryIndices =>
-            (IReadOnlyList<int>) _dictionaryDuplicateEntryIndices ?? Array.Empty<int>();
+        public TriArray<int> DictionaryDuplicateEntryIndices => _dictionaryDuplicateEntryIndices;
 
         [PublicAPI]
-        public IReadOnlyList<int> DictionaryNullKeyEntryIndices =>
-            (IReadOnlyList<int>) _dictionaryNullKeyEntryIndices ?? Array.Empty<int>();
+        public TriArray<int> DictionaryNullKeyEntryIndices => _dictionaryNullKeyEntryIndices;
 
         [CanBeNull]
         internal object DictionaryListCache { get; set; }
 
-        public IReadOnlyList<TriCustomDrawer> AllDrawers => _definition.Drawers;
+        public TriArray<TriCustomDrawer> AllDrawers => _definition.Drawers;
 
-        internal IReadOnlyList<string> ExtensionErrors => _definition.ExtensionErrors;
+        internal TriArray<string> ExtensionErrors => _definition.ExtensionErrors;
 
         public bool HasValidators => _definition.Validators.Count != 0;
 
-        public IReadOnlyList<TriValidationResult> ValidationResults =>
-            _validationResults ?? EmptyValidationResults;
+        public TriArray<TriValidationResult> ValidationResults => _validationResults;
 
         [PublicAPI]
         public bool IsExpanded
@@ -330,7 +325,7 @@ namespace TriInspector
         }
 
         [PublicAPI]
-        public IReadOnlyList<TriProperty> ChildrenProperties
+        public TriArray<TriProperty> ChildrenProperties
         {
             get
             {
@@ -348,7 +343,7 @@ namespace TriInspector
         }
 
         [PublicAPI]
-        public IReadOnlyList<TriProperty> ArrayElementProperties
+        public TriArray<TriProperty> ArrayElementProperties
         {
             get
             {
@@ -587,10 +582,26 @@ namespace TriInspector
 
             if (HasValidators)
             {
-                _validationResults = _definition.Validators
-                    .Select(it => it.Validate(this))
-                    .Where(it => !it.IsValid)
-                    .ToList();
+                List<TriValidationResult> newResults = null;
+
+                foreach (var validator in _definition.Validators)
+                {
+                    var result = validator.Validate(this);
+                    if (!result.IsValid)
+                    {
+                        newResults ??= new List<TriValidationResult>();
+                        newResults.Add(result);
+                    }
+                }
+
+                var changed = _validationResults.Count > 0 || newResults?.Count > 0;
+
+                _validationResults = newResults;
+
+                if (changed)
+                {
+                    ValidationResultsChanged?.Invoke(this);
+                }
             }
 
             if (_childrenProperties != null)
@@ -606,12 +617,9 @@ namespace TriInspector
         {
             UpdateIfRequired();
 
-            if (_validationResults != null)
+            foreach (var result in _validationResults)
             {
-                foreach (var result in _validationResults)
-                {
-                    call.Invoke(this, result);
-                }
+                call.Invoke(this, result);
             }
 
             if (_childrenProperties != null)

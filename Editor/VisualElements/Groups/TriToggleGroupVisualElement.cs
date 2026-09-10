@@ -43,7 +43,7 @@ namespace TriInspector.VisualElements.Groups
                     return true;
                 }
 
-                if (property.ChildrenProperties != null && property.ChildrenProperties.Count > 0 &&
+                if (property.ChildrenProperties.Count > 0 &&
                     property.ChildrenProperties[0].ValueType == typeof(bool))
                 {
                     _toggleProperty = property.ChildrenProperties[0];

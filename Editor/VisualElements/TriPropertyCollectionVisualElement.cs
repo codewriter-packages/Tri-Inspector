@@ -22,13 +22,13 @@ namespace TriInspector.VisualElements
             _declarations = GetGroupDeclarations(declarationsType);
         }
 
-        public TriPropertyCollectionVisualElement(Type declarationsType, IReadOnlyList<TriProperty> properties)
+        public TriPropertyCollectionVisualElement(Type declarationsType, TriArray<TriProperty> properties)
             : this(declarationsType)
         {
             AddProperties(properties, default);
         }
 
-        protected void AddProperties(IReadOnlyList<TriProperty> properties, TriPropertyVisualElement.Props props)
+        protected void AddProperties(TriArray<TriProperty> properties, TriPropertyVisualElement.Props props)
         {
             foreach (var property in properties)
             {

@@ -19,14 +19,14 @@ namespace TriInspector.Utilities
         private static readonly GenericTypeMatcher DisableProcessorMatcher = typeof(TriPropertyDisableProcessor<>);
 
         private static IDictionary<Type, TriGroupDrawer> _allGroupDrawersCacheBackingField;
-        private static IReadOnlyList<Info<RegisterTriAttributeDrawerAttribute>> _allAttributeDrawerTypesBackingField;
-        private static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> _allValueDrawerTypesBackingField;
-        private static IReadOnlyList<Info<RegisterTriAttributeValidatorAttribute>> _allAttributeValidatorTypesBackingField;
-        private static IReadOnlyList<Info<RegisterTriValueValidatorAttribute>> _allValueValidatorTypesBackingField;
-        private static IReadOnlyList<Info<RegisterTriPropertyHideProcessor>> _allHideProcessorTypesBackingField;
-        private static IReadOnlyList<Info<RegisterTriPropertyDisableProcessor>> _allDisableProcessorTypesBackingField;
+        private static TriArray<Info<RegisterTriAttributeDrawerAttribute>>? _allAttributeDrawerTypesBackingField;
+        private static TriArray<Info<RegisterTriValueDrawerAttribute>>? _allValueDrawerTypesBackingField;
+        private static TriArray<Info<RegisterTriAttributeValidatorAttribute>>? _allAttributeValidatorTypesBackingField;
+        private static TriArray<Info<RegisterTriValueValidatorAttribute>>? _allValueValidatorTypesBackingField;
+        private static TriArray<Info<RegisterTriPropertyHideProcessor>>? _allHideProcessorTypesBackingField;
+        private static TriArray<Info<RegisterTriPropertyDisableProcessor>>? _allDisableProcessorTypesBackingField;
 
-        private static IReadOnlyList<TriTypeProcessor> _allTypeProcessorBackingField;
+        private static TriArray<TriTypeProcessor>? _allTypeProcessorBackingField;
 
         private static IDictionary<Type, TriGroupDrawer> AllGroupDrawersCache
         {
@@ -50,133 +50,63 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<TriTypeProcessor> AllTypeProcessors
-        {
-            get
-            {
-                if (_allTypeProcessorBackingField == null)
-                {
-                    _allTypeProcessorBackingField = (
-                        from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriTypeProcessor))
-                        let attr = processorType.GetCustomAttribute<RegisterTriTypeProcessorAttribute>()
-                        where attr != null
-                        orderby attr.Order
-                        select (TriTypeProcessor) Activator.CreateInstance(processorType)
-                    ).ToList();
-                }
+        public static TriArray<TriTypeProcessor> AllTypeProcessors =>
+            _allTypeProcessorBackingField ??= (
+                from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriTypeProcessor))
+                let attr = processorType.GetCustomAttribute<RegisterTriTypeProcessorAttribute>()
+                where attr != null
+                orderby attr.Order
+                select (TriTypeProcessor) Activator.CreateInstance(processorType)
+            ).ToList();
 
-                return _allTypeProcessorBackingField;
-            }
-        }
+        public static TriArray<Info<RegisterTriValueDrawerAttribute>> AllValueDrawerTypes =>
+            _allValueDrawerTypesBackingField ??= (
+                from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriValueDrawer))
+                let attr = drawerType.GetCustomAttribute<RegisterTriValueDrawerAttribute>()
+                where attr != null
+                where ValueDrawerMatcher.Match(drawerType)
+                select new Info<RegisterTriValueDrawerAttribute>(drawerType, attr)
+            ).ToList();
 
-        public static IReadOnlyList<Info<RegisterTriValueDrawerAttribute>> AllValueDrawerTypes
-        {
-            get
-            {
-                if (_allValueDrawerTypesBackingField == null)
-                {
-                    _allValueDrawerTypesBackingField = (
-                        from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriValueDrawer))
-                        let attr = drawerType.GetCustomAttribute<RegisterTriValueDrawerAttribute>()
-                        where attr != null
-                        where ValueDrawerMatcher.Match(drawerType)
-                        select new Info<RegisterTriValueDrawerAttribute>(drawerType, attr)
-                    ).ToList();
-                }
+        public static TriArray<Info<RegisterTriAttributeDrawerAttribute>> AllAttributeDrawerTypes =>
+            _allAttributeDrawerTypesBackingField ??= (
+                from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriAttributeDrawer))
+                let attr = drawerType.GetCustomAttribute<RegisterTriAttributeDrawerAttribute>()
+                where attr != null && AttributeDrawerMatcher.Match(drawerType)
+                select new Info<RegisterTriAttributeDrawerAttribute>(drawerType, attr)
+            ).ToList();
 
-                return _allValueDrawerTypesBackingField;
-            }
-        }
+        public static TriArray<Info<RegisterTriValueValidatorAttribute>> AllValueValidatorTypes =>
+            _allValueValidatorTypesBackingField ??= (
+                from validatorType in TypeCache.GetTypesDerivedFrom(typeof(TriValueValidator))
+                let attr = validatorType.GetCustomAttribute<RegisterTriValueValidatorAttribute>()
+                where attr != null && ValueValidatorMatcher.Match(validatorType)
+                select new Info<RegisterTriValueValidatorAttribute>(validatorType, attr)
+            ).ToList();
 
-        public static IReadOnlyList<Info<RegisterTriAttributeDrawerAttribute>> AllAttributeDrawerTypes
-        {
-            get
-            {
-                if (_allAttributeDrawerTypesBackingField == null)
-                {
-                    _allAttributeDrawerTypesBackingField = (
-                        from drawerType in TypeCache.GetTypesDerivedFrom(typeof(TriAttributeDrawer))
-                        let attr = drawerType.GetCustomAttribute<RegisterTriAttributeDrawerAttribute>()
-                        where attr != null && AttributeDrawerMatcher.Match(drawerType)
-                        select new Info<RegisterTriAttributeDrawerAttribute>(drawerType, attr)
-                    ).ToList();
-                }
+        public static TriArray<Info<RegisterTriAttributeValidatorAttribute>> AllAttributeValidatorTypes =>
+            _allAttributeValidatorTypesBackingField ??= (
+                from validatorType in TypeCache.GetTypesDerivedFrom(typeof(TriAttributeValidator))
+                let attr = validatorType.GetCustomAttribute<RegisterTriAttributeValidatorAttribute>()
+                where attr != null && AttributeValidatorMatcher.Match(validatorType)
+                select new Info<RegisterTriAttributeValidatorAttribute>(validatorType, attr)
+            ).ToList();
 
-                return _allAttributeDrawerTypesBackingField;
-            }
-        }
+        public static TriArray<Info<RegisterTriPropertyHideProcessor>> AllHideProcessors =>
+            _allHideProcessorTypesBackingField ??= (
+                from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriPropertyHideProcessor))
+                let attr = processorType.GetCustomAttribute<RegisterTriPropertyHideProcessor>()
+                where attr != null && HideProcessorMatcher.Match(processorType)
+                select new Info<RegisterTriPropertyHideProcessor>(processorType, attr)
+            ).ToList();
 
-        public static IReadOnlyList<Info<RegisterTriValueValidatorAttribute>> AllValueValidatorTypes
-        {
-            get
-            {
-                if (_allValueValidatorTypesBackingField == null)
-                {
-                    _allValueValidatorTypesBackingField = (
-                        from validatorType in TypeCache.GetTypesDerivedFrom(typeof(TriValueValidator))
-                        let attr = validatorType.GetCustomAttribute<RegisterTriValueValidatorAttribute>()
-                        where attr != null && ValueValidatorMatcher.Match(validatorType)
-                        select new Info<RegisterTriValueValidatorAttribute>(validatorType, attr)
-                    ).ToList();
-                }
-
-                return _allValueValidatorTypesBackingField;
-            }
-        }
-
-        public static IReadOnlyList<Info<RegisterTriAttributeValidatorAttribute>> AllAttributeValidatorTypes
-        {
-            get
-            {
-                if (_allAttributeValidatorTypesBackingField == null)
-                {
-                    _allAttributeValidatorTypesBackingField = (
-                        from validatorType in TypeCache.GetTypesDerivedFrom(typeof(TriAttributeValidator))
-                        let attr = validatorType.GetCustomAttribute<RegisterTriAttributeValidatorAttribute>()
-                        where attr != null && AttributeValidatorMatcher.Match(validatorType)
-                        select new Info<RegisterTriAttributeValidatorAttribute>(validatorType, attr)
-                    ).ToList();
-                }
-
-                return _allAttributeValidatorTypesBackingField;
-            }
-        }
-
-        public static IReadOnlyList<Info<RegisterTriPropertyHideProcessor>> AllHideProcessors
-        {
-            get
-            {
-                if (_allHideProcessorTypesBackingField == null)
-                {
-                    _allHideProcessorTypesBackingField = (
-                        from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriPropertyHideProcessor))
-                        let attr = processorType.GetCustomAttribute<RegisterTriPropertyHideProcessor>()
-                        where attr != null && HideProcessorMatcher.Match(processorType)
-                        select new Info<RegisterTriPropertyHideProcessor>(processorType, attr)
-                    ).ToList();
-                }
-
-                return _allHideProcessorTypesBackingField;
-            }
-        }
-
-        public static IReadOnlyList<Info<RegisterTriPropertyDisableProcessor>> AllDisableProcessors
-        {
-            get
-            {
-                if (_allDisableProcessorTypesBackingField == null)
-                {
-                    _allDisableProcessorTypesBackingField = (
-                        from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriPropertyDisableProcessor))
-                        let attr = processorType.GetCustomAttribute<RegisterTriPropertyDisableProcessor>()
-                        where attr != null && DisableProcessorMatcher.Match(processorType)
-                        select new Info<RegisterTriPropertyDisableProcessor>(processorType, attr)
-                    ).ToList();
-                }
-
-                return _allDisableProcessorTypesBackingField;
-            }
-        }
+        public static TriArray<Info<RegisterTriPropertyDisableProcessor>> AllDisableProcessors =>
+            _allDisableProcessorTypesBackingField ??= (
+                from processorType in TypeCache.GetTypesDerivedFrom(typeof(TriPropertyDisableProcessor))
+                let attr = processorType.GetCustomAttribute<RegisterTriPropertyDisableProcessor>()
+                where attr != null && DisableProcessorMatcher.Match(processorType)
+                select new Info<RegisterTriPropertyDisableProcessor>(processorType, attr)
+            ).ToList();
 
         public static TriPropertyCollectionVisualElement TryCreateGroupVisualElementFor(
             DeclareGroupBaseAttribute attribute)
@@ -418,7 +348,7 @@ namespace TriInspector.Utilities
                 return false;
             }
         }
-        
+
         public struct Info<TAttr> where TAttr : Attribute
         {
             public Info(Type drawerType, TAttr attr)

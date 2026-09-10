@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
@@ -10,8 +9,6 @@ namespace TriInspector.VisualElements
         private readonly VisualElement _child;
         private readonly VisualElement _bg;
 
-        private IReadOnlyList<TriValidationResult> _cachedResults;
-
         public TriValidationResultsVisualElement(TriProperty property, VisualElement child)
         {
             _property = property;
@@ -20,21 +17,22 @@ namespace TriInspector.VisualElements
             _bg = new VisualElement();
             _bg.AddToClassList(TriStyles.TriValidationResultsBg);
             Add(_bg);
-            
+
             Add(child);
 
-            Rebuild();
-            this.PeriodicRun(Rebuild);
+            RegisterCallback<AttachToPanelEvent>(_ =>
+            {
+                property.ValidationResultsChanged += OnValidationResultsChanged;
+                Rebuild();
+            });
+            RegisterCallback<DetachFromPanelEvent>(_ => property.ValidationResultsChanged -= OnValidationResultsChanged);
         }
+
+        private void OnValidationResultsChanged(TriProperty _) => Rebuild();
 
         private void Rebuild()
         {
-            if (ReferenceEquals(_property.ValidationResults, _cachedResults))
-            {
-                return;
-            }
-
-            _cachedResults = _property.ValidationResults;
+            var results = _property.ValidationResults;
 
             for (var i = childCount - 1; i >= 0; i--)
             {
@@ -44,17 +42,17 @@ namespace TriInspector.VisualElements
                 }
             }
 
-            _bg.style.display = _cachedResults.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
-            EnableInClassList(TriStyles.TriValidationResults, _cachedResults.Count > 0);
+            _bg.style.display = results.Count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            EnableInClassList(TriStyles.TriValidationResults, results.Count > 0);
 
-            var messageType = GetHighestErrorType(_cachedResults);
+            var messageType = GetHighestErrorType(results);
             _bg.EnableInClassList(TriStyles.InfoBoxInfo, messageType == TriMessageType.Info);
             _bg.EnableInClassList(TriStyles.InfoBoxWarning, messageType == TriMessageType.Warning);
             _bg.EnableInClassList(TriStyles.InfoBoxError, messageType == TriMessageType.Error);
 
-            for (var i = 0; i < _cachedResults.Count; i++)
+            for (var i = 0; i < results.Count; i++)
             {
-                Insert(i + 1, CreateResultElement(i, _property, _cachedResults[i]));
+                Insert(i + 1, CreateResultElement(i, _property, results[i]));
             }
         }
 
@@ -76,7 +74,7 @@ namespace TriInspector.VisualElements
             property.ModifyAndRecordForUndo(targetIndex => fixAction?.Invoke());
         }
 
-        private static TriMessageType GetHighestErrorType(IReadOnlyList<TriValidationResult> results)
+        private static TriMessageType GetHighestErrorType(TriArray<TriValidationResult> results)
         {
             var highest = TriMessageType.None;
 

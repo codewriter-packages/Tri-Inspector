@@ -9,8 +9,8 @@ namespace TriInspector.Utilities
 {
     internal static class TriReflectionUtilities
     {
-        private static readonly Dictionary<Type, IReadOnlyList<Attribute>> AttributesCache =
-            new Dictionary<Type, IReadOnlyList<Attribute>>();
+        private static readonly Dictionary<Type, TriArray<Attribute>> AttributesCache =
+            new Dictionary<Type, TriArray<Attribute>>();
 
         private static ISet<Type> _makeSerializableTypes;
 
@@ -78,7 +78,7 @@ namespace TriInspector.Utilities
             }
         }
 
-        public static IReadOnlyList<Attribute> GetAttributesCached(Type type)
+        public static TriArray<Attribute> GetAttributesCached(Type type)
         {
             if (AttributesCache.TryGetValue(type, out var attributes))
             {

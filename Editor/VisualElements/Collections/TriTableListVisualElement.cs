@@ -44,7 +44,7 @@ namespace TriInspector.VisualElements
             return header;
         }
 
-        private void EnsureHeaderColumns(IReadOnlyList<string> titles)
+        private void EnsureHeaderColumns(TriArray<string> titles)
         {
             if (_columnsRow.childCount != 0)
             {
@@ -135,7 +135,7 @@ namespace TriInspector.VisualElements
             private readonly float[] _sizes;
             private int _columnIndex;
 
-            public TableRowVisualElement(Type declarationsType, IReadOnlyList<TriProperty> properties, float[] sizes)
+            public TableRowVisualElement(Type declarationsType, TriArray<TriProperty> properties, float[] sizes)
                 : base(declarationsType)
             {
                 _sizes = sizes;

@@ -16,7 +16,7 @@ namespace TriInspector.Drawers
             return container;
         }
 
-        private static string BuildInfo(IReadOnlyList<TriCustomDrawer> drawers)
+        private static string BuildInfo(TriArray<TriCustomDrawer> drawers)
         {
             var info = new StringBuilder();
 

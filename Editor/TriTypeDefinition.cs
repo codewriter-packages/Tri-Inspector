@@ -9,12 +9,12 @@ namespace TriInspector
         private static readonly Dictionary<Type, TriTypeDefinition> Cache =
             new Dictionary<Type, TriTypeDefinition>();
 
-        private TriTypeDefinition(IReadOnlyList<TriPropertyDefinition> properties)
+        private TriTypeDefinition(TriArray<TriPropertyDefinition> properties)
         {
             Properties = properties;
         }
 
-        public IReadOnlyList<TriPropertyDefinition> Properties { get; }
+        public TriArray<TriPropertyDefinition> Properties { get; }
 
         public static TriTypeDefinition GetCached(Type type)
         {

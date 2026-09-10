@@ -23,10 +23,10 @@ namespace TriInspector
         private List<Attribute> _attributesDynamicNullable;
         private TriPropertyDefinition _arrayElementDefinitionBackingField;
 
-        private IReadOnlyList<TriCustomDrawer> _drawersBackingField;
-        private IReadOnlyList<TriValidator> _validatorsBackingField;
-        private IReadOnlyList<TriPropertyHideProcessor> _hideProcessorsBackingField;
-        private IReadOnlyList<TriPropertyDisableProcessor> _disableProcessorsBackingField;
+        private TriArray<TriCustomDrawer>? _drawersBackingField;
+        private TriArray<TriValidator>? _validatorsBackingField;
+        private TriArray<TriPropertyHideProcessor>? _hideProcessorsBackingField;
+        private TriArray<TriPropertyDisableProcessor>? _disableProcessorsBackingField;
 
         public static TriPropertyDefinition CreateForFieldInfo(int order, FieldInfo fi,
             TriPropertyOrigin origin = TriPropertyOrigin.Unknown)
@@ -154,12 +154,12 @@ namespace TriInspector
         [CanBeNull] public ValueResolver<string> CustomLabel { get; }
         [CanBeNull] public ValueResolver<string> CustomTooltip { get; }
 
-        public IReadOnlyList<TriPropertyHideProcessor> HideProcessors => PopulateHideProcessor();
-        public IReadOnlyList<TriPropertyDisableProcessor> DisableProcessors => PopulateDisableProcessors();
-        public IReadOnlyList<TriCustomDrawer> Drawers => PopulateDrawers();
-        public IReadOnlyList<TriValidator> Validators => PopulateValidators();
+        public TriArray<TriPropertyHideProcessor> HideProcessors => PopulateHideProcessor();
+        public TriArray<TriPropertyDisableProcessor> DisableProcessors => PopulateDisableProcessors();
+        public TriArray<TriCustomDrawer> Drawers => PopulateDrawers();
+        public TriArray<TriValidator> Validators => PopulateValidators();
 
-        internal IReadOnlyList<string> ExtensionErrors
+        internal TriArray<string> ExtensionErrors
         {
             get
             {
@@ -248,67 +248,51 @@ namespace TriInspector
             }
         }
 
-        private IReadOnlyList<TriPropertyHideProcessor> PopulateHideProcessor()
+        private TriArray<TriPropertyHideProcessor> PopulateHideProcessor()
         {
             if (_hideProcessorsBackingField != null)
             {
-                return _hideProcessorsBackingField;
+                return _hideProcessorsBackingField.Value;
             }
 
             List<TriPropertyHideProcessor> processors = null;
             TriDrawersUtilities.CreateHideProcessorsFor(ref processors, FieldType, Attributes);
-            if (processors == null)
-            {
-                return _hideProcessorsBackingField = EmptyList<TriPropertyHideProcessor>.Empty;
-            }
-
             RemoveNonApplicableOnSelf(processors);
-            return _hideProcessorsBackingField = processors;
+            return (_hideProcessorsBackingField = processors).Value;
         }
 
-        private IReadOnlyList<TriPropertyDisableProcessor> PopulateDisableProcessors()
+        private TriArray<TriPropertyDisableProcessor> PopulateDisableProcessors()
         {
             if (_disableProcessorsBackingField != null)
             {
-                return _disableProcessorsBackingField;
+                return _disableProcessorsBackingField.Value;
             }
 
             List<TriPropertyDisableProcessor> processors = null;
             TriDrawersUtilities.CreateDisableProcessorsFor(ref processors, FieldType, Attributes);
-            if (processors == null)
-            {
-                return _disableProcessorsBackingField = EmptyList<TriPropertyDisableProcessor>.Empty;
-            }
-
             RemoveNonApplicableOnSelf(processors);
-            return _disableProcessorsBackingField = processors;
+            return (_disableProcessorsBackingField = processors).Value;
         }
 
-        private IReadOnlyList<TriValidator> PopulateValidators()
+        private TriArray<TriValidator> PopulateValidators()
         {
             if (_validatorsBackingField != null)
             {
-                return _validatorsBackingField;
+                return _validatorsBackingField.Value;
             }
 
             List<TriValidator> validators = null;
             TriDrawersUtilities.CreateValueValidatorsFor(ref validators, FieldType);
             TriDrawersUtilities.CreateAttributeValidatorsFor(ref validators, FieldType, Attributes);
-
-            if (validators == null)
-            {
-                return _validatorsBackingField = EmptyList<TriValidator>.Empty;
-            }
-
             RemoveNonApplicableOnSelf(validators);
-            return _validatorsBackingField = validators;
+            return (_validatorsBackingField = validators).Value;
         }
 
-        private IReadOnlyList<TriCustomDrawer> PopulateDrawers()
+        private TriArray<TriCustomDrawer> PopulateDrawers()
         {
             if (_drawersBackingField != null)
             {
-                return _drawersBackingField;
+                return _drawersBackingField.Value;
             }
 
             var drawers = new List<TriCustomDrawer>
@@ -319,14 +303,14 @@ namespace TriInspector
             TriDrawersUtilities.CreateValueDrawersFor(ref drawers, FieldType);
             TriDrawersUtilities.CreateAttributeDrawersFor(ref drawers, FieldType, Attributes);
 
-            if (TriReflectionUtilities.GetCustomNonSerializationAttributes(FieldType) is {} typeAttributes)
+            if (TriReflectionUtilities.GetCustomNonSerializationAttributes(FieldType) is { } typeAttributes)
             {
                 TriDrawersUtilities.CreateAttributeDrawersFor(ref drawers, FieldType, typeAttributes);
             }
 
             RemoveNonApplicableOnSelf(drawers);
             drawers.Sort(static (a, b) => a.Order.CompareTo(b.Order));
-            return _drawersBackingField = drawers;
+            return (_drawersBackingField = drawers).Value;
         }
 
         private static ValueGetterDelegate MakeGetter(FieldInfo fi)
@@ -474,6 +458,11 @@ namespace TriInspector
 
         private void RemoveNonApplicableOnSelf<T>(List<T> list) where T : TriPropertyExtension
         {
+            if (list == null)
+            {
+                return;
+            }
+
             for (var i = list.Count - 1; i >= 0; i--)
             {
                 if (!CanApplyExtensionOnSelf(list[i]))
@@ -506,10 +495,5 @@ namespace TriInspector
         public delegate object ValueGetterDelegate(TriProperty self, int targetIndex);
 
         public delegate object ValueSetterDelegate(TriProperty self, int targetIndex, object value);
-
-        private static class EmptyList<T>
-        {
-            public static readonly List<T> Empty = new List<T>();
-        }
     }
 }
