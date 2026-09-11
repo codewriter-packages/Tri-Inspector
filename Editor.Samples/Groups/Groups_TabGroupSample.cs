@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Groups properties into named tabs, showing only one tab's content at a time in the inspector.
+/// </summary>
 [DeclareTabGroup("tabs")]
 public class Groups_TabGroupSample : ScriptableObject
 {

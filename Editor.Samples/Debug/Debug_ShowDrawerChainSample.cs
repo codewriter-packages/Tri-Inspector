@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Shows the full drawer chain applied to a property, useful for debugging attribute stacking order.
+/// </summary>
 public class Debug_ShowDrawerChainSample : ScriptableObject
 {
     [ShowDrawerChain]

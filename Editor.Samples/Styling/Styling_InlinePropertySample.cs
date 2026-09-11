@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Draws a serializable object's fields inline without a foldout in the inspector.
+/// </summary>
 public class Styling_InlinePropertySample : ScriptableObject
 {
     public MinMax rangeFoldout;

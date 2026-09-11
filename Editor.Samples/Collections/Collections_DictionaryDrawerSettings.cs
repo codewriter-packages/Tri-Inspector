@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Renders a dictionary in the inspector with customizable layout, column sizes, labels, and add/remove controls.
+/// </summary>
 public class Collections_DictionaryDrawerSettingsSample : ScriptableObject
 {
     [SerializeField]

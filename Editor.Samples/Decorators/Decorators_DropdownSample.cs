@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Replaces a field's default input with a dropdown list of predefined values.
+/// </summary>
 public class Decorators_DropdownSample : ScriptableObject
 {
     [Dropdown(nameof(_intValues))]

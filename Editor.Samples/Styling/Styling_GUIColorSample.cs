@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Applies a tint color to a property or button in the inspector.
+/// </summary>
 public class Styling_GUIColorSample : ScriptableObject
 {
     [GUIColor(0.8f, 1.0f, 0.6f)]

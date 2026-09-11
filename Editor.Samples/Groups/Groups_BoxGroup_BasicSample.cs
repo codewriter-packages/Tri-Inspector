@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Groups properties inside a titled box in the inspector.
+/// </summary>
 [DeclareBoxGroup("box", HideTitle = true)]
 [DeclareBoxGroup("named_box", Title = "My Box")]
 [DeclareBoxGroup("boxed_struct", Title = "Boxed Struct")]

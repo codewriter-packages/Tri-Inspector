@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Groups properties inside a collapsible foldout in the inspector.
+/// </summary>
 [DeclareFoldoutGroup("My Foldout", Expanded = true)]
 [DeclareFoldoutGroup("boxed_foldout_struct", Title = "Foldout Struct")]
 public class Groups_FoldoutGroupSample : ScriptableObject

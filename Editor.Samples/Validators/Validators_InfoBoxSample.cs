@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Displays a static or dynamic message box above a property in the inspector with configurable severity.
+/// </summary>
 public class Validators_InfoBoxSample : ScriptableObject
 {
     [Title("InfoBox Message Types")]

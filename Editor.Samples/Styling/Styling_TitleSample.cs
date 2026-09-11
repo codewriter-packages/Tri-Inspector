@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Draws a bold header line above a property or button in the inspector.
+/// </summary>
 public class Styling_TitleSample : ScriptableObject
 {
     [Title("My Title")]

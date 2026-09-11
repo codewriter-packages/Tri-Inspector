@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Overrides the display label of a property with a custom static or dynamic string.
+/// </summary>
 public class Styling_LabelTextSample : ScriptableObject
 {
     [LabelText("Custom Label")]

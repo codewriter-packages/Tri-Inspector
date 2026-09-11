@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Customizes list and array drawing in the inspector with options for drag reordering, add/remove buttons, and labels.
+/// </summary>
 public class Collections_ListDrawerSettingsSample : ScriptableObject
 {
     [ListDrawerSettings(Draggable = true,

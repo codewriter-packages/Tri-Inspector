@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Lays out properties side by side in a horizontal row in the inspector.
+/// </summary>
 [DeclareHorizontalGroup("vars")]
 [DeclareHorizontalGroup("buttons")]
 public class Groups_HorizontalGroupSample : ScriptableObject

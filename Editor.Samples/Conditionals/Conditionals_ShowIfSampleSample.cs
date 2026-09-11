@@ -2,7 +2,10 @@
 using TriInspector;
 using UnityEngine;
 
-public class Conditionals_ShowIfSample : ScriptableObject
+/// <summary>
+/// Shows a property in the inspector only when a specified condition is true.
+/// </summary>
+public class Conditionals_ShowIfSampleSample : ScriptableObject
 {
     public Material material;
     public bool toggle;

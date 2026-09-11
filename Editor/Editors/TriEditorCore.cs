@@ -20,6 +20,8 @@ namespace TriInspector.Editors
             _serializedObject = serializedObject;
         }
 
+        public bool HideMonoScript { get; set; }
+
         public void Dispose()
         {
             if (_inspector != null)
@@ -51,7 +53,7 @@ namespace TriInspector.Editors
             _inspector.Update();
             _inspector.RunValidation();
 
-            if (!_inspector.RootProperty.TryGetAttribute(out HideMonoScriptAttribute _))
+            if (!HideMonoScript && !_inspector.RootProperty.TryGetAttribute(out HideMonoScriptAttribute _))
             {
                 var scriptProperty = serializedObject.FindProperty("m_Script");
                 if (scriptProperty != null)

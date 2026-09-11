@@ -63,17 +63,6 @@ namespace TriInspector.VisualElements
         public const string HorizontalGroupColumn = "tri-horizontal-group__column";
         public const string HorizontalGroupColumnFirst = "tri-horizontal-group__column--first";
 
-        public const string Samples = "tri-samples";
-        public const string SamplesMenu = "tri-samples__menu";
-        public const string SamplesSearch = "tri-samples__search";
-        public const string SamplesTree = "tri-samples__tree";
-        public const string SamplesDetailScroll = "tri-samples__detail-scroll";
-        public const string SamplesDetail = "tri-samples__detail";
-        public const string SamplesHeader = "tri-samples__header";
-        public const string SamplesSection = "tri-samples__section";
-        public const string SamplesBox = "tri-samples__box";
-        public const string SamplesTreeItem = "tri-samples__tree-item";
-
         public const string Table = "tri-table";
         public const string TableHeader = "tri-table__header";
         public const string TableHeaderColumns = "tri-table__header-columns";

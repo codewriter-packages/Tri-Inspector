@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Invokes callback on property modification.
+/// </summary>
 public class Misc_OnValueChangedSample : ScriptableObject
 {
     [OnValueChanged(nameof(OnMaterialChanged))]

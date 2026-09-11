@@ -28,136 +28,15 @@ _Advanced inspector attributes for Unity_
 
 ## Samples
 
-TriInspector has built-in samples at `Tools/Tri Inspector/Samples` menu.
+TriInspector ships with a built-in **Samples Window** — your interactive playground for every attribute in the package. Open it from `Tools/Tri Inspector/Samples` and browse all attributes organized by category. Select any sample to instantly see a live inspector with real fields, so you can explore exactly how each attribute looks and behaves without writing a single line of code.
+
+Each sample also displays its full source code right in the window, so you can see exactly how the attribute is used and copy it straight into your project. It's the fastest way to discover what TriInspector can do and understand how to apply it.
+
 ![Samples](https://user-images.githubusercontent.com/26966368/177045336-a3fcf438-3e70-45d0-b753-299e577b2010.png)
 
-## Attributes
+### Popular attributes
 
-<table>
-    <tr>
-        <td><a href="#Misc"><b>General →</b></a></td>
-        <td><a href="#Validation"><b>Validation →</b></a></td>
-        <td><a href="#Decorators"><b>Decorators →</b></a></td>
-        <td><a href="#Styling"><b>Styling →</b></a></td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <ul>
-                <li>Show In Inspector</li>
-                <li>Inline Property</li>
-                <li>Hide Reference Picker</li>
-                <li>Property Order</li>
-                <li>Read Only</li>
-                <li>On Value Changed</li>
-                <li>Hide Mono Script</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>Required</li>
-                <li>Required Get</li>
-                <li>Validate Input</li>
-                <li>Info Box</li>
-                <li>Assets Only</li>
-                <li>Scene Objects Only</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>Dropdown</li>
-                <li>Asset Dropdown</li>
-                <li>Scene</li>
-                <li>Animator Parameter</li>
-                <li>Material Property</li>
-                <li>Slider</li>
-                <li>Min Max Slider</li>
-                <li>Inline Editor</li>
-                <li>Display As String</li>
-                <li>Unit</li>
-                <li>Preview Object</li>
-                <li>Preview Mesh</li>
-                <li>Layer</li>
-                <li>Property Text Area</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>Title</li>
-                <li>Label Text</li>
-                <li>Hide Label</li>
-                <li>GUI Color</li>
-                <li>Label Width</li>
-                <li>Indent</li>
-                <li>Property Space</li>
-                <li>Property Tooltip</li>
-            </ul>
-        </td>
-    </tr>
-    <tr>
-        <td><a href="#Groups"><b>Groups →</b></a></td>
-        <td><a href="#Conditionals"><b>Conditionals →</b></a></td>
-        <td><a href="#Collections"><b>Collections →</b></a></td>
-        <td><a href="#Buttons"><b>Buttons →</b></a></td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <ul>
-                <li>Box Group</li>
-                <li>Foldout Group</li>
-                <li>Toggle Group</li>
-                <li>Tab Group</li>
-                <li>Horizontal Group</li>
-                <li>Vertical Group</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>Show/Hide If</li>
-                <li>Enable/Disable If</li>
-                <li>Show/Hide In Play Mode</li>
-                <li>Enable/Disable In Play Mode</li>
-                <li>Show/Hide In Edit Mode</li>
-                <li>Enable/Disable In Edit Mode</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>List Drawer Settings</li>
-                <li>Table List</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>Button</li>
-                <li>Enum Toggle Buttons</li>
-                <li>Inline Button</li>
-            </ul>
-        </td>
-    </tr>
-    <tr>
-        <td><a href="#Others"><b>Others →</b></a></td>
-        <td><a href="#Debug"><b>Debug →</b></a></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <tr>
-        <td valign="top">
-            <ul>
-                <li>Draw With Tri Inspector</li>
-                <li>Draw With Unity</li>
-            </ul>
-        </td>
-        <td valign="top">
-            <ul>
-                <li>Show Drawer Chain</li>
-            </ul>
-        </td>
-        <td></td>
-        <td></td>
-    </tr>
-</table>
-
-### Misc
+TriInspector comes packed with a huge collection of attributes — far too many to cover here in full. Below are some of the most frequently used ones to get you started. For the complete list, open the Samples Window.
 
 #### ShowInInspector
 
@@ -165,840 +44,102 @@ Shows non-serialized property in the inspector.
 
 ![ShowInInspector](https://user-images.githubusercontent.com/26966368/168230693-a1a389a6-1a3b-4b94-b4b5-0764e88591f4.png)
 
-```csharp
-private float _field;
-
-[ShowInInspector]
-private bool _myToggle;
-
-[ShowInInspector]
-public float ReadOnlyProperty => _field;
-
-[ShowInInspector]
-public float EditableProperty
-{
-    get => _field;
-    set => _field = value;
-}
-```
-
-#### InlineProperty
-
-![InlineProperty](https://user-images.githubusercontent.com/26966368/168234909-1e6bec90-18ed-4d56-91ca-fe09118e1b72.png)
-
-```csharp
-public MinMax rangeFoldout;
-
-[InlineProperty(LabelWidth = 40)]
-public MinMax rangeInline;
-
-[Serializable]
-public class MinMax
-{
-    public int min;
-    public int max;
-}
-```
-
-#### HideReferencePicker
-
-Tri Inspector by default shows a polymorphic type picker for `[SerializeReference]` and `[ShowInInspector]`. It can be hidden with a `[HideReferencePicker]` attribute.
-
-![HideReferencePicker](https://user-images.githubusercontent.com/26966368/182633485-a7876052-afd4-40f4-bc6b-be61a04997a4.png)
-
-```csharp
-[SerializeReference]
-public MyReferenceClass clazz1 = new MyReferenceClass();
-
-[SerializeReference, HideReferencePicker]
-public MyReferenceClass clazz2 = new MyReferenceClass();
-
-[ShowInInspector, HideReferencePicker]
-public MyReferenceClass Clazz3 { get; set; } = new MyReferenceClass();
-
-[Serializable]
-public class MyReferenceClass
-{
-    public int inner;
-}
-```
-
-#### PropertyOrder
-
-Changes property order in the inspector.
-
-![PropertyOrder](https://user-images.githubusercontent.com/26966368/168231223-c6628a8d-0d0a-47c1-8850-dc4e789fa14f.png)
-
-```csharp
-public float first;
-
-[PropertyOrder(0)]
-public float second;
-```
-
 #### ReadOnly
 
 Makes property non-editable in the inspector.
 
 ![ReadOnly](https://user-images.githubusercontent.com/26966368/168231817-948ef153-eb98-42fb-88ad-3e8d17925b43.png)
 
-```csharp
-[ReadOnly]
-public Vector3 vec;
-```
-
-#### OnValueChanged
-
-Invokes callback on property modification.
-
-```csharp
-[OnValueChanged(nameof(OnMaterialChanged))]
-public Material mat;
-
-private void OnMaterialChanged()
-{
-    Debug.Log("Material changed!");
-}
-```
-
-#### HideMonoScript
-
-Hides the default Script property in the inspector.
-
-```csharp
-[HideMonoScript]
-public class NewBehaviour : MonoBehaviour
-{
-}
-```
-
-### Validation
-
-Tri Inspector has some builtin validators such as `missing reference` and `type mismatch` error. Additionally you can mark out your code with validation attributes or even write own validators.
-
-![Builtin-Validators](https://user-images.githubusercontent.com/26966368/168232996-04de69a5-91c2-45d8-89b9-627b498db2ce.png)
-
 #### Required
+
+Marks a field as required and shows an error in the inspector when it is not assigned. Supports an optional fix action — a custom method that can perform any logic to resolve the issue, such as finding and assigning the missing reference automatically.
 
 ![Required](https://github.com/codewriter-packages/Tri-Inspector/assets/26966368/56a8d0ef-c88b-4b4b-8121-388b94d47841)
 
-```csharp
-[Required]
-public Material material;
-
-[Required(FixAction = nameof(FixTarget), FixActionName = "Assign self")]
-public Transform target;
-
-private void FixTarget()
-{
-    target = GetComponent<Transform>();
-}
-```
-
-#### RequiredGet
-
-![RequiredGet](https://github.com/user-attachments/assets/956ef00b-79c8-4aea-9537-5e8e74fb6f9b)
-
-```csharp
-[RequiredGet]
-public Transform myTransform;
-
-[RequiredGet(InParents = true)]
-public Animator animator; // Search for any Animator in parents
-
-[RequiredGet(InChildren = true, IncludeSelf = false)]
-public MeshRenderer[] childrenMeshes; // Search all meshes in children
-```
-
 #### ValidateInput
+
+Runs a custom validation method whenever the field value changes and displays the result as an error or warning directly in the inspector.
 
 ![ValidateInput](https://user-images.githubusercontent.com/26966368/168233592-b4dcd4d4-88ec-4213-a2e5-667719feb0b8.png)
 
-```csharp
-[ValidateInput(nameof(ValidateTexture))]
-public Texture tex;
-
-private TriValidationResult ValidateTexture()
-{
-    if (tex == null) return TriValidationResult.Error("Tex is null");
-    if (!tex.isReadable) return TriValidationResult.Warning("Tex must be readable");
-    return TriValidationResult.Valid;
-}
-
-```
-
 #### InfoBox
+
+Displays a static or dynamic message box above a property with configurable severity — info, warning, or error.
 
 ![InfoBox](https://user-images.githubusercontent.com/26966368/169318171-d1a02212-48f1-41d1-b0aa-e2e1b25df262.png)
 
-```csharp
-[Title("InfoBox Message Types")]
-[InfoBox("Default info box")]
-public int a;
-
-[InfoBox("None info box", TriMessageType.None)]
-public int b;
-
-[InfoBox("Warning info box", TriMessageType.Warning)]
-public int c;
-
-[InfoBox("Error info box", TriMessageType.Error)]
-public int d;
-
-[InfoBox("$" + nameof(DynamicInfo), visibleIf: nameof(VisibleInEditMode))]
-public Vector3 vec;
-
-private string DynamicInfo => "Dynamic info box: " + DateTime.Now.ToLongTimeString();
-
-private bool VisibleInEditMode => !Application.isPlaying;
-```
-
-#### AssetsOnly
-
-![AssetsOnly](https://user-images.githubusercontent.com/26966368/173064367-3cfb17f7-e050-4fcb-9b0c-f8710f1716e7.png)
-
-```csharp
-[AssetsOnly]
-public GameObject obj;
-```
-
-#### SceneObjectsOnly
-
-![SceneObjectsOnly](https://user-images.githubusercontent.com/26966368/178470605-618c9796-054f-40bb-9c09-2d9c6f342faf.png)
-
-```csharp
-[SceneObjectsOnly]
-public GameObject obj;
-```
-
-### Decorators
-
 #### Dropdown
+
+Replaces a field's default input with a dropdown list of predefined values. Values can be static constants or generated dynamically at runtime.
 
 ![Dropdown](https://user-images.githubusercontent.com/26966368/230157088-1fec3c38-7046-4fc8-8da1-aca63744ac37.png)
 
-```csharp
-[Dropdown(nameof(intValues))]
-public int numberDropdown = 123;
-
-[Dropdown(nameof(GetVectorValues))]
-public Vector3 vectorDropdown;
-
-private int[] intValues = {1, 2, 3, 4, 5};
-
-private IEnumerable<TriDropdownItem<Vector3>> GetVectorValues()
-{
-    return new TriDropdownList<Vector3>
-    {
-        {"Zero", Vector3.zero},
-        {"One/Forward", Vector3.forward},
-        {"One/Backward", Vector3.back},
-    };
-}
-```
-
 #### Scene
+
+Renders a string field as a scene picker dropdown populated from the project's build settings, eliminating typos and making scene references refactor-safe. TriInspector also includes other specialized field drawers of this kind, such as `[Layer]` for layer selection, `[AnimatorParameter]` for Animator parameters, `[MaterialProperty]` for shader properties, and more.
 
 ![Scene](https://user-images.githubusercontent.com/26966368/179394466-a9397212-e3bc-40f1-b721-8f7c43aa3048.png)
 
-```csharp
-[Scene] public string scene;
-```
-
-#### AnimatorParameter
-
-`AnimatorParameter` automatically lists all available parameters from the target Animator, with optional filtering by parameter type.
-
-![AnimatorParameter](https://github.com/user-attachments/assets/9cd8837e-3d78-4b5f-808f-27bf16635099)
-
-```csharp
-[AnimatorParameter(nameof(animator))]
-public string parameterName;
-
-[AnimatorParameter(nameof(animator), AnimatorControllerParameterType.Float)]
-public int parameterHash;
-
-public Animator animator;
-```
-
-#### MaterialProperty
-
-`MaterialProperty` automatically displays valid shader properties from the target Material, including support for specific types (Float, Color, Vector, Texture, etc.).
-
-![MaterialProperty](https://github.com/user-attachments/assets/09eab958-aa13-43c6-a780-4a2d4d2704bb)
-
-```csharp
-[MaterialProperty(nameof(material))]
-public string propertyName;
-
-[MaterialProperty(nameof(material), ShaderPropertyType.Color)]
-public int propertyHash;
-
-public Material material;
-```
-
 #### Slider
+
+Renders a numeric field as a slider with configurable fixed or dynamic min and max bounds, giving designers an intuitive range control instead of a raw number input.
 
 ![Slider](https://github.com/user-attachments/assets/4f56d7e6-0032-4037-b890-740a3f93cebe)
 
-```csharp
-[Slider(nameof(_min), nameof(_max))]
-public int dynamicIntSlider = -6;
-
-[Slider(0, nameof(GetMax))]
-public float dynamicMaxFloatSlider = 4.6f;
-
-public Vector2 minMax = new(-10, 10);
-
-[Slider(nameof(minMax))]
-public float dynamicFloatSlider = 1.83f;
-
-[Slider(nameof(minMax), autoClamp: true)]
-public int dynamicIntSliderClamped = 4;
-
-private int _min = -20;
-private int _max = 20;
-public float GetMax() => 10;
-```
-
 #### MinMaxSlider
+
+Renders a Vector2 field as a min-max range slider, letting you define both the lower and upper bound of a range with a single intuitive control.
 
 ![MinMaxSlider](https://github.com/user-attachments/assets/44deaa4e-5e26-49f0-bc8a-b84b9f48f08a)
 
-```csharp
-[MinMaxSlider(0f, 10f)]
-public Vector2 fixedMinMaxSlider = new(2f, 4f);
-
-[MinMaxSlider(nameof(_min), nameof(_max))]
-public Vector2Int dynamicIntMinMaxSlider = new(-8, 0);
-
-[MinMaxSlider(-20, nameof(GetMax))]
-public Vector2 dynamicFloatMaxSlider = new(-7.7f, -1.7f);
-
-public Vector2 minMax = new(-10, 10);
-
-[MinMaxSlider(nameof(minMax))]
-public Vector2 dynamicFloatMinMaxSlider = new(0, 4);
-
-[MinMaxSlider(nameof(minMax), autoClamp: true)]
-public Vector2Int dynamicIntMinMaxSliderClamped = new(2, 6);
-
-private int _min = -20;
-private int _max = 20;
-public float GetMax() => 10;
-```
-
 #### InlineEditor
+
+Embeds the full inspector of a referenced asset inline within the parent inspector, so you can view and edit nested assets without leaving the current selection.
 
 ![InlineEditor](https://user-images.githubusercontent.com/26966368/168234617-86a7f500-e635-46f8-90f2-5696e5ae7e63.png)
 
-```csharp
-[InlineEditor]
-public Material mat;
-```
-
-#### DisplayAsString
-
-![DisplayAsString](https://user-images.githubusercontent.com/26966368/224530522-8aa24fbe-4bc7-4290-89d1-d88c5c502e2b.png)
-
-```csharp
-[DisplayAsString]
-public string[] collection = {"hello", "world"};
-```
-
-#### Unit
-
-![Unit](https://github.com/user-attachments/assets/ad355200-150b-4a03-9b96-255f966a097b)
-
-```csharp
-[Unit(UnitAttribute.Meter)]
-public float lengthInMeters;
-
-[Unit("My custom Unit")]
-public float freeTextUnit;
-```
-
-#### Preview Object
-
-![Preview Object](https://github.com/user-attachments/assets/339849d6-1491-4638-b099-7f3afe813dcb)
-
-```csharp
-[PreviewObject]
-public Texture2D texture;
-
-[PreviewObject(Height = 100)]
-public GameObject gameObj;
-```
-
 #### Preview Mesh
+
+Shows an interactive 3D mesh preview below a GameObject field directly in the inspector, making it easy to visually verify the right mesh is assigned.
 
 ![Preview Mesh](https://github.com/user-attachments/assets/329bb723-d2fc-4e18-97e6-f47706b0eb46)
 
-```csharp
-[LabelWidth(270f)]
-[PreviewMesh(100, 100)]
-public GameObject meshCustomLengthAndWidth;
-
-[LabelWidth(200f)]
-[PreviewMesh(200, 160, false)]
-public GameObject meshNoFoldoutNoMesh;
-
-[LabelWidth(200f)]
-[PreviewMesh(200, 160, false)]
-public GameObject meshNoFoldoutWithMesh;
-```
-
-#### Layer
-
-```csharp
-[Layer] public int layer;
-```
-
-### Styling
-
 #### Title
+
+Draws a bold header line above a property or button in the inspector, making it easy to visually separate and label sections of a large component.
 
 ![Title](https://user-images.githubusercontent.com/26966368/168528842-10ba070e-74ab-4377-8f33-7a55609494f4.png)
 
-```csharp
-[Title("My Title")]
-public string val;
-
-[Title("$" + nameof(_myTitleField))]
-public Rect rect;
-
-[Title("$" + nameof(MyTitleProperty))]
-public Vector3 vec;
-
-[Title("Button Title")]
-[Button]
-public void MyButton()
-{
-}
-
-private string _myTitleField = "Serialized Title";
-
-private string MyTitleProperty => DateTime.Now.ToLongTimeString();
-```
-
-#### HideLabel
-
-![HideLabel](https://user-images.githubusercontent.com/26966368/168528934-353f2843-b6ea-4f4f-b56e-24e006eca6ae.png)
-
-```csharp
-[Title("Wide Vector")]
-[HideLabel]
-public Vector3 vector;
-
-[Title("Wide String")]
-[HideLabel]
-public string str;
-```
-
-#### LabelText
-
-![LabelText](https://user-images.githubusercontent.com/26966368/168529002-8fb17112-f74c-4535-b399-aefdb352f73a.png)
-
-```csharp
-[LabelText("Custom Label")]
-public int val;
-
-[LabelText("$" + nameof(DynamicLabel))]
-public Vector3 vec;
-
-public string DynamicLabel => DateTime.Now.ToShortTimeString();
-```
-
-#### LabelWidth
-
-![LabelWidth](https://user-images.githubusercontent.com/26966368/168529051-c90bce09-92a7-4afd-b961-d19f03e826f3.png)
-
-```csharp
-public int defaultWidth;
-
-[LabelWidth(40)]
-public int thin;
-
-[LabelWidth(300)]
-public int customInspectorVeryLongPropertyName;
-```
-
-#### GUIColor
-
-![GUIColor](https://user-images.githubusercontent.com/26966368/168529122-048cd964-358c-453b-ab3a-aa7137bab4f7.png)
-
-```csharp
-[GUIColor(0.8f, 1.0f, 0.6f)]
-public Vector3 vec;
-
-[GUIColor(0.6f, 0.9f, 1.0f)]
-[Button]
-public void BlueButton() { }
-
-[GUIColor(1.0f, 0.6f, 0.6f)]
-[Button]
-public void RedButton() { }
-```
-
-#### Indent
-
-![Indent](https://user-images.githubusercontent.com/26966368/168528565-2972221d-2cb3-49f1-8000-a425e4ff6cea.png)
-
-```csharp
-[Title("Custom Indent")]
-[Indent]
-public int a;
-
-[Indent(2)]
-public int b;
-
-[Indent(3)]
-public int c;
-
-[Indent(4)]
-public int d;
-```
-
-#### PropertySpace
-
-![PropertySpace](https://user-images.githubusercontent.com/26966368/168529641-ee61c950-cb15-4a4e-986b-c9fa8c82dd4d.png)
-
-```csharp
-[Space, PropertyOrder(0)]
-public Vector3 vecField;
-
-[ShowInInspector, PropertyOrder(1)]
-[PropertySpace(SpaceBefore = 10, SpaceAfter = 30)]
-public Rect RectProperty { get; set; }
-
-[PropertyOrder(2)]
-public bool b;
-```
-
-#### PropertyTooltip
-
-![PropertyTooltip](https://user-images.githubusercontent.com/26966368/168530124-95609470-a495-4eb3-9059-f6203ead995f.png)
-
-```csharp
-[PropertyTooltip("This is tooltip")]
-public Rect rect;
-
-[PropertyTooltip("$" + nameof(DynamicTooltip))]
-public Vector3 vec;
-
-public string DynamicTooltip => DateTime.Now.ToShortTimeString();
-```
-
-### Collections
-
-#### ListDrawerSettings
-
-![ListDrawerSettings](https://user-images.githubusercontent.com/26966368/171126103-4fab58a3-db6c-487b-b616-f7aad528e2ab.png)
-
-```csharp
-[ListDrawerSettings(Draggable = true,
-                    HideAddButton = false,
-                    HideRemoveButton = false,
-                    AlwaysExpanded = false)]
-public List<Material> list;
-
-[ListDrawerSettings(Draggable = false, AlwaysExpanded = true)]
-public Vector3[] vectors;
-
-```
-
 #### TableList
+
+Renders a list or array as a compact multi-column table in the inspector, with support for drag reordering and custom column sizes — perfect for large structured datasets.
 
 ![TableList](https://user-images.githubusercontent.com/26966368/171125460-679fe467-cf01-47e0-8674-b565ee3d4d7e.png)
 
-```csharp
-[TableList(Draggable = true,
-           HideAddButton = false,
-           HideRemoveButton = false,
-           AlwaysExpanded = false)]
-public List<TableItem> table;
-
-[Serializable]
-public class TableItem
-{
-    [Required]
-    public Texture icon;
-    public string description;
-
-    [Group("Combined"), LabelWidth(16)]
-    public string A, B, C;
-
-    [Button, Group("Actions")]
-    public void Test1() { }
-
-    [Button, Group("Actions")]
-    public void Test2() { }
-}
-```
-
-### Conditionals
-
-#### ShowIf
-
-![ShowIf](https://user-images.githubusercontent.com/26966368/168531065-af5dad6a-8aea-4ca9-9730-da5feac0099a.png)
-
-```csharp
-public Material material;
-public bool toggle;
-public SomeEnum someEnum;
-
-[ShowIf(nameof(material), null)]
-public Vector3 showWhenMaterialIsNull;
-
-[ShowIf(nameof(toggle))]
-public Vector3 showWhenToggleIsTrue;
-
-[ShowIf(nameof(toggle), false)]
-public Vector3 showWhenToggleIsFalse;
-
-[ShowIf(nameof(someEnum), SomeEnum.Two)]
-public Vector3 showWhenSomeEnumIsTwo;
-
-public enum SomeEnum { One, Two, Three }
-```
-
-#### HideIf
-
-```csharp
-public bool visible;
-
-[HideIf(nameof(visible))]
-public float val;
-```
-
-#### EnableIf
-
-```csharp
-public bool visible;
-
-[EnableIf(nameof(visible))]
-public float val;
-```
-
-#### DisableIf
-
-```csharp
-public bool visible;
-
-[DisableIf(nameof(visible))]
-public float val;
-```
-
-#### HideInPlayMode / ShowInPlayMode
-
-```csharp
-[HideInPlayMode] [ShowInPlayMode]
-```
-
-#### DisableInPlayMode / EnableInPlayMode
-
-```csharp
-[DisableInPlayMode] [EnableInPlayMode]
-```
-
-#### HideInEditMode / ShowInEditMode
-
-```csharp
-[HideInEditMode] [ShowInEditMode]
-```
-
-#### DisableInEditMode / EnableInEditMode
-
-```csharp
-[DisableInEditMode] [EnableInEditMode]
-```
-
-### Buttons
-
-#### Button
-
-![Button](https://github.com/codewriter-packages/Tri-Inspector/assets/26966368/76f4a3a4-4bf9-4f58-8615-17adb986ab81)
-
-```csharp
-[Button("Click me!")]
-private void Button() => Debug.Log("Button clicked!");
-
-[Button(ButtonSizes.Large)]
-private void ButtonWithParameters(Vector3 vec, string str = "default value")
-{
-    Debug.Log($"Button with parameters: {vec} {str}");
-}
-```
-
-#### EnumToggleButtons
-
-![EnumToggleButtons](https://user-images.githubusercontent.com/26966368/171126422-79d6ba55-7928-4178-9cc9-a807e3cb8b53.png)
-
-```csharp
-[EnumToggleButtons] public SomeEnum someEnum;
-[EnumToggleButtons] public SomeFlags someFlags;
-
-public enum SomeEnum { One, Two, Three }
-
-[Flags] public enum SomeFlags
-{
-    A = 1 << 0,
-    B = 1 << 1,
-    C = 1 << 2,
-    AB = A | B,
-    BC = B | C,
-}
-```
-
-#### InlineButton
-
-```csharp
-[InlineButton(nameof(Ping))]
-[InlineButton("Null", nameof(SetNull), isChecked: nameof(IsNull))]
-public Material material;
-
-private void Ping() => Debug.Log("Clicked!");
-private bool IsNull => material == null;
-private void SetNull() { material = null; }
-```
-
-### Debug
-
-#### ShowDrawerChain
-
-![ShowDrawerChain](https://user-images.githubusercontent.com/26966368/168531723-5f2b2d7a-a4c1-4727-8ab5-e7b82a52182e.png)
-
-```csharp
-[ShowDrawerChain]
-[Indent]
-[PropertySpace]
-[Title("Custom Title")]
-[GUIColor(1.0f, 0.8f, 0.8f)]
-public Vector3 vec;
-```
-
 ### Groups
 
-Properties can be grouped in the inspector using the `Group` attribute.
+Properties can be grouped in the inspector using the `[Group]` attribute. TriInspector supports six group types, each declared on the class with a corresponding `[Declare*Group]` attribute:
 
-```csharp
-[Group("one")] public float a;
-[Group("one")] public float b;
+- **BoxGroup** — wraps properties in a titled or untitled box
+- **FoldoutGroup** — collapses properties behind a foldout toggle
+- **ToggleGroup** — a foldout with a built-in enable/disable toggle
+- **TabGroup** — organises properties into named tabs, showing one at a time
+- **HorizontalGroup** — lays properties out side by side in a row
+- **VerticalGroup** — stacks properties vertically, typically nested inside a horizontal group
 
-[Group("two")] public float c;
-[Group("two")] public float d;
-
-public float e;
-```
-
-If you have a lot of properties and group attributes take up too much space, then you can combine multiple properties at once using the `GroupNext` attribute.
-
-```csharp
-[GroupNext("one")]
-public float a;
-public float b;
-
-[GroupNext("two")]
-public float c;
-public float d;
-
-[UnGroupNext]
-public float e;
-```
-
-#### Box Group
+Groups can be freely nested and combined to build complex, multi-region inspector layouts.
 
 ![BoxGroup](https://user-images.githubusercontent.com/26966368/177552426-8124b445-e235-43a2-9143-dd5d954dd9f8.png)
 
-```csharp
-[DeclareBoxGroup("box", Title = "My Box")]
-public class BoxGroupSample : ScriptableObject
-{
-    [Group("box")] public int a;
-    [Group("box")] public bool b;
-}
-```
-
-#### Foldout Group
-
 ![FoldoutGroup](https://user-images.githubusercontent.com/26966368/201517886-4138ee55-33c2-4a1a-93bc-a3cda7745a4c.png)
-
-```csharp
-[DeclareFoldoutGroup("foldout", Title = "$" + nameof(DynamicTitle))]
-public class FoldoutGroupSample : ScriptableObject
-{
-    [Group("foldout")] public int a;
-    [Group("foldout")] public bool b;
-
-    public string DynamicTitle => "My Foldout";
-}
-```
-
-#### Toggle Group
 
 ![ToggleGroup](https://user-images.githubusercontent.com/26966368/230786234-33e9aa51-c9da-4b50-93ca-05e72b54aa07.png)
 
-```csharp
-[DeclareToggleGroup("toggle", Title = "$" + nameof(DynamicTitle))]
-public class ToggleGroupSample : ScriptableObject
-{
-    [Group("toggle")] public bool enabled;
-    [Group("toggle")] public int a;
-    [Group("toggle")] public bool b;
-
-    public string DynamicTitle => "My Toggle";
-}
-```
-
-#### Tab Group
-
 ![TabGroup](https://user-images.githubusercontent.com/26966368/177552003-528a4e52-e340-460b-93e6-f56c07ac063b.png)
-
-```csharp
-[DeclareTabGroup("tabs")]
-public class TabGroupSample : ScriptableObject
-{
-    [Group("tabs"), Tab("One")] public int a;
-    [Group("tabs"), Tab("Two")] public float b;
-    [Group("tabs"), Tab("Three")] public bool c;
-}
-```
-
-#### Horizontal Group
 
 ![HorizontalGroup](https://user-images.githubusercontent.com/26966368/177551227-9df32c44-9482-4580-8144-5745af806f24.png)
 
-```csharp
-[DeclareHorizontalGroup("vars")]
-public class HorizontalGroupSample : ScriptableObject
-{
-    [Group("vars")] public int a;
-    [Group("vars")] public int b;
-    [Group("vars")] public int c;
-}
-```
-
-#### Vertical Group
-
 ![VerticalGroup](https://user-images.githubusercontent.com/26966368/177550644-9d0dc2b7-ed18-4d8f-997d-c4fff2c6d6cb.png)
-
-```csharp
-
-[DeclareHorizontalGroup("horizontal")]
-[DeclareVerticalGroup("horizontal/vars")]
-[DeclareVerticalGroup("horizontal/buttons")]
-public class VerticalGroupSample : ScriptableObject
-{
-    [Group("horizontal/vars")] public float a;
-    [Group("horizontal/vars")] public float b;
-
-    [Button, Group("horizontal/buttons")]
-    public void ButtonA() { }
-
-    [Button, Group("horizontal/buttons")]
-    public void ButtonB() { }
-}
-```
 
 ## Integrations
 

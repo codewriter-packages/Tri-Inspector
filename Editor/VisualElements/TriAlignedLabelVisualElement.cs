@@ -1,4 +1,5 @@
-﻿using UnityEditor.UIElements;
+﻿using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace TriInspector.VisualElements
@@ -62,6 +63,23 @@ namespace TriInspector.VisualElements
             content.AddToClassList(TriStyles.TriAlignedLabelContent);
 
             TriLabelWidthContextVisualElement.SetupAlignedLabel(this);
+        }
+    }
+
+    public static class TriAlignedLabelVisualElement
+    {
+        public static VisualElement Create(TriProperty property, VisualElement child)
+        {
+            if (property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                return serializedProperty.propertyType switch
+                {
+                    SerializedPropertyType.String => new TriAlignedLabelVisualElement<string>(property, child),
+                    _ => new TriAlignedLabelVisualElement<object>(property, child),
+                };
+            }
+
+            return new TriAlignedLabelVisualElement<object>(property, child);
         }
     }
 }

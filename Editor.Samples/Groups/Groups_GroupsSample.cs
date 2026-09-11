@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Demonstrates combining multiple group types to build a complex multi-region inspector layout.
+/// </summary>
 [DeclareHorizontalGroup("header")]
 [DeclareBoxGroup("header/left", Title = "My Left Box")]
 [DeclareVerticalGroup("header/right")]

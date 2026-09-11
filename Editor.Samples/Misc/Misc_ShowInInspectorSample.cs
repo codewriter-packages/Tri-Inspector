@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Shows non-serialized property in the inspector.
+/// </summary>
 public class Misc_ShowInInspectorSample : ScriptableObject
 {
     private float _field;

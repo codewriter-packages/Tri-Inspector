@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Shows a texture or object preview image below an asset reference field in the inspector.
+/// </summary>
 public class Decorators_PreviewObjectSample : ScriptableObject
 {
     [PreviewObject]

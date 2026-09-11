@@ -3,6 +3,9 @@ using System.Globalization;
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Displays a unit label suffix next to a numeric field in the inspector.
+/// </summary>
 public class Decorators_UnitSample : ScriptableObject
 {
     [Unit("My custom Unit")]

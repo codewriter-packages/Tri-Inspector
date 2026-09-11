@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Runs a custom validation method on a field and displays the result as an error or warning in the inspector.
+/// </summary>
 public class Validators_ValidateInputSample : ScriptableObject
 {
     [ValidateInput(nameof(ValidateTexture))]

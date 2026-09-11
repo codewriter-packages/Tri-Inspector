@@ -7,5 +7,6 @@ namespace TriInspector
     [Conditional("UNITY_EDITOR")]
     public class DisplayAsStringAttribute : Attribute
     {
+        public bool Multiline { get; set; }
     }
 }

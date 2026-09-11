@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Demonstrates nesting box groups inside other groups to create complex inspector layouts.
+/// </summary>
 [DeclareBoxGroup("box", Title = "Box")]
 [DeclareHorizontalGroup("box/horizontal")]
 [DeclareBoxGroup("box/horizontal/one", Title = "One")]

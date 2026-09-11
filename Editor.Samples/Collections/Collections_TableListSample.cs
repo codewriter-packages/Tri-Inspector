@@ -4,6 +4,9 @@ using TriInspector;
 using UnityEngine;
 using UnityEngine.Serialization;
 
+/// <summary>
+/// Renders a list as a multi-column table in the inspector, with support for drag reordering and custom column sizes.
+/// </summary>
 public class Collections_TableListSample : ScriptableObject
 {
     [TableList(Draggable = true,

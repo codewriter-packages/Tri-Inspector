@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Adds extra vertical space before or after a property in the inspector.
+/// </summary>
 public class Styling_PropertySpaceSample : ScriptableObject
 {
     [Space, PropertyOrder(0)]

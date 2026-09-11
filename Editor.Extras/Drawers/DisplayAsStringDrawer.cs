@@ -9,13 +9,16 @@ namespace TriInspector.Drawers
     {
         public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
         {
-            return new TriAlignedLabelVisualElement<object>(property, new TriDisplayAsString(property));
+            var child = new TriDisplayAsString(property, Attribute.Multiline);
+            return TriAlignedLabelVisualElement.Create(property, child);
         }
 
         private class TriDisplayAsString : Label
         {
-            public TriDisplayAsString(TriProperty property)
+            public TriDisplayAsString(TriProperty property, bool multiline)
             {
+                style.whiteSpace = multiline ? WhiteSpace.PreWrap : WhiteSpace.Pre;
+
                 void Sync()
                 {
                     text = property.Value?.ToString() ?? "Null";

@@ -1,6 +1,9 @@
 using UnityEngine;
 using TriInspector;
 
+/// <summary>
+/// Renders a numeric field as a slider with configurable fixed or dynamic min and max bounds.
+/// </summary>
 public class Decorators_SliderSample : ScriptableObject
 {
     [Slider(nameof(_min), nameof(_max))]

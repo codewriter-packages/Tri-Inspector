@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Stacks properties in a vertical column, typically nested inside a horizontal group.
+/// </summary>
 [DeclareHorizontalGroup("horizontal")]
 [DeclareVerticalGroup("horizontal/vars")]
 [DeclareVerticalGroup("horizontal/buttons")]

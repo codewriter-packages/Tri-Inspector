@@ -1,6 +1,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Shows an interactive 3D mesh preview below a GameObject field in the inspector.
+/// </summary>
 public class Decorators_PreviewMeshSample : ScriptableObject
 {
     [Title("Shortcut")]

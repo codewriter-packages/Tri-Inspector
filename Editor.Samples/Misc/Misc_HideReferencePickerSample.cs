@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Tri Inspector by default shows a polymorphic type picker for <b>[SerializeReference]</b> and <b>[ShowInInspector]</b>.
+/// It can be hidden with a <b>[HideReferencePicker]</b> attribute.
+/// </summary>
 public class Misc_HideReferencePickerSample : ScriptableObject
 {
     [Title("With Reference Picker")]

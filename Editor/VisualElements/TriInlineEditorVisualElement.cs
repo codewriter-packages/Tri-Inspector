@@ -1,4 +1,5 @@
 using System;
+using TriInspector.Editors;
 using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -19,6 +20,10 @@ namespace TriInspector.VisualElements
             public bool DrawGUI => (mode & InlineEditorModes.GUIOnly) != 0;
             public bool DrawHeader => (mode & InlineEditorModes.Header) != 0;
             public bool DrawPreview => (mode & InlineEditorModes.Preview) != 0;
+            public bool HideObjectField => (mode & InlineEditorModes.CompletelyHideObjectField) != 0;
+
+            public bool DrawWithTriInspector =>
+                (mode & InlineEditorModes.DrawWithTriInspectorWithoutMonoScriptField) != 0;
         }
 
         private readonly TriProperty _property;
@@ -27,9 +32,12 @@ namespace TriInspector.VisualElements
 
         private Editor _editor;
         private Object _editorTarget;
+        private TriEditorCore _triCore;
 
         public TriInlineEditorVisualElement(TriProperty property, Props props = default)
-            : base(property, useFoldout: true, BuildObjectField(property))
+            : base(property,
+                useFoldout: !props.HideObjectField,
+                props.HideObjectField ? null : BuildObjectField(property))
         {
             _property = property;
             _props = props;
@@ -75,7 +83,8 @@ namespace TriInspector.VisualElements
         private void SyncContent()
         {
             var value = _property.Value as Object;
-            var shouldShow = _property.IsExpanded && !_property.IsValueMixed && value != null;
+            var expanded = _props.HideObjectField || _property.IsExpanded;
+            var shouldShow = expanded && !_property.IsValueMixed && value != null;
 
             if (!shouldShow)
             {
@@ -124,7 +133,23 @@ namespace TriInspector.VisualElements
 
             if (_props.DrawGUI)
             {
-                _content.Add(new InspectorElement(_editor));
+                if (_props.DrawWithTriInspector)
+                {
+                    _triCore = new TriEditorCore(_editor.serializedObject)
+                    {
+                        HideMonoScript = true,
+                    };
+
+                    var inspector = new VisualElement();
+                    inspector.AddToClassList(TriStyles.UnityInspectorElement);
+                    inspector.AddToClassList(TriStyles.UnityInspectorMainContainer);
+                    inspector.Add(_triCore.CreateVisualElement());
+                    _content.Add(inspector);
+                }
+                else
+                {
+                    _content.Add(new InspectorElement(_editor));
+                }
             }
 
             if (_props.DrawPreview)
@@ -155,6 +180,12 @@ namespace TriInspector.VisualElements
 
         private void DestroyEditor()
         {
+            if (_triCore != null)
+            {
+                _triCore.Dispose();
+                _triCore = null;
+            }
+
             if (_editor != null)
             {
                 Object.DestroyImmediate(_editor);

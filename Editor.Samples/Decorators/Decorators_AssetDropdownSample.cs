@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Replaces an asset reference field with a dropdown populated from project assets, with optional type and folder filters.
+/// </summary>
 public class Decorators_AssetDropdownSample : ScriptableObject
 {
     // The full syntax of filters can be found here:

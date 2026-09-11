@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Groups properties inside a foldout with an enable/disable toggle in the inspector.
+/// </summary>
 [DeclareToggleGroup("My Toggle")]
 [DeclareToggleGroup("My Non Collapsible Toggle", Collapsible = false)]
 [DeclareToggleGroup("boxed_toggle_struct", Title = "Toggle Struct")]

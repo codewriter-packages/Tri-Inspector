@@ -1,6 +1,9 @@
 ﻿using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Adds a clickable button in the inspector that invokes the decorated method.
+/// </summary>
 public class Buttons_ButtonSample : ScriptableObject
 {
     [Button("Click me!")]

@@ -2,6 +2,9 @@
 using TriInspector;
 using UnityEngine;
 
+/// <summary>
+/// Renders an enum field as a row of toggle buttons in the inspector.
+/// </summary>
 public class Buttons_EnumToggleButtonsSample : ScriptableObject
 {
     [EnumToggleButtons] public SomeEnum someEnum;

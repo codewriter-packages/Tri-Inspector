@@ -1,6 +1,9 @@
 using UnityEngine;
 using TriInspector;
 
+/// <summary>
+/// Renders a Vector2 field as a min-max range slider with configurable fixed or dynamic bounds.
+/// </summary>
 public class Decorators_MinMaxSliderSample : ScriptableObject
 {
     [MinMaxSlider(0f, 10f)]
