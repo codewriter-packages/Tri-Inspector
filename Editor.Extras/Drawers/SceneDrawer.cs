@@ -32,7 +32,7 @@ namespace TriInspector.Drawers
                 asset => AssetDatabase.GetAssetPath(asset),
                 hideLabel: true);
 
-            return new TriAlignedLabelVisualElement<string>(property, field);
+            return TriAlignedLabelVisualElement.Create(property, field);
         }
     }
 }

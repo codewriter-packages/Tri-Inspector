@@ -48,12 +48,7 @@ namespace TriInspector.VisualElements
 
             this.TrackPropertyValueChanged(_property, _ => UpdateText());
 
-            // Enum serialized properties are backed by an int,
-            // so binding the aligned label as int for enums.
-            VisualElement labeled = typeof(T).IsEnum
-                ? new TriAlignedLabelVisualElement<int>(_property, _input)
-                : new TriAlignedLabelVisualElement<T>(_property, _input);
-            Add(labeled);
+            Add(TriAlignedLabelVisualElement.Create(_property, _input));
         }
 
         private void UpdateText()

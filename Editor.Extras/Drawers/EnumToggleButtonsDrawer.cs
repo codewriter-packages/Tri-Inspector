@@ -31,7 +31,7 @@ namespace TriInspector.Drawers
                     marginRight = -3,
                 },
             };
-            return new TriAlignedLabelVisualElement<int>(property, buttons);
+            return TriAlignedLabelVisualElement.Create(property, buttons);
         }
 
         private sealed class EnumToggleButtonsVisualElement : ToggleButtonGroup
