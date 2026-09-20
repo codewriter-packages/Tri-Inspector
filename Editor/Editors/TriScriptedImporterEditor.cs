@@ -37,6 +37,11 @@ namespace TriInspector.Editors
             return root;
         }
 
+        public override void OnInspectorGUI()
+        {
+            TriEditor.DrawImguiWarning();
+        }
+
         private void DoImporterDefaultGUI()
         {
             if (extraDataType != null)

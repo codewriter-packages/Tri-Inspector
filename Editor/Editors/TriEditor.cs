@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace TriInspector.Editors
@@ -20,6 +21,19 @@ namespace TriInspector.Editors
         public override VisualElement CreateInspectorGUI()
         {
             return _core.CreateVisualElement();
+        }
+
+        public override void OnInspectorGUI()
+        {
+            DrawImguiWarning();
+        }
+
+        public static void DrawImguiWarning()
+        {
+            EditorGUILayout.HelpBox(
+                "TriInspector 2.0 does not support IMGUI. " +
+                "Migrate your custom editor to UI Toolkit or " +
+                "downgrade TriInspector to version 1.x.x", MessageType.Warning);
         }
     }
 }
