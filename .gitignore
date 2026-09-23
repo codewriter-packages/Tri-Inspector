@@ -1,0 +1,26 @@
+*.*~
+*.db
+*.sln
+*.userprefs
+*.csproj
+*.pidb
+*.unityproj
+*.apk
+*.stackdump
+/Library
+/obj
+/Temp
+/Build*
+/Logs/
+/AssetBundles
+/Logs/
+.vs
+.vscode
+.idea
+.gradle
+*_LEGACY
+*.DotSettings.user
+/Assets/Plugins/Editor/JetBrains*
+/Assets/LEGACY*
+/Assets/TextMesh Pro*
+/Assets/Plugins/Sirenix*

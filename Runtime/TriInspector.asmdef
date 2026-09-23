@@ -1,0 +1,20 @@
+{
+    "name": "TriInspector",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.modules.animation",
+            "expression": "0.0.1",
+            "define": "TRI_MODULE_ANIMATION"
+        }
+    ],
+    "noEngineReferences": false
+}

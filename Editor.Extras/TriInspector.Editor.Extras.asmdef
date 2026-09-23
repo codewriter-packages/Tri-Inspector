@@ -1,0 +1,26 @@
+{
+  "name": "TriInspector.Editor.Extras",
+  "rootNamespace": "",
+  "references": [
+    "TriInspector",
+    "TriInspector.Editor",
+    "Unity.InternalAPIEditorBridge.013"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": true,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "com.unity.modules.animation",
+      "expression": "0.0.1",
+      "define": "TRI_MODULE_ANIMATION"
+    }
+  ],
+  "noEngineReferences": false
+}

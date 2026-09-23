@@ -1,0 +1,21 @@
+.tri-preview-object {
+    flex-shrink: 0;
+}
+
+.tri-preview-object--with-field {
+    margin-left: 4px;
+}
+
+.tri-preview-object__row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.tri-preview-object__next {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-top: 0;
+    margin-bottom: 0;
+}

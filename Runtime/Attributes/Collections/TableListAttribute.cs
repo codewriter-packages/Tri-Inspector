@@ -1,0 +1,13 @@
+﻿using System;
+using System.Diagnostics;
+
+namespace TriInspector
+{
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [Conditional("UNITY_EDITOR")]
+    public class TableListAttribute : CollectionDrawerSettingsAttribute
+    {
+        public string[] Labels { get; set; }
+        public float[] Sizes { get; set; }
+    }
+}

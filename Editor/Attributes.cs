@@ -1,0 +1,77 @@
+﻿using System;
+using JetBrains.Annotations;
+
+namespace TriInspector
+{
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriValueDrawerAttribute : Attribute
+    {
+        public RegisterTriValueDrawerAttribute(int order)
+        {
+            Order = order;
+        }
+
+        public int Order { get; }
+        public bool ApplyOnArrayElement { get; set; } = true;
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriAttributeDrawerAttribute : Attribute
+    {
+        public RegisterTriAttributeDrawerAttribute(int order)
+        {
+            Order = order;
+        }
+
+        public int Order { get; }
+        public bool ApplyOnArrayElement { get; set; }
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriGroupDrawerAttribute : Attribute
+    {
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriPropertyHideProcessor : Attribute
+    {
+        public bool ApplyOnArrayElement { get; set; }
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriPropertyDisableProcessor : Attribute
+    {
+        public bool ApplyOnArrayElement { get; set; }
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriValueValidatorAttribute : Attribute
+    {
+        public bool ApplyOnArrayElement { get; set; } = true;
+    }
+
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriAttributeValidatorAttribute : Attribute
+    {
+        public bool ApplyOnArrayElement { get; set; }
+    }
+    
+    [MeansImplicitUse]
+    [AttributeUsage(AttributeTargets.Class)]
+    public class RegisterTriTypeProcessorAttribute : Attribute
+    {
+        public RegisterTriTypeProcessorAttribute(int order)
+        {
+            Order = order;
+        }
+
+        public int Order { get; }
+    }
+}
