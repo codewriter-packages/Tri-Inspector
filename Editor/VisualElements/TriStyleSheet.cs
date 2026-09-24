@@ -6,6 +6,9 @@ namespace TriInspector.VisualElements
 {
     internal static class TriStyleSheet
     {
+        private const string ThemeDark = "tri-dark";
+        private const string ThemeLight = "tri-light";
+
         private static TriArray<StyleSheet>? _sheets;
 
         private static TriArray<StyleSheet> Sheets =>
@@ -20,6 +23,8 @@ namespace TriInspector.VisualElements
             {
                 element.styleSheets.Add(sheet);
             }
+
+            element.AddToClassList(EditorGUIUtility.isProSkin ? ThemeDark : ThemeLight);
         }
     }
 }

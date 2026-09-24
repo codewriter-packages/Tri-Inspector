@@ -69,7 +69,6 @@ namespace TriInspector
                 });
                 
                 TriStyleSheet.ApplyTo(_rootPropertyElement);
-                _rootPropertyElement.AddToClassList(EditorGUIUtility.isProSkin ? "tri-dark" : "tri-light");
             }
 
             return _rootPropertyElement;

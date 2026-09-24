@@ -42,7 +42,6 @@ namespace TriInspector.Editor.Samples
 
             var root = rootVisualElement;
             TriStyleSheet.ApplyTo(root);
-            root.AddToClassList(EditorGUIUtility.isProSkin ? "tri-dark" : "tri-light");
             root.AddToClassList(Styles.Samples);
 
             var leftPane = new VisualElement();
