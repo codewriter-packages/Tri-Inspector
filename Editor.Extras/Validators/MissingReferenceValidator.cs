@@ -11,11 +11,7 @@ namespace TriInspector.Validators
             if (propertyValue.Property.TryGetSerializedProperty(out var serializedProperty) &&
                 serializedProperty.propertyType == SerializedPropertyType.ObjectReference &&
                 serializedProperty.objectReferenceValue == null &&
-#if UNITY_6000_4_OR_NEWER
-                serializedProperty.objectReferenceEntityIdValue != EntityId.None
-#else
-                serializedProperty.objectReferenceInstanceIDValue != 0
-#endif
+                serializedProperty.GetObjectReferenceTriEntityID() != TriEntityID.None
             )
             {
                 return TriValidationResult.Warning($"{GetName(propertyValue.Property)} is missing");
