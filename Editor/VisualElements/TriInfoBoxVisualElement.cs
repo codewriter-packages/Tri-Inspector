@@ -1,5 +1,4 @@
 ﻿using System;
-using TriInspectorUnityInternalBridge;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,7 +13,7 @@ namespace TriInspector.VisualElements
             AddToClassList(TriStyles.InfoBox);
             AddToClassList(GetTypeClass(type));
 
-            var icon = EditorGUIUtilityProxy.GetHelpIcon(GetMessageType(type));
+            var icon = GetHelpIcon(type);
             if (icon != null)
             {
                 var image = new Image
@@ -48,15 +47,17 @@ namespace TriInspector.VisualElements
             }
         }
 
-        private static MessageType GetMessageType(TriMessageType type)
+        private static Texture2D GetHelpIcon(TriMessageType type)
         {
-            switch (type)
+            var iconName = type switch
             {
-                case TriMessageType.Info: return MessageType.Info;
-                case TriMessageType.Warning: return MessageType.Warning;
-                case TriMessageType.Error: return MessageType.Error;
-                default: return MessageType.None;
-            }
+                TriMessageType.Info => "console.infoicon",
+                TriMessageType.Warning => "console.warnicon",
+                TriMessageType.Error => "console.erroricon",
+                _ => null,
+            };
+
+            return iconName == null ? null : EditorGUIUtility.IconContent(iconName).image as Texture2D;
         }
     }
 }

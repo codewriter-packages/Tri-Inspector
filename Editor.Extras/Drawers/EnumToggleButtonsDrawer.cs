@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
+
 namespace TriInspector.Drawers
 {
     [RegisterTriAttributeDrawer(TriDrawerOrder.Drawer, ApplyOnArrayElement = true)]
@@ -81,6 +82,8 @@ namespace TriInspector.Drawers
                         },
                     });
                 }
+
+                contentContainer.style.flexWrap = Wrap.Wrap;
 
                 this.BindTri(_property, StateFromEnum, EnumFromState, hideLabel: true);
             }
