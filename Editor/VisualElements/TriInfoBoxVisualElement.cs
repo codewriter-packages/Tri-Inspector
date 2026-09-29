@@ -1,6 +1,5 @@
 ﻿using System;
-using TriInspectorUnityInternalBridge;
-using UnityEditor;
+using TriInspector.Utilities;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,7 +13,7 @@ namespace TriInspector.VisualElements
             AddToClassList(TriStyles.InfoBox);
             AddToClassList(GetTypeClass(type));
 
-            var icon = EditorGUIUtilityProxy.GetHelpIcon(GetMessageType(type));
+            var icon = type.GetIcon();
             if (icon != null)
             {
                 var image = new Image
@@ -45,17 +44,6 @@ namespace TriInspector.VisualElements
                 case TriMessageType.Error: return TriStyles.InfoBoxError;
                 case TriMessageType.Warning: return TriStyles.InfoBoxWarning;
                 default: return TriStyles.InfoBoxInfo;
-            }
-        }
-
-        private static MessageType GetMessageType(TriMessageType type)
-        {
-            switch (type)
-            {
-                case TriMessageType.Info: return MessageType.Info;
-                case TriMessageType.Warning: return MessageType.Warning;
-                case TriMessageType.Error: return MessageType.Error;
-                default: return MessageType.None;
             }
         }
     }
