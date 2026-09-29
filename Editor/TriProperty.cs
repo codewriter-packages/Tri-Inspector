@@ -800,6 +800,11 @@ namespace TriInspector
                 return TriPropertyType.Generic;
             }
 
+            if (property.IsRootProperty)
+            {
+                return TriPropertyType.Generic;
+            }
+
             if (property._definition.FieldType.IsPrimitive ||
                 property._definition.FieldType == typeof(string) ||
                 typeof(UnityEngine.Object).IsAssignableFrom(property._definition.FieldType))
