@@ -584,9 +584,22 @@ namespace TriInspector
             {
                 List<TriValidationResult> newResults = null;
 
+                var profilerHook = TriValidationProfilerHook.onValidatorRun;
+
                 foreach (var validator in _definition.Validators)
                 {
-                    var result = validator.Validate(this);
+                    TriValidationResult result;
+                    if (profilerHook != null)
+                    {
+                        var sw = System.Diagnostics.Stopwatch.StartNew();
+                        result = validator.Validate(this);
+                        profilerHook(validator.GetType().Name, this, sw.ElapsedTicks);
+                    }
+                    else
+                    {
+                        result = validator.Validate(this);
+                    }
+
                     if (!result.IsValid)
                     {
                         newResults ??= new List<TriValidationResult>();

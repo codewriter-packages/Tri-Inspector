@@ -3,6 +3,7 @@
 _Advanced inspector attributes for Unity_
 
 - [What's New in 2.0](#whats-new-in-20)
+  - [Tri Project Validator](#tri-project-validator)
 - [Samples](#Samples)
 - [Attributes](#Attributes)
 - [Integrations](#Integrations) ([Odin Inspector](#Odin-Inspector), [Odin Validator](#Odin-Validator))
@@ -23,8 +24,22 @@ _Advanced inspector attributes for Unity_
 - 🛠️ **Overall improvements and bug fixes** — a wide range of edge-case bugs have been resolved and internal systems have been hardened, resulting in a more stable and predictable inspector experience.
 - ↕️ **TableList is now reorderable** — rows in `[TableList]` can be dragged and reordered directly in the inspector, making list management significantly faster.
 - 📖 **Dictionary support** — dictionaries can now be displayed and edited in the inspector across all supported Unity versions. Starting from Unity 6.6, dictionaries are also fully serializable by Unity itself.
+- 🔍 **Tri Project Validator** — a brand-new validation window that runs every Tri attribute across your whole project, keeping it valid as you work and in CI. See [Tri Project Validator](#tri-project-validator) below.
 
 <img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/381f65f4-2e0c-4419-9739-ad16fdd4cbfc" />
+
+### Tri Project Validator
+
+The same validation attributes that power the inspector now drive a dedicated **Tri Validator** window that checks your whole project. Open it from `Tools/Tri Inspector/Validator`.
+
+- ✅ **Keep your project valid** — all issues are collected into one navigable tree so you can find and fix them before they ship.
+- 🗂️ **Validate the entire project** — scan all assets and scenes in one pass, with configurable scope.
+- ⚡ **Live validation while you work** — results stay current in the background as you edit, no manual rescan needed.
+- 🌳 **Hierarchy integration** — on Unity 6.6+, validation hooks into the new Hierarchy window as dedicated error and warning columns, showing per-GameObject issue counts right where you work (while the Tri Validator window is open).
+- 🤖 **CI/CD and Agents ready** — run a headless validation from code via `TriValidator.ValidateProjectAsJson()` to fail the build when issues slip in. When [Unity Pipeline](https://docs.unity3d.com/Packages/com.unity.pipeline@latest) is installed, validation is also exposed as Pipeline CLI commands, so an AI agent can run it and act on the JSON report:
+  - `unity command tri validate_project` — validate every in-scope asset and scene
+  - `unity command tri validate_scenes` — validate the currently open scenes
+  - `unity command tri validate_asset --global_id <id>` — validate a single asset by its `globalId`
 
 ## Samples
 

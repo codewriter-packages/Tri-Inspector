@@ -26,6 +26,8 @@ namespace TriInspector
 
         public int RepaintFrame { get; private set; } = 0;
 
+        public bool DisableModifications { get; protected set; }
+
         public virtual void Dispose()
         {
         }

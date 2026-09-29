@@ -1,0 +1,105 @@
+.tri-validator__toolbar {
+    flex-direction: row;
+    flex-shrink: 0;
+    padding: 2px;
+    background-color: var(--tri-color-header-background);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--tri-color-border);
+}
+
+.tri-validator__tree {
+    flex-grow: 1;
+}
+
+.tri-validator__row {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.tri-validator__row--root {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: var(--tri-color-border);
+    border-bottom-color: var(--tri-color-border);
+}
+
+.tri-validator__row--root .tri-validator__label {
+    -unity-font-style: bold;
+}
+
+.tri-validator__icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    flex-shrink: 0;
+}
+
+.tri-validator__content {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.tri-validator__content--component {
+    background-color: rgba(127, 214, 253, 0.15);
+    border-radius: 8px;
+    padding: 0 6px 0 3px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+.tri-validator__content--component .tri-validator__label {
+    -unity-font-style: italic;
+}
+
+.tri-validator__path-cell {
+    -unity-font-style: italic;
+    color: var(--tri-color-foldout-line);
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tri-validator__counter-header-icon {
+    width: 16px;
+    height: 16px;
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.tri-validator__counter-cell {
+    flex-grow: 1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.tri-validator__counter-chip {
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    min-width: 25px;
+    margin: 1px 0;
+    padding: 1px 6px 1px 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    color: var(--tri-color-foldout-line);
+}
+
+.tri-validator__counter-cell--error {
+    color: var(--tri-color-validation-error-text);
+}
+
+.tri-validator__counter-cell--warning {
+    color: var(--tri-color-validation-warning-text);
+}
+
+.tri-validator__label--error {
+    color: var(--tri-color-validation-error-text);
+}
+
+.tri-validator__label--warning {
+    color: var(--tri-color-validation-warning-text);
+}

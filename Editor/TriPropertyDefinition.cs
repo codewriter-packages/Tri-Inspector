@@ -182,7 +182,7 @@ namespace TriInspector
             {
                 value = TriUnitySerializationUtilities.PopulateUnityDefaultValueForType(FieldType);
 
-                if (value != null)
+                if (value != null && !property.PropertyTree.DisableModifications)
                 {
                     _valueSetter?.Invoke(property, targetIndex, value);
                 }
@@ -193,7 +193,7 @@ namespace TriInspector
 
         public bool SetValue(TriProperty property, object value, int targetIndex, out object parentValue)
         {
-            if (IsReadOnly)
+            if (IsReadOnly || property.PropertyTree.DisableModifications)
             {
                 Debug.LogError("Cannot set value for readonly property");
                 parentValue = default;

@@ -38,7 +38,7 @@ namespace TriInspector.Editor.Integrations.Odin
                     _odinValueEntry.Values[targetIndex] = (T) value;
                     return null;
                 },
-                attributes: new List<Attribute>(),
+                attributes: Array.Empty<Attribute>(),
                 isArrayElement: false
             );
             RootProperty = new TriProperty(this, null, RootPropertyDefinition, -1, _serializedProperty);
@@ -94,7 +94,6 @@ namespace TriInspector.Editor.Integrations.Odin
             _odinValueEntry.Values.ForceMarkDirty();
 
             RequestValidation();
-            RequestRepaint();
         }
 
         private void ApplyEmittedScriptableObject()
