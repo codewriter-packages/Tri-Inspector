@@ -36,7 +36,7 @@ Library distributed as git package ([How to install package from git URL](https:
 - 📖 **Dictionary support** — dictionaries can now be displayed and edited in the inspector across all supported Unity versions. Starting from Unity 6.6, dictionaries are also fully serializable by Unity itself.
 - 🔍 **Tri Project Validator** — a brand-new validation window that runs every Tri attribute across your whole project, keeping it valid as you work and in CI. See [Tri Project Validator](#tri-project-validator) below.
 
-<img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/381f65f4-2e0c-4419-9739-ad16fdd4cbfc" />
+<img width="1000" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/381f65f4-2e0c-4419-9739-ad16fdd4cbfc" />
 
 ### Tri Project Validator
 
@@ -51,7 +51,7 @@ The same validation attributes that power the inspector now drive a dedicated **
   - `unity command tri validate_scenes` — validate the currently open scenes
   - `unity command tri validate_asset --global_id <id>` — validate a single asset by its `globalId`
 
-<img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/201f752c-9600-4f4e-918a-e5314d1e8a28" />
+<img width="1000" alt="Tri-Validator-Demo" src="https://github.com/user-attachments/assets/201f752c-9600-4f4e-918a-e5314d1e8a28" />
 
 ## Samples
 
