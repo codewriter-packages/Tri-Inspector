@@ -2,13 +2,23 @@
 
 _Advanced inspector attributes for Unity_
 
+- [How to Install](#How-to-Install)
 - [What's New in 2.0](#whats-new-in-20)
   - [Tri Project Validator](#tri-project-validator)
 - [Samples](#Samples)
 - [Attributes](#Attributes)
-- [Integrations](#Integrations) ([Odin Inspector](#Odin-Inspector), [Odin Validator](#Odin-Validator))
-- [How to Install](#How-to-Install)
+- [Extending Tri Inspector](#extending-tri-inspector)
 - [License](#License)
+
+## How to Install
+
+Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
+<br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
+
+> **Localization package dependency**<br/>
+> Tri Inspector automatically installs [Localization package](https://docs.unity3d.com/Packages/com.unity.localization@1.0/manual/index.html) as dependency.<br/>
+> If you are not using localization package and do not want to install it, you can install a stub package instead.<br/>
+> Git URL: https://github.com/codewriter-packages/Unity-Localization-Stub-for-Tri-Inspector.git
 
 ## What's New in 2.0-preview
 
@@ -40,6 +50,8 @@ The same validation attributes that power the inspector now drive a dedicated **
   - `unity command tri validate_project` — validate every in-scope asset and scene
   - `unity command tri validate_scenes` — validate the currently open scenes
   - `unity command tri validate_asset --global_id <id>` — validate a single asset by its `globalId`
+
+<img width="1000" height="934" alt="Tri-Inspector-Demo" src="https://github.com/user-attachments/assets/201f752c-9600-4f4e-918a-e5314d1e8a28" />
 
 ## Samples
 
@@ -156,37 +168,76 @@ Groups can be freely nested and combined to build complex, multi-region inspecto
 
 ![VerticalGroup](https://user-images.githubusercontent.com/26966368/177550644-9d0dc2b7-ed18-4d8f-997d-c4fff2c6d6cb.png)
 
-## Integrations
+## Extending Tri Inspector
 
-### Odin Inspector
+Tri Inspector uses a unified extensibility model — the same validators, drawers and processors that power the built-in attributes are available to you. Everything shipped in the package is written against the same base classes you extend, so your extensions work everywhere, including the [Tri Project Validator](#tri-project-validator). Each extension is a class marked with a registration attribute and discovered automatically.
 
-Tri Inspector is able to work in compatibility mode with Odin Inspector.
-In this mode, the primary interface will be drawn by the Odin Inspector. However,
-parts of the interface can be rendered by the Tri Inspector.
+### Unified validation system
 
-In order for the interface to be rendered by Tri instead of Odin,
-it is necessary to mark classes with `[DrawWithTriInspector]` attribute.
+Validation is a shared pipeline you can plug into at two levels:
 
-Alternatively, you can mark the entire assembly with an attribute `[assembly:DrawWithTriInspector]`
-to draw all types in the assembly using the Tri Inspector.
+- **`TriValueValidator<T>`** — validate every property of a given type `T`. Register with `[RegisterTriValueValidator]`.
+- **`TriAttributeValidator<TAttribute>`** — validate properties marked with your own attribute `TAttribute`. Register with `[RegisterTriAttributeValidator]`.
 
-### Odin Validator
+```csharp
+[RegisterTriAttributeValidator]
+public class NotEmptyValidator : TriAttributeValidator<NotEmptyAttribute>
+{
+    public override TriValidationResult Validate(TriProperty property)
+    {
+        if (string.IsNullOrEmpty(property.Value as string))
+            return TriValidationResult.Error($"{property.DisplayName} must not be empty");
 
-Tri Inspector is integrated with the Odin Validator
-so all validation results from Tri attributes will be shown
-in the Odin Validator window.
+        return TriValidationResult.Valid;
+    }
+}
+```
 
-![Odin-Validator-Integration](https://user-images.githubusercontent.com/26966368/169645537-d8f0b50f-46af-4804-95e8-337ff3b5ae83.png)
+Every result you return appears both inline in the inspector and in the project-wide Tri Validator window.
 
-## How to Install
+### Custom drawers
 
-Library distributed as git package ([How to install package from git URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html))
-<br>Git URL: `https://github.com/codewriter-packages/Tri-Inspector.git`
+You can control how a property is rendered at two levels:
 
-> **Localization package dependency**<br/>
-> Tri Inspector automatically installs [Localization package](https://docs.unity3d.com/Packages/com.unity.localization@1.0/manual/index.html) as dependency.<br/>
-> If you are not using localization package and do not want to install it, you can install a stub package instead.<br/>
-> Git URL: https://github.com/codewriter-packages/Unity-Localization-Stub-for-Tri-Inspector.git
+- **`TriValueDrawer<T>`** — draw every property of type `T`. Use this to provide a custom UI Toolkit element for your own serializable types.
+- **`TriAttributeDrawer<TAttribute>`** — draw or decorate properties marked with your attribute `TAttribute`, with typed access to the attribute via `Attribute`. Use `TriDrawerOrder` to control whether your drawer replaces the field, decorates it, or wraps the whole inspector element.
+
+```csharp
+[RegisterTriAttributeDrawer(TriDrawerOrder.Drawer)]
+public class MyAttributeDrawer : TriAttributeDrawer<MyAttribute>
+{
+    public override VisualElement CreateVisualElement(TriProperty property, VisualElement next)
+    {
+        // return your own UI Toolkit VisualElement
+    }
+}
+```
+
+Register value drawers with `[RegisterTriValueDrawer]` and attribute drawers with `[RegisterTriAttributeDrawer]`.
+
+### Type processors
+
+For the most advanced cases, **`TriTypeProcessor`** operates at the structural level, before any drawing happens. A processor receives a type and the list of `TriPropertyDefinition`s being built for it, so you can add, remove, reorder or inject properties. This is the same mechanism Tri Inspector uses internally to gather fields, properties and buttons. Register with `[RegisterTriTypeProcessor(order)]`, where `order` controls when your processor runs relative to the built-in ones.
+
+```csharp
+[RegisterTriTypeProcessor(10000)]
+public class MyTypeProcessor : TriTypeProcessor
+{
+    public override void ProcessType(Type type, List<TriPropertyDefinition> properties)
+    {
+        // inspect and modify the property definitions for `type`
+    }
+}
+```
+
+### Examples
+
+Every built-in attribute is implemented with these same extension points, so the package source is the best reference. Browse the implementations here:
+
+- [Editor.Extras/Drawers](./Editor.Extras/Drawers) — value and attribute drawers
+- [Editor.Extras/GroupDrawers](./Editor.Extras/GroupDrawers) — group drawers
+- [Editor.Extras/Validators](./Editor.Extras/Validators) — value and attribute validators
+- [Editor.Extras/Processors](./Editor.Extras/Processors) — property hide/disable processors
 
 ## License
 
