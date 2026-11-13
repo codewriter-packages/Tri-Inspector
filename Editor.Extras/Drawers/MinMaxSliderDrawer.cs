@@ -40,6 +40,8 @@ namespace TriInspector.Drawers
             private readonly MinMaxSlider _slider;
             private readonly FloatField _maxField;
 
+            private bool _refreshing;
+
             public MinMaxSliderVisualElement(TriProperty property, MinMaxSliderAttribute attribute,
                 MinMaxSliderAttributeHelpers.SliderResolvers resolvers)
             {
@@ -85,6 +87,13 @@ namespace TriInspector.Drawers
 
             private void ApplyValue(float x, float y)
             {
+                // Changing slider limits in RefreshFromProperty clamps its stale value and fires a change event.
+                // Writing that clamped value would overwrite the property on every inspector rebuild.
+                if (_refreshing)
+                {
+                    return;
+                }
+
                 var (minLimit, maxLimit) = GetLimits();
 
                 x = Mathf.Clamp(x, (float) minLimit, Mathf.Min((float) maxLimit, y));
@@ -95,6 +104,19 @@ namespace TriInspector.Drawers
             }
 
             private void RefreshFromProperty()
+            {
+                _refreshing = true;
+                try
+                {
+                    RefreshFromPropertyInternal();
+                }
+                finally
+                {
+                    _refreshing = false;
+                }
+            }
+
+            private void RefreshFromPropertyInternal()
             {
                 var (minLimit, maxLimit) = GetLimits();
 
