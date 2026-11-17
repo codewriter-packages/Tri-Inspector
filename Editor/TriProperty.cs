@@ -693,8 +693,52 @@ namespace TriInspector
             }
         }
 
+#if UNITY_6000_6_OR_NEWER
+        private static bool TrySetValueInSerializedDictionary(TriProperty property, object value)
+        {
+            if (!property.TryGetSerializedProperty(out var serializedProperty))
+            {
+                return false;
+            }
+
+            if (serializedProperty.propertyType == SerializedPropertyType.Generic ||
+                serializedProperty.propertyType == SerializedPropertyType.ManagedReference ||
+                (serializedProperty.isArray && serializedProperty.propertyType != SerializedPropertyType.String))
+            {
+                return false;
+            }
+
+            var isInsideSerializedDictionary = false;
+
+            for (var parent = property.Parent; parent != null; parent = parent.Parent)
+            {
+                if (parent.IsDictionary && parent.TryGetSerializedProperty(out _))
+                {
+                    isInsideSerializedDictionary = true;
+                    break;
+                }
+            }
+
+            if (!isInsideSerializedDictionary)
+            {
+                return false;
+            }
+
+            serializedProperty.boxedValue = value;
+            serializedProperty.serializedObject.ApplyModifiedProperties();
+            return true;
+        }
+#endif
+
         private static void SetValueRecursive(TriProperty property, object value, int targetIndex)
         {
+#if UNITY_6000_6_OR_NEWER
+            if (TrySetValueInSerializedDictionary(property, value))
+            {
+                return;
+            }
+#endif
+
             // for value types we must recursively set all parent objects
             // because we cannot directly modify structs
             // but we can re-set entire parent value
