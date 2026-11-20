@@ -31,6 +31,14 @@ namespace TriInspector.Validators
                 return TriValidationResult.Valid;
             }
 
+            // Children of the prefab being inspected are scene objects once the prefab is instantiated.
+            if (serializedProperty != null &&
+                serializedProperty.serializedObject.targetObject is var owner && owner != null &&
+                AssetDatabase.GetAssetPath(owner) == AssetDatabase.GetAssetPath(obj))
+            {
+                return TriValidationResult.Valid;
+            }
+
             return TriValidationResult.Error($"{obj} cannot be an asset.");
         }
     }
